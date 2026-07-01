@@ -111,11 +111,11 @@ export const BUILDING_LAYERS: Record<Tematica, string> = {
 export type Polygon = ReadonlyArray<readonly [number, number]>;
 
 export const BUILDING_HITBOX_POLYGONS: Record<Tematica, Polygon> = {
-  educacion: [[0.72, 0.11], [0.865, 0.25], [0.70, 0.41], [0.585, 0.27]], // edificio rojo (arriba-der)
-  salud: [[0.37, 0.12], [0.46, 0.26], [0.33, 0.44], [0.235, 0.30]], // torres (arriba-izq)
-  trabajo: [[0.28, 0.47], [0.36, 0.60], [0.26, 0.75], [0.185, 0.60]], // torre marrón (abajo-izq)
-  economia: [[0.70, 0.52], [0.805, 0.64], [0.675, 0.78], [0.585, 0.65]], // edificio clásico (abajo-der)
-  seguridad: [[0.17, 0.37], [0.235, 0.46], [0.14, 0.55], [0.075, 0.46]], // POLICÍA (izq)
+  educacion: [[0.725, 0.135], [0.845, 0.25], [0.695, 0.385], [0.605, 0.275]], // edificio rojo (arriba-der)
+  salud: [[0.375, 0.125], [0.45, 0.25], [0.335, 0.39], [0.26, 0.275]], // torres (arriba-izq)
+  trabajo: [[0.275, 0.475], [0.335, 0.575], [0.26, 0.69], [0.205, 0.585]], // torre marrón (abajo-izq)
+  economia: [[0.705, 0.535], [0.795, 0.64], [0.68, 0.765], [0.595, 0.655]], // edificio clásico (abajo-der)
+  seguridad: [[0.165, 0.38], [0.225, 0.45], [0.145, 0.53], [0.085, 0.455]], // POLICÍA (izq)
 };
 
 /** Centroide (promedio de vértices) de un polígono, en fracciones. */

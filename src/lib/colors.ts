@@ -8,18 +8,18 @@ import { picaColors, tematicas } from '../../config/tailwind.colors';
 import type { Tematica } from '@/types/sprites';
 
 /**
- * Los 16 colores disponibles para los sprites y puntos de colores:
- * tono 100 (claro) + 400 (pleno) de cada una de las 8 paletas.
+ * Colores disponibles para los puntos: SOLO el tono 400 (saturado e intenso)
+ * de cada una de las 8 paletas. Se descartan los tonos 100 (pasteles claros).
  */
 export const SPRITE_COLORS: readonly string[] = [
-  picaColors.blue[100], picaColors.blue[400],
-  picaColors.pink[100], picaColors.pink[400],
-  picaColors.purple[100], picaColors.purple[400],
-  picaColors.red[100], picaColors.red[400],
-  picaColors.yellow[100], picaColors.yellow[400],
-  picaColors.green[100], picaColors.green[400],
-  picaColors.cyan[100], picaColors.cyan[400],
-  picaColors.orange[100], picaColors.orange[400],
+  picaColors.blue[400],
+  picaColors.pink[400],
+  picaColors.purple[400],
+  picaColors.red[400],
+  picaColors.yellow[400],
+  picaColors.green[400],
+  picaColors.cyan[400],
+  picaColors.orange[400],
 ] as const;
 
 /** Color pleno (tono 400) de cada temática. */

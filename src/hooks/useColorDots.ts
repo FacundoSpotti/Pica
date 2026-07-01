@@ -24,19 +24,20 @@ type Pct = { x: number; y: number };
  * pendiente ≈ ±0.9 en coordenadas fraccionarias.
  */
 const STREET_PATHS: ReadonlyArray<ReadonlyArray<[number, number]>> = [
-  // Anillo interior — avenidas que rodean el Palacio (junctions N/E/S/O)
-  [[0.50, 0.30], [0.61, 0.385], [0.70, 0.47]], // N → E
-  [[0.70, 0.47], [0.605, 0.565], [0.50, 0.66]], // E → S
-  [[0.50, 0.66], [0.405, 0.565], [0.31, 0.47]], // S → O
-  [[0.31, 0.47], [0.405, 0.385], [0.50, 0.30]], // O → N
-  // Anillo exterior — avenidas entre el superblock central y las manzanas
-  [[0.05, 0.47], [0.28, 0.30], [0.50, 0.13]], // izq → arriba
-  [[0.50, 0.13], [0.72, 0.30], [0.90, 0.47]], // arriba → der
-  [[0.90, 0.47], [0.70, 0.685], [0.50, 0.90]], // der → abajo
-  [[0.05, 0.47], [0.28, 0.685], [0.50, 0.90]], // izq → abajo
-  // Conectores verticales (calles que se alejan del observador)
-  [[0.50, 0.13], [0.50, 0.30]], // arriba → N
-  [[0.50, 0.66], [0.50, 0.90]], // S → abajo
+  // Trazadas sobre las líneas rojas del mapa de calles (Image 2), en % del stage.
+  // Anillo alrededor del Palacio — junctions N(0.49,0.33) E(0.66,0.47) S(0.49,0.62) O(0.33,0.47)
+  [[0.49, 0.33], [0.585, 0.40], [0.66, 0.47]], // N → E
+  [[0.66, 0.47], [0.575, 0.545], [0.49, 0.62]], // E → S
+  [[0.49, 0.62], [0.41, 0.545], [0.33, 0.47]], // S → O
+  [[0.33, 0.47], [0.41, 0.40], [0.49, 0.33]], // O → N
+  // Avenidas verticales (promenades central-superior y central-inferior)
+  [[0.49, 0.13], [0.49, 0.33]], // arriba → N
+  [[0.49, 0.62], [0.49, 0.88]], // S → abajo
+  // Radiales diagonales desde los junctions laterales hacia las esquinas
+  [[0.33, 0.47], [0.19, 0.35], [0.05, 0.23]], // O → arriba-izq
+  [[0.33, 0.47], [0.19, 0.61], [0.05, 0.73]], // O → abajo-izq
+  [[0.66, 0.47], [0.80, 0.35], [0.95, 0.23]], // E → arriba-der
+  [[0.66, 0.47], [0.80, 0.61], [0.95, 0.73]], // E → abajo-der
 ];
 
 // ── Precálculo de longitudes por path ────────────────────────────────────────

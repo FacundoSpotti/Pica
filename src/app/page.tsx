@@ -39,12 +39,14 @@ export default function HomePage() {
 
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-bg-base">
-      {/* Stage con la relación de aspecto del landscape, dimensionado para cubrir */}
+      {/* Stage: landscape CONTENIDO (no full-bleed), centrado con margen oscuro.
+          Mantiene la relación de aspecto y entra completo en el viewport dejando
+          espacio para la nav (arriba) y la ColorBar (abajo). */}
       <div
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl"
         style={{
-          width: `max(100vw, calc(100vh * ${ASPECT}))`,
-          height: `max(100vh, calc(100vw / ${ASPECT}))`,
+          width: `min(90vw, calc((100vh - 170px) * ${ASPECT}))`,
+          height: `min(100vh - 170px, calc(90vw / ${ASPECT}))`,
         }}
       >
         <CityLandscape selectedTema={selected?.tema ?? null} onSelect={handleSelect} />

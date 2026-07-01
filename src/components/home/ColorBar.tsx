@@ -23,8 +23,10 @@ export default function ColorBar() {
             className="h-full flex-1"
             title={active ? TEMA_LABEL[tema] : `${TEMA_LABEL[tema]} — Próximamente`}
             style={{
-              backgroundColor: active ? TEMA_COLOR[tema] : '#3A3A38',
-              opacity: active ? 1 : 0.5,
+              // Los 5 colores siempre presentes; los V2 (economía, seguridad)
+              // atenuados para indicar "próximamente".
+              backgroundColor: TEMA_COLOR[tema],
+              opacity: active ? 1 : 0.35,
             }}
           >
             <span className="sr-only">
