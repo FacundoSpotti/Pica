@@ -1,0 +1,107 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   PICA — variables globales
+   Base de la UI: blanco/negro. Los colores de acento son exclusivos de datos.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* Fondo — no negro puro (ver pica-ui) */
+  --bg-base: #0A0A0A;
+
+  /* Texto sobre fondo oscuro — ratios verificados en pica-accessibility */
+  --text-primary: #EBEBEB;   /* 16.8:1 — texto principal */
+  --text-secondary: #A0A09A; /* 5.8:1  — texto de apoyo */
+  --text-muted: #606058;     /* 3.2:1  — hints, placeholders (solo texto grande) */
+
+  /* Fuentes (cargadas vía next/font en layout.tsx) */
+  --font-body: var(--font-vt323);
+  --font-display: var(--font-handjet);
+
+  /* Colores por temática — tono 400 (ver tailwind.colors.ts) */
+  --color-educacion: #2B49DD; /* blue 400 */
+  --color-trabajo: #FFC300;   /* yellow 400 */
+  --color-salud: #A8DD2B;     /* green 400 */
+  --color-economia: #FF7A27;  /* orange 400 (V2) */
+  --color-seguridad: #FF4A4D; /* red 400 (V2) */
+}
+
+/* ── Reset base ──────────────────────────────────────────────────────────── */
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-body), monospace;
+  /* Los pixel fonts se leen mejor con ligero tracking */
+  letter-spacing: 0.02em;
+  -webkit-font-smoothing: none;
+  text-rendering: optimizeSpeed;
+}
+
+/* ── Pixel art: OBLIGATORIO en canvas y sprites ──────────────────────────── */
+
+canvas,
+img[data-pixelated='true'] {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* ── Screen reader only ──────────────────────────────────────────────────── */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ── Focus visible — SIEMPRE visible (nunca outline:none sin reemplazo) ──── */
+
+:focus-visible {
+  outline: 2px solid var(--color-trabajo); /* yellow 400 — alto contraste */
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ── prefers-reduced-motion ──────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── prefers-contrast (Apple HIG) ────────────────────────────────────────── */
+
+@media (prefers-contrast: more) {
+  :root {
+    --text-primary: #FFFFFF;
+    --text-secondary: #EBEBEB;
+  }
+
+  body {
+    font-weight: 500;
+  }
+
+  button,
+  [role='button'],
+  a {
+    outline: 1px solid currentColor;
+  }
+}
