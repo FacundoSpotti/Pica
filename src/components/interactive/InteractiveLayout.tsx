@@ -16,6 +16,7 @@
 import { useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { motion, useReducedMotion } from 'framer-motion';
 import EntityScroller from './EntityScroller';
 import CharacteristicExplorer from './CharacteristicExplorer';
 import PixelIcon from '@/components/shared/PixelIcon';
@@ -34,6 +35,7 @@ import type { Tematica } from '@/types/sprites';
 export default function InteractiveLayout() {
   const router = useRouter();
   const params = useSearchParams();
+  const shouldReduce = useReducedMotion();
 
   // Parseo defensivo de la URL
   const temaParam = params.get('tema');
@@ -59,9 +61,45 @@ export default function InteractiveLayout() {
 
   return (
     <main className="flex h-screen w-screen flex-col overflow-hidden bg-bg-base">
-      {/* Nav superior */}
-      <header className="z-10 flex items-center justify-between p-6">
-        <div className="flex items-center gap-6">
+      {/* Nav superior: al elegir temática el logo viaja al CENTRO (animación
+          de layout con spring, ver pica-ui) y "Nosotros" desaparece — dentro
+          de los datos no importa nada más que los datos. */}
+      <header className="z-10 grid grid-cols-3 items-center p-6">
+        {/* Breadcrumb (izquierda) cuando hay temática */}
+        {tema && (
+          <nav
+            aria-label="Ubicación"
+            className="flex items-center gap-2 justify-self-start font-sans text-pica-paragraph"
+            style={{ gridColumn: 1, gridRow: 1 }}
+          >
+            <button
+              type="button"
+              onClick={() => setParams({})}
+              className="underline-offset-4 hover:underline"
+              style={{ color: TEMA_COLOR[tema] }}
+            >
+              {TEMA_LABEL[tema]}
+            </button>
+            {entidad && (
+              <>
+                <span aria-hidden="true" className="text-text-muted">/</span>
+                <span className="text-text-secondary">{entidad}</span>
+              </>
+            )}
+          </nav>
+        )}
+
+        {/* Logo: izquierda en el selector, centro dentro de una temática */}
+        <motion.div
+          layout
+          transition={
+            shouldReduce
+              ? { duration: 0 }
+              : { type: 'spring', stiffness: 300, damping: 30 }
+          }
+          className={tema ? 'justify-self-center' : 'justify-self-start'}
+          style={{ gridColumn: tema ? 2 : 1, gridRow: 1 }}
+        >
           <Link href="/" aria-label="Pica — inicio">
             <img
               src={assetUrl(LOGOS.navbar.light)}
@@ -70,33 +108,19 @@ export default function InteractiveLayout() {
               style={{ imageRendering: 'pixelated' }}
             />
           </Link>
-          {/* Breadcrumb del estado actual */}
-          {tema && (
-            <nav aria-label="Ubicación" className="flex items-center gap-2 font-sans text-pica-paragraph">
-              <button
-                type="button"
-                onClick={() => setParams({})}
-                className="underline-offset-4 hover:underline"
-                style={{ color: TEMA_COLOR[tema] }}
-              >
-                {TEMA_LABEL[tema]}
-              </button>
-              {entidad && (
-                <>
-                  <span aria-hidden="true" className="text-text-muted">/</span>
-                  <span className="text-text-secondary">{entidad}</span>
-                </>
-              )}
-            </nav>
-          )}
-        </div>
-        <Link
-          href="/nosotros"
-          className="flex items-center gap-2 font-display text-pica-button text-text-primary underline-offset-4 hover:underline"
-        >
-          <PixelIcon name="users" size={20} />
-          Nosotros
-        </Link>
+        </motion.div>
+
+        {/* Nosotros: solo en el selector de temáticas */}
+        {!tema && (
+          <Link
+            href="/nosotros"
+            className="flex items-center gap-2 justify-self-end font-display text-pica-button text-text-primary underline-offset-4 hover:underline"
+            style={{ gridColumn: 3, gridRow: 1 }}
+          >
+            <PixelIcon name="users" size={20} />
+            Nosotros
+          </Link>
+        )}
       </header>
 
       <div className="min-h-0 flex-1">
