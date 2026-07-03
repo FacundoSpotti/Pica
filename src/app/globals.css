@@ -74,6 +74,27 @@ img[data-pixelated='true'] {
   border-radius: 2px;
 }
 
+/* ── Ojos del logo: mirada + parpadeo pasivos (ver PicaLogo) ─────────────── */
+
+@keyframes pica-eye-cycle {
+  0%, 32% { transform: translateX(0) scaleY(1); }
+  36%, 44% { transform: translateX(-2.5px) scaleY(1); }
+  48%, 56% { transform: translateX(2.5px) scaleY(1); }
+  60%, 88% { transform: translateX(0) scaleY(1); }
+  91%, 94% { transform: translateX(0) scaleY(0.12); } /* parpadeo */
+  97%, 100% { transform: translateX(0) scaleY(1); }
+}
+
+.pica-eye {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pica-eye-cycle 5.5s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pica-eye { animation: none; }
+}
+
 /* ── prefers-reduced-motion ──────────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {

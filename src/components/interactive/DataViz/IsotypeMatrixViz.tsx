@@ -15,6 +15,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { interpolateRgb } from 'd3';
 import { TEMA_PALETTE, textOnColor } from '@/lib/colors';
 import { figureCount, matrixScale, perLabel } from '@/lib/isotype';
 import { useSpriteWalkers, type WalkerTarget } from '@/hooks/useSpriteWalkers';
@@ -147,11 +148,18 @@ export default function IsotypeMatrixViz({ data }: { data: DatasetMatriz }) {
       acc += w + SLOT_GAP;
     });
 
+    // Tonalidad por fila: cada año usa una variación del color de su columna
+    // (el más reciente a color pleno, los anteriores progresivamente apagados)
+    // — marca la diferencia entre grupos de distintos años sin perder la
+    // identidad de la categoría. Práctica a repetir en el resto del sitio.
+    const shadeFor = (base: string, v: number) =>
+      interpolateRgb(base, '#0A0A0A')((0.42 * (vLabels.length - 1 - v)) / Math.max(1, vLabels.length - 1));
+
     const rows = vLabels.map((vLabel, v) => {
       const targets: WalkerTarget[] = [];
       hLabels.forEach((_, h) => {
         const n = m.counts[v]![h]!;
-        const color = palette[h % palette.length]!;
+        const color = shadeFor(palette[h % palette.length]!, v);
         for (let j = 0; j < n; j++) {
           targets.push({
             x: slotX[h]! + Math.floor(j / CELL_ROWS) * PITCH_X - C_MIN_X * SCALE,

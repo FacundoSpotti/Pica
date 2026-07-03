@@ -9,6 +9,7 @@
 
 import { useRef, useState } from 'react';
 import EntityIcon from '@/components/interactive/EntityIcon';
+import PixelIcon from '@/components/shared/PixelIcon';
 import { TEMA_COLOR } from '@/lib/colors';
 import { getCaracteristicas } from '@/lib/datasets';
 import type { Tematica } from '@/types/sprites';
@@ -101,9 +102,14 @@ export default function EntityScroller({ tema, entidades, onSelect }: EntityScro
               {count} {count === 1 ? 'característica' : 'características'} para explorar
             </p>
             {i < entidades.length - 1 && (
-              <p aria-hidden="true" className="mt-8 animate-bounce font-sans text-pica-paragraph text-text-muted">
-                ↓
-              </p>
+              <button
+                type="button"
+                onClick={() => scrollToIndex(i + 1)}
+                aria-label="Bajar a la siguiente entidad"
+                className="mt-8 animate-bounce"
+              >
+                <PixelIcon name="arrowDownCircle" size={48} color={color} />
+              </button>
             )}
           </section>
         );

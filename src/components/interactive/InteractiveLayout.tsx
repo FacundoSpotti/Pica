@@ -13,13 +13,14 @@
 // Los cambios usan router.replace (sin recargar).
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, useReducedMotion } from 'framer-motion';
 import EntityScroller from './EntityScroller';
 import CharacteristicExplorer from './CharacteristicExplorer';
 import PixelIcon from '@/components/shared/PixelIcon';
+import PicaLogo from '@/components/shared/PicaLogo';
 import { assetUrl, LOGOS, THEME_STATIC } from '@/lib/assets';
 import {
   ACTIVE_TEMAS,
@@ -36,6 +37,14 @@ export default function InteractiveLayout() {
   const router = useRouter();
   const params = useSearchParams();
   const shouldReduce = useReducedMotion();
+
+  // Vuelo del logo: durante el desplazamiento se muestra la versión DIAGONAL
+  // (asset "Animación" — la inclinada es para transición, ver pica-ui)
+  const [logoFlying, setLogoFlying] = useState(false);
+  // Al llegar con ?tema= ya seteado (ej. desde el Home), el logo arranca a la
+  // izquierda y vuela al centro tras el mount — nunca aparece de repente.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   // Parseo defensivo de la URL
   const temaParam = params.get('tema');
@@ -89,26 +98,40 @@ export default function InteractiveLayout() {
           </nav>
         )}
 
-        {/* Logo: izquierda en el selector, centro dentro de una temática */}
-        <motion.div
-          layout
-          transition={
-            shouldReduce
-              ? { duration: 0 }
-              : { type: 'spring', stiffness: 300, damping: 30 }
-          }
-          className={tema ? 'justify-self-center' : 'justify-self-start'}
-          style={{ gridColumn: tema ? 2 : 1, gridRow: 1 }}
-        >
-          <Link href="/" aria-label="Pica — inicio">
-            <img
-              src={assetUrl(LOGOS.navbar.light)}
-              alt="Pica"
-              className="h-10 w-auto"
-              style={{ imageRendering: 'pixelated' }}
-            />
-          </Link>
-        </motion.div>
+        {/* Logo: izquierda en el selector, centro dentro de una temática.
+            Mientras vuela se muestra la versión diagonal (swap de asset). */}
+        {(() => {
+          const centered = Boolean(tema) && mounted;
+          return (
+            <motion.div
+              layout
+              onLayoutAnimationStart={() => setLogoFlying(true)}
+              onLayoutAnimationComplete={() => setLogoFlying(false)}
+              transition={
+                shouldReduce
+                  ? { duration: 0 }
+                  : { type: 'spring', stiffness: 110, damping: 20 } // vuelo pausado
+              }
+              className={centered ? 'justify-self-center' : 'justify-self-start'}
+              style={{ gridColumn: centered ? 2 : 1, gridRow: 1 }}
+            >
+              <Link href="/" aria-label="Pica — inicio">
+                {logoFlying && !shouldReduce ? (
+                  // En vuelo: versión diagonal del logo
+                  <img
+                    src={assetUrl(LOGOS.animacion.navbar.light)}
+                    alt="Pica"
+                    className="h-10 w-auto"
+                    style={{ imageRendering: 'pixelated' }}
+                  />
+                ) : (
+                  // En reposo: logo inline con ojos vivos (mirada + parpadeo)
+                  <PicaLogo className="h-10 w-auto text-text-primary" />
+                )}
+              </Link>
+            </motion.div>
+          );
+        })()}
 
         {/* Nosotros: solo en el selector de temáticas */}
         {!tema && (

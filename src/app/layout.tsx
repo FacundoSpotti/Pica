@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { VT323, Handjet } from 'next/font/google';
+import { assetUrl, LOGOS } from '@/lib/assets';
 import './globals.css';
 
 // ── Fuentes ──────────────────────────────────────────────────────────────────
@@ -29,6 +30,21 @@ export const metadata: Metadata = {
   applicationName: 'Pica',
   authors: [{ name: 'Facundo Spotti' }],
   keywords: ['Uruguay', 'datos', 'visualización', 'INE', 'pixel art', 'The Pudding'],
+  // Favicon: isotipo negro para pestañas claras, blanco para oscuras
+  icons: {
+    icon: [
+      {
+        url: assetUrl(LOGOS.isotipo.favicon.dark),
+        media: '(prefers-color-scheme: light)',
+        type: 'image/svg+xml',
+      },
+      {
+        url: assetUrl(LOGOS.isotipo.favicon.light),
+        media: '(prefers-color-scheme: dark)',
+        type: 'image/svg+xml',
+      },
+    ],
+  },
 };
 
 export const viewport: Viewport = {

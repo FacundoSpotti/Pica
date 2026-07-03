@@ -24,6 +24,7 @@ import ThemeOverlay from '@/components/home/ThemeOverlay';
 import PathCalibrator from '@/components/home/PathCalibrator';
 import HitboxCalibrator from '@/components/home/HitboxCalibrator';
 import PixelIcon from '@/components/shared/PixelIcon';
+import PicaLogo from '@/components/shared/PicaLogo';
 import { assetUrl, LANDSCAPE_SIZE, LOGOS } from '@/lib/assets';
 import type { Tematica } from '@/types/sprites';
 
@@ -91,12 +92,7 @@ export default function HomePage() {
       {/* Navegación — logo a la izquierda + link a Nosotros */}
       <header className="absolute inset-x-0 top-0 z-30 flex items-center justify-between p-6">
         <Link href="/" aria-label="Pica — inicio">
-          <img
-            src={assetUrl(LOGOS.navbar.light)}
-            alt="Pica"
-            className="h-12 w-auto"
-            style={{ imageRendering: 'pixelated' }}
-          />
+          <PicaLogo className="h-12 w-auto text-text-primary" />
         </Link>
         <Link
           href="/nosotros"
