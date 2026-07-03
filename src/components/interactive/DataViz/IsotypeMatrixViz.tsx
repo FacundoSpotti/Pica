@@ -1,17 +1,22 @@
 'use client';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// PICA — Tipo D isotype: matriz comparativa con PERSONAS
-// Grilla de mini-multitudes por dos dimensiones (ref. wireframe 5): la
-// dimensión con MÁS categorías va en horizontal (una banda de color por
-// categoría, chips abajo); la otra genera una fila de multitudes por valor,
-// con su etiqueta a la izquierda. Los slots de columna están alineados entre
-// filas para comparar de un vistazo. Escala total ~800 figuras.
+// PICA — Tipo D isotype: matriz comparativa con PERSONAS (v2)
+// Grilla de mini-multitudes por dos dimensiones, con las calibraciones
+// validadas en el Tipo C:
+// · El bloque se dimensiona al ESPACIO MEDIDO (ancho y alto disponibles) y la
+//   escala de figuras se afina hasta llenar el ancho — sin scroll, sin quedar
+//   chico en pantallas grandes.
+// · Cada fila es un canvas con sangrado horizontal: las figuras entran
+//   caminando desde los bordes del área, no desde una caja recortada.
+// · La dimensión con MÁS categorías va en horizontal (color por categoría,
+//   chips abajo); la otra genera las filas, con etiqueta a la izquierda.
+// · Slots de columna alineados entre filas para comparar de un vistazo.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { TEMA_PALETTE, textOnColor } from '@/lib/colors';
-import { figureCount, matrixScale } from '@/lib/isotype';
+import { figureCount, matrixScale, perLabel } from '@/lib/isotype';
 import { useSpriteWalkers, type WalkerTarget } from '@/hooks/useSpriteWalkers';
 import type { DatasetMatriz } from '@/types/data';
 import { DataTable, VizFooter, VizHeader } from './VizShared';
@@ -27,9 +32,20 @@ const PITCH_X = (C_W + GAP) * SCALE;
 const PITCH_Y = (C_H + GAP) * SCALE;
 const MARGIN = 2 * SCALE;
 /** Filas de figuras dentro de cada celda. */
-const CELL_ROWS = 3;
+const CELL_ROWS = 4;
 /** Separación horizontal entre slots de columna. */
 const SLOT_GAP = 12 * SCALE;
+
+const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
+
+/** Paso más fino de la secuencia 1/2/5 (para llenar el ancho disponible). */
+function finerPer(per: number): number {
+  const e = 10 ** Math.floor(Math.log10(per));
+  const m = Math.round(per / e);
+  if (m >= 5) return 2 * e;
+  if (m >= 2) return e;
+  return e / 2;
+}
 
 /** Una fila de la matriz: su propio canvas con su propio enjambre. */
 function CrowdRow({
@@ -59,8 +75,31 @@ function CrowdRow({
 
 export default function IsotypeMatrixViz({ data }: { data: DatasetMatriz }) {
   const palette = TEMA_PALETTE[data.tematica];
+  const gridRef = useRef<HTMLDivElement>(null);
 
-  const { scale, hLabels, vLabels, rows, W, rowH, slots } = useMemo(() => {
+  // Espacio disponible medido (columna de contenido, sin la de etiquetas)
+  const [fit, setFit] = useState({ cw: 1000, ah: 420 });
+  useEffect(() => {
+    const el = gridRef.current;
+    if (!el) return;
+    const update = () => {
+      const rect = el.getBoundingClientRect();
+      setFit({
+        cw: Math.max(360, el.clientWidth - 112 /* columna de etiquetas (7rem) */),
+        ah: Math.max(240, window.innerHeight - rect.top - 150),
+      });
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    window.addEventListener('resize', update);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', update);
+    };
+  }, []);
+
+  const { label, hLabels, vLabels, rows, canvasW, rowH, chipsW, slots } = useMemo(() => {
     // La dimensión con más categorías va en horizontal
     const filasH = data.filas.length >= data.columnas.length;
     const hLabels = filasH ? data.filas : data.columnas;
@@ -69,23 +108,41 @@ export default function IsotypeMatrixViz({ data }: { data: DatasetMatriz }) {
       filasH ? data.valores[h]![v]! : data.valores[v]![h]!;
 
     const sum = data.valores.flat().reduce((a, n) => a + n, 0);
-    const scale = matrixScale(sum, data.unidad);
-
-    // Slots de columna alineados: el ancho de cada categoría horizontal es el
-    // máximo de sus celdas en todas las filas
-    const counts = vLabels.map((_, v) => hLabels.map((_, h) => figureCount(valueAt(v, h), scale.per)));
-    const slotCols = hLabels.map((_, h) =>
-      Math.max(1, ...counts.map((row) => Math.ceil(row[h]! / CELL_ROWS))),
-    );
-    const slotW = slotCols.map((c) => (c - 1) * PITCH_X + C_W * SCALE);
-    const W =
-      MARGIN * 2 + slotW.reduce((a, w) => a + w, 0) + SLOT_GAP * (hLabels.length - 1);
+    let per = matrixScale(sum, data.unidad).per;
     const rowH = MARGIN * 2 + (CELL_ROWS - 1) * PITCH_Y + C_H * SCALE;
+    // Alto disponible por fila (reservando chips y separación entre filas)
+    const rowBudget = Math.max(90, (fit.ah - 48) / vLabels.length - 4);
 
-    // Targets por fila vertical
+    const compute = (p: number) => {
+      const counts = vLabels.map((_, v) => hLabels.map((_, h) => figureCount(valueAt(v, h), p)));
+      const slotCols = hLabels.map((_, h) =>
+        Math.max(1, ...counts.map((row) => Math.ceil(row[h]! / CELL_ROWS))),
+      );
+      const slotW = slotCols.map((c) => (c - 1) * PITCH_X + C_W * SCALE);
+      const crowdW = slotW.reduce((a, w) => a + w, 0) + SLOT_GAP * (hLabels.length - 1);
+      const total = counts.flat().reduce((a, n) => a + n, 0);
+      return { counts, slotW, crowdW, total };
+    };
+
+    // Afinar la escala hasta llenar el ancho disponible (cap ~2.500 figuras)
+    let m = compute(per);
+    for (let i = 0; i < 8; i++) {
+      const heightView = rowBudget / rowH;
+      if (m.crowdW * heightView >= fit.cw * 0.88 || m.total > 2500) break;
+      const f = finerPer(per);
+      if (f === per) break;
+      per = f;
+      m = compute(per);
+    }
+
+    const view = clamp(Math.min(fit.cw / (m.crowdW + MARGIN * 2), rowBudget / rowH), 0.3, 1.8);
+    // Canvas con sangrado horizontal: cubre el ancho del área (full-bleed)
+    const canvasW = Math.max(m.crowdW + MARGIN * 2, Math.floor(fit.cw / view));
+
+    // Posiciones: multitudes alineadas a la izquierda (junto a las etiquetas)
     const slotX: number[] = [];
     let acc = MARGIN;
-    slotW.forEach((w, h) => {
+    m.slotW.forEach((w) => {
       slotX.push(acc);
       acc += w + SLOT_GAP;
     });
@@ -93,7 +150,7 @@ export default function IsotypeMatrixViz({ data }: { data: DatasetMatriz }) {
     const rows = vLabels.map((vLabel, v) => {
       const targets: WalkerTarget[] = [];
       hLabels.forEach((_, h) => {
-        const n = counts[v]![h]!;
+        const n = m.counts[v]![h]!;
         const color = palette[h % palette.length]!;
         for (let j = 0; j < n; j++) {
           targets.push({
@@ -109,38 +166,56 @@ export default function IsotypeMatrixViz({ data }: { data: DatasetMatriz }) {
     const slots = hLabels.map((label, h) => ({
       label,
       color: palette[h % palette.length]!,
-      frac: (slotW[h]! + (h < hLabels.length - 1 ? SLOT_GAP : 0)) / (W - MARGIN * 2),
+      frac: (m.slotW[h]! + (h < hLabels.length - 1 ? SLOT_GAP : 0)) / m.crowdW,
     }));
 
-    return { scale, hLabels, vLabels, rows, W, rowH, slots };
-  }, [data, palette]);
+    return {
+      label: perLabel(per, data.unidad),
+      hLabels,
+      vLabels,
+      rows,
+      canvasW,
+      rowH,
+      chipsW: Math.round(m.crowdW * view),
+      slots,
+    };
+  }, [data, palette, fit]);
 
   const ariaLabel = `${data.caracteristica}: matriz de ${vLabels.join(', ')} según ${hLabels.join(
     ', ',
-  )}. Escala: ${scale.label}. Valores completos en la tabla.`;
+  )}. Escala: ${label}. Valores completos en la tabla.`;
 
   return (
     <div>
-      <VizHeader dataset={data} />
+      <VizHeader dataset={data} compact />
 
-      <p className="mb-2 text-right font-sans text-pica-subtitle text-text-secondary">
-        {scale.label}
-      </p>
+      <p className="mb-2 text-right font-sans text-pica-subtitle text-text-secondary">{label}</p>
 
       {/* Matriz de multitudes */}
-      <div role="img" aria-label={ariaLabel} className="grid gap-y-1" style={{ gridTemplateColumns: '7rem 1fr' }}>
+      <div
+        ref={gridRef}
+        role="img"
+        aria-label={ariaLabel}
+        className="grid gap-y-1"
+        style={{ gridTemplateColumns: '7rem 1fr' }}
+      >
         {rows.map(({ vLabel, targets }) => (
           <div key={vLabel} className="contents">
             <p className="self-center pr-3 text-right font-sans text-pica-paragraph text-text-secondary">
               {vLabel}
             </p>
-            <CrowdRow targets={targets} w={W} h={rowH} layoutKey={`${data.id}:${vLabel}`} />
+            <CrowdRow
+              targets={targets}
+              w={canvasW}
+              h={rowH}
+              layoutKey={`${data.id}:${vLabel}:${canvasW}`}
+            />
           </div>
         ))}
 
         {/* Chips de la dimensión horizontal, alineados a los slots */}
         <div aria-hidden="true" />
-        <div className="mt-1 flex w-full" aria-hidden="true">
+        <div className="mt-1 flex" style={{ width: chipsW, maxWidth: '100%' }} aria-hidden="true">
           {slots.map((s) => (
             <div key={s.label} style={{ width: `${s.frac * 100}%` }}>
               <span

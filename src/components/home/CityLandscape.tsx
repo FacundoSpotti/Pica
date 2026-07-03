@@ -18,6 +18,7 @@
 // del edificio elegido queda en color.
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { useState } from 'react';
 import {
   assetUrl,
   BUILDING_HITBOX_POLYGONS,
@@ -48,6 +49,9 @@ const pixelated = { imageRendering: 'pixelated' as const };
 const GRAYSCALE = 'grayscale(100%) brightness(0.5)';
 
 export default function CityLandscape({ selectedTema, onSelect, children }: CityLandscapeProps) {
+  // Hover sobre un edificio: cartel con la temática + elevación intermedia
+  const [hoveredTema, setHoveredTema] = useState<Tematica | null>(null);
+
   return (
     <div className="absolute inset-0 h-full w-full">
       {/* 1. Ciudad completa — se desatura al seleccionar */}
@@ -73,6 +77,9 @@ export default function CityLandscape({ selectedTema, onSelect, children }: City
       />
       {BUILDING_LAYER_ORDER.map((tema) => {
         const isSelected = selectedTema === tema;
+        const isHovered = hoveredTema === tema;
+        // Dos estados de elevación: hover (leve) y click definitivo (más alto)
+        const lift = isSelected ? '-0.9%' : isHovered ? '-0.45%' : '0';
         return (
           <img
             key={tema}
@@ -82,10 +89,9 @@ export default function CityLandscape({ selectedTema, onSelect, children }: City
             style={{
               ...pixelated,
               filter: selectedTema && !isSelected ? GRAYSCALE : 'none',
-              // El edificio elegido se eleva un poco en el aire
-              transform: isSelected ? 'translateY(-0.9%)' : 'translateY(0)',
+              transform: `translateY(${lift})`,
               transition:
-                'filter 500ms ease, transform 650ms cubic-bezier(0.22, 1, 0.36, 1)',
+                'filter 500ms ease, transform 400ms cubic-bezier(0.22, 1, 0.36, 1)',
             }}
           />
         );
@@ -151,16 +157,42 @@ export default function CityLandscape({ selectedTema, onSelect, children }: City
           );
         }
 
+        // Punto más alto del edificio (para colgar el cartel de hover encima)
+        const topY = Math.min(...poly.map(([, y]) => y));
+
         return (
           <div key={tema} className="contents">
             <button
               type="button"
               onClick={() => onSelect(tema, center)}
+              onMouseEnter={() => setHoveredTema(tema)}
+              onMouseLeave={() => setHoveredTema(null)}
+              onFocus={() => setHoveredTema(tema)}
+              onBlur={() => setHoveredTema(null)}
               aria-label={`Explorar temática ${TEMA_LABEL[tema]}`}
               aria-pressed={isSelected}
               className="absolute inset-0 cursor-pointer"
               style={clipStyle}
             />
+            {/* Cartel de hover: temática sobre el edificio */}
+            {hoveredTema === tema && (
+              <div
+                className="pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-full"
+                style={{ left: `${center.x * 100}%`, top: `${topY * 100}%` }}
+              >
+                <p
+                  className="whitespace-nowrap border-2 bg-black/85 px-3 py-1 font-display text-pica-subtitle font-bold uppercase"
+                  style={{ borderColor: TEMA_COLOR[tema], color: TEMA_COLOR[tema], letterSpacing: '0.12em' }}
+                >
+                  {TEMA_LABEL[tema]}
+                </p>
+                <div
+                  aria-hidden="true"
+                  className="mx-auto h-2 w-2 -translate-y-1"
+                  style={{ backgroundColor: TEMA_COLOR[tema], transform: 'rotate(45deg)' }}
+                />
+              </div>
+            )}
             {debugLabel}
           </div>
         );

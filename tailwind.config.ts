@@ -38,8 +38,10 @@ const config: Config = {
         'pica-subheading': ['30px', { lineHeight: '42px', letterSpacing: '0' }],
         'pica-button': ['22px', { lineHeight: '25px', letterSpacing: '0.2px' }],
         'pica-paragraph': ['19px', { lineHeight: '28px', letterSpacing: '0.2px' }],
-        'pica-subtitle': ['14px', { lineHeight: '18px', letterSpacing: '0.1px' }],
-        'pica-link': ['14px', { lineHeight: '18px', letterSpacing: '0.2px' }],
+        // Mínimos subidos de 14→16px (feedback de legibilidad; VT323 renderiza
+        // limpio en múltiplos de 4)
+        'pica-subtitle': ['16px', { lineHeight: '20px', letterSpacing: '0.1px' }],
+        'pica-link': ['16px', { lineHeight: '20px', letterSpacing: '0.2px' }],
       },
     },
   },

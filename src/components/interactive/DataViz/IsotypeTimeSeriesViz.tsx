@@ -320,7 +320,7 @@ export default function IsotypeTimeSeriesViz({ data }: { data: DatasetSerie }) {
                   </p>
                 )}
                 {proportional && (
-                  <span className="flex items-center gap-2 font-sans text-[13px] text-text-secondary">
+                  <span className="flex items-center gap-2 font-sans text-pica-subtitle text-text-secondary">
                     <span
                       aria-hidden="true"
                       className="inline-block h-3 w-3"
@@ -368,11 +368,11 @@ export default function IsotypeTimeSeriesViz({ data }: { data: DatasetSerie }) {
               >
                 {all.bars.map((b) => (
                   <div key={b.periodo} style={{ width: `${b.frac * 100}%` }}>
-                    <p className="font-sans text-[13px] leading-tight text-text-muted">
+                    <p className="font-sans text-pica-subtitle leading-tight text-text-muted">
                       {b.periodo}
                     </p>
                     <p
-                      className="font-display text-[15px] font-bold leading-tight"
+                      className="font-display text-[18px] font-bold leading-tight"
                       style={{ color: b.color }}
                     >
                       {b.valor.toLocaleString('es-UY')}
@@ -399,7 +399,7 @@ export default function IsotypeTimeSeriesViz({ data }: { data: DatasetSerie }) {
                 type="button"
                 aria-pressed={active}
                 onClick={() => setSel(i)}
-                className="px-2 py-0 text-left font-sans text-[13px] leading-tight transition-colors"
+                className="px-2 py-0 text-left font-sans text-pica-subtitle leading-tight transition-colors"
                 style={{
                   color: active ? textOnColor(color) : '#A0A09A',
                   backgroundColor: active ? color : 'transparent',
@@ -414,7 +414,7 @@ export default function IsotypeTimeSeriesViz({ data }: { data: DatasetSerie }) {
             type="button"
             aria-pressed={isAll}
             onClick={() => setSel('all')}
-            className="mt-1 border-t border-white/15 px-2 py-0.5 text-left font-display text-[13px] font-bold uppercase leading-tight transition-colors"
+            className="mt-1 border-t border-white/15 px-2 py-0.5 text-left font-display text-pica-subtitle font-bold uppercase leading-tight transition-colors"
             style={{
               color: isAll ? textOnColor(color) : '#EBEBEB',
               backgroundColor: isAll ? color : 'transparent',

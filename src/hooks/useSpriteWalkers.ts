@@ -62,7 +62,7 @@ const tintedPending = new Map<string, Promise<Sheet>>();
  * Los PNGs traen bordes semitransparentes (antialiasing) que, al escalar,
  * se ven como pixelado sucio — la silueta binaria escala limpia.
  */
-function hardenAlpha(sheet: Sheet): Sheet {
+export function hardenAlpha(sheet: Sheet): Sheet {
   try {
     const ctx = sheet.getContext('2d') as CanvasRenderingContext2D | null;
     if (!ctx) return sheet;

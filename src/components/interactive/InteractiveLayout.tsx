@@ -18,6 +18,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import EntityScroller from './EntityScroller';
 import CharacteristicExplorer from './CharacteristicExplorer';
+import PixelIcon from '@/components/shared/PixelIcon';
 import { assetUrl, LOGOS, THEME_STATIC } from '@/lib/assets';
 import {
   ACTIVE_TEMAS,
@@ -91,8 +92,9 @@ export default function InteractiveLayout() {
         </div>
         <Link
           href="/nosotros"
-          className="font-display text-pica-button text-text-primary underline-offset-4 hover:underline"
+          className="flex items-center gap-2 font-display text-pica-button text-text-primary underline-offset-4 hover:underline"
         >
+          <PixelIcon name="users" size={20} />
           Nosotros
         </Link>
       </header>

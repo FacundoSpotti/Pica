@@ -23,6 +23,7 @@ import ColorBar from '@/components/home/ColorBar';
 import ThemeOverlay from '@/components/home/ThemeOverlay';
 import PathCalibrator from '@/components/home/PathCalibrator';
 import HitboxCalibrator from '@/components/home/HitboxCalibrator';
+import PixelIcon from '@/components/shared/PixelIcon';
 import { assetUrl, LANDSCAPE_SIZE, LOGOS } from '@/lib/assets';
 import type { Tematica } from '@/types/sprites';
 
@@ -99,8 +100,9 @@ export default function HomePage() {
         </Link>
         <Link
           href="/nosotros"
-          className="font-display text-pica-button text-text-primary underline-offset-4 hover:underline"
+          className="flex items-center gap-2 font-display text-pica-button text-text-primary underline-offset-4 hover:underline"
         >
+          <PixelIcon name="users" size={20} />
           Nosotros
         </Link>
       </header>

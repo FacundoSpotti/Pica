@@ -102,7 +102,7 @@ export default function IsotypeDistributionViz({ data }: { data: DatasetDistribu
   return (
     <div className="flex flex-col items-center">
       <div className="w-full">
-        <VizHeader dataset={data} />
+        <VizHeader dataset={data} compact />
       </div>
 
       {/* Leyenda clickeable: aísla una demografía */}
@@ -138,7 +138,8 @@ export default function IsotypeDistributionViz({ data }: { data: DatasetDistribu
         </span>
       </div>
 
-      {/* La multitud — canvas decorativo; la info está en aria + tabla */}
+      {/* La multitud — canvas decorativo; la info está en aria + tabla.
+          maxWidth=W evita sobre-estirar en pantallas anchas (y el scroll). */}
       <div role="img" aria-label={ariaLabel} className="flex w-full justify-center">
         <canvas
           ref={canvasRef}
@@ -146,7 +147,7 @@ export default function IsotypeDistributionViz({ data }: { data: DatasetDistribu
           height={H}
           aria-hidden="true"
           className="w-full"
-          style={{ imageRendering: 'pixelated' }}
+          style={{ imageRendering: 'pixelated', maxWidth: W }}
         />
       </div>
 

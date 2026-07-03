@@ -8,6 +8,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useRef, useState } from 'react';
+import EntityIcon from '@/components/interactive/EntityIcon';
 import { TEMA_COLOR } from '@/lib/colors';
 import { getCaracteristicas } from '@/lib/datasets';
 import type { Tematica } from '@/types/sprites';
@@ -84,13 +85,17 @@ export default function EntityScroller({ tema, entidades, onSelect }: EntityScro
             >
               Entidad {i + 1} de {entidades.length}
             </p>
+            {/* Icono + nombre en el mismo botón (todo clickeable) */}
             <button
               type="button"
               onClick={() => onSelect(entidad)}
-              className="font-display text-pica-heading-2 font-bold text-text-primary transition-transform hover:scale-105"
+              className="flex flex-col items-center gap-4 transition-transform hover:scale-105"
               style={{ opacity: active ? 1 : 0.4 }}
             >
-              {entidad}
+              <EntityIcon entidad={entidad} color={color} size={72} />
+              <span className="font-display text-pica-heading-2 font-bold text-text-primary">
+                {entidad}
+              </span>
             </button>
             <p className="font-sans text-pica-paragraph text-text-secondary">
               {count} {count === 1 ? 'característica' : 'características'} para explorar
