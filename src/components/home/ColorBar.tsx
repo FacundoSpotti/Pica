@@ -2,31 +2,33 @@
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PICA — ColorBar
-// Barra fina en el borde inferior: un segmento por temática. Las temáticas V1
-// (educación, trabajo, salud) van con su color; las V2 (economía, seguridad)
-// van en gris con patrón dashed y marcadas como "Próximamente".
+// Barra fina en el borde inferior. Orden: azul (educación) → verde (salud) →
+// amarillo (trabajo) → rojo (seguridad, V2) → naranja (economía, V2).
+//
+// IMPORTANTE: sin opacity sobre los colores. El alpha compositing sobre el
+// fondo #0A0A0A oscurecía el rojo/naranja hasta verse marrón. Los 5 segmentos
+// usan el hex exacto de picaColors[color][400] a opacidad plena; las temáticas
+// V2 se distinguen por altura (media barra) en vez de por transparencia.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { isTemaActive, TEMA_COLOR, TEMA_LABEL, TEMA_ORDER } from '@/lib/colors';
+import { COLORBAR_ORDER, isTemaActive, TEMA_COLOR, TEMA_LABEL } from '@/lib/colors';
 
 export default function ColorBar() {
   return (
     <ul
-      className="absolute bottom-0 left-0 z-20 flex h-1 w-full list-none"
+      className="absolute bottom-0 left-0 z-20 flex h-1 w-full list-none items-end"
       aria-label="Temáticas disponibles"
     >
-      {TEMA_ORDER.map((tema) => {
+      {COLORBAR_ORDER.map((tema) => {
         const active = isTemaActive(tema);
         return (
           <li
             key={tema}
-            className="h-full flex-1"
+            className="flex-1"
             title={active ? TEMA_LABEL[tema] : `${TEMA_LABEL[tema]} — Próximamente`}
             style={{
-              // Los 5 colores siempre presentes; los V2 (economía, seguridad)
-              // atenuados para indicar "próximamente".
               backgroundColor: TEMA_COLOR[tema],
-              opacity: active ? 1 : 0.35,
+              height: active ? '100%' : '50%',
             }}
           >
             <span className="sr-only">

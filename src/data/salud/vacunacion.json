@@ -1,0 +1,20 @@
+{
+  "id": "vacunacion",
+  "tematica": "salud",
+  "entidad": "Niños y niñas menores de 1 año",
+  "caracteristica": "Cobertura de vacunación pentavalente (3ª dosis)",
+  "tipoResultado": "C",
+  "fuente": "MSP — Desempeño del Plan Ampliado de Inmunizaciones en Uruguay, documento técnico (octubre 2024)",
+  "fuenteUrl": "https://www.gub.uy/ministerio-salud-publica/sites/ministerio-salud-publica/files/documentos/publicaciones/Coberturas%202024%20-%20INFORME%20FINAL.pdf",
+  "anio": 2023,
+  "descripcion": "Cobertura anual de la tercera dosis de la vacuna pentavalente (DPT+Hib+HB) en menores de 1 año. El componente DPT3 es la vacuna marcadora del estado del PAI. Datos oficiales del MSP (copia local en datos-fuente/msp-pai-coberturas-2024.pdf).",
+  "unidad": "%",
+  "puntos": [
+    { "periodo": "2018", "valor": 91 },
+    { "periodo": "2019", "valor": 94 },
+    { "periodo": "2020", "valor": 92 },
+    { "periodo": "2021", "valor": 91 },
+    { "periodo": "2022", "valor": 94 },
+    { "periodo": "2023", "valor": 95 }
+  ]
+}

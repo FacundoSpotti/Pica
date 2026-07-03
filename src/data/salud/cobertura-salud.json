@@ -1,0 +1,18 @@
+{
+  "id": "cobertura-salud",
+  "tematica": "salud",
+  "entidad": "Personas",
+  "caracteristica": "Prestador principal de salud",
+  "tipoResultado": "B",
+  "fuente": "INE — ECH 2024",
+  "anio": 2024,
+  "descripcion": "Distribución de las personas según su prestador principal de atención a la salud. VALORES PROVISORIOS — reemplazar con el procesamiento de la ECH 2024.",
+  "unidad": "%",
+  "categorias": [
+    { "label": "IAMC (mutualista)", "valor": 61.4 },
+    { "label": "ASSE (pública)", "valor": 30.2 },
+    { "label": "Sanidad militar o policial", "valor": 4.3 },
+    { "label": "Seguro privado", "valor": 3.0 },
+    { "label": "Sin cobertura declarada", "valor": 1.1 }
+  ]
+}

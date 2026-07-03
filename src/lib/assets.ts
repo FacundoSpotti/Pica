@@ -110,13 +110,28 @@ export const BUILDING_LAYERS: Record<Tematica, string> = {
  */
 export type Polygon = ReadonlyArray<readonly [number, number]>;
 
+// Calibrados por Facundo con el HitboxCalibrator (tecla H) — no editar a mano:
+// recalibrar con la herramienta y pegar el bloque que copia la tecla C.
 export const BUILDING_HITBOX_POLYGONS: Record<Tematica, Polygon> = {
-  educacion: [[0.725, 0.135], [0.845, 0.25], [0.695, 0.385], [0.605, 0.275]], // edificio rojo (arriba-der)
-  salud: [[0.375, 0.125], [0.45, 0.25], [0.335, 0.39], [0.26, 0.275]], // torres (arriba-izq)
-  trabajo: [[0.275, 0.475], [0.335, 0.575], [0.26, 0.69], [0.205, 0.585]], // torre marrón (abajo-izq)
-  economia: [[0.705, 0.535], [0.795, 0.64], [0.68, 0.765], [0.595, 0.655]], // edificio clásico (abajo-der)
-  seguridad: [[0.165, 0.38], [0.225, 0.45], [0.145, 0.53], [0.085, 0.455]], // POLICÍA (izq)
+  educacion: [[0.543, 0.298], [0.719, 0.465], [0.864, 0.313], [0.839, 0.278], [0.835, 0.234], [0.759, 0.163], [0.747, 0.1], [0.73, 0.141], [0.699, 0.111], [0.599, 0.208], [0.598, 0.242]],
+  salud: [[0.174, 0.331], [0.316, 0.469], [0.482, 0.298], [0.446, 0.27], [0.445, 0.161], [0.398, 0.105], [0.267, 0.217], [0.265, 0.248]],
+  trabajo: [[0.292, 0.842], [0.446, 0.691], [0.309, 0.539], [0.282, 0.501], [0.275, 0.381], [0.269, 0.514], [0.239, 0.55], [0.233, 0.576], [0.136, 0.679]],
+  economia: [[0.719, 0.861], [0.872, 0.684], [0.719, 0.507], [0.563, 0.694]],
+  seguridad: [[0.001, 0.523], [0.104, 0.641], [0.258, 0.491], [0.223, 0.433], [0.22, 0.4], [0.157, 0.336]],
 };
+
+/**
+ * Orden de apilado (z) de las capas de edificios, de abajo hacia arriba.
+ * Trabajo (Intendencia) va ÚLTIMO porque su antena pasa por encima del
+ * edificio de Salud — si se renderiza debajo, la antena queda cortada.
+ */
+export const BUILDING_LAYER_ORDER: readonly Tematica[] = [
+  'educacion',
+  'salud',
+  'economia',
+  'seguridad',
+  'trabajo',
+] as const;
 
 /** Centroide (promedio de vértices) de un polígono, en fracciones. */
 export function polygonCentroid(poly: Polygon): { x: number; y: number } {
@@ -158,24 +173,22 @@ export interface RotationVariant {
 }
 
 /**
- * Rotaciones por temática (nombres exactos en disco).
- * NOTA: educación solo tiene versión sin color en disco — se reutiliza para
- * `color` hasta que exista la variante coloreada.
+ * Rotaciones por temática (nombres exactos en disco, set corregido 2/jul/2026).
+ * Las 10 hojas (color y nocolor) detectan 5 frames limpios.
+ * EN USO: las versiones `nocolor` (decisión de Facundo — el ThemeOverlay usa
+ * el personaje sin colorear).
  */
 export const ROTATION_SPRITES: Record<Tematica, RotationVariant> = {
   educacion: {
-    color: `${ROTATION_DIR}/Animacion Estudiante.png`, // no existe versión color aún
-    nocolor: `${ROTATION_DIR}/Animacion Estudiante.png`,
+    color: `${ROTATION_DIR}/Animación Educación Color.png`,
+    nocolor: `${ROTATION_DIR}/Animación Educación.png`,
   },
   trabajo: {
-    // OJO: esta hoja de color tiene los 5 frames pegados sin gaps transparentes
-    // → detectFrames no encuentra separadores y buildRotationSheet cae al
-    // fallback de división uniforme (256/5). Aceptable, revisar al armar ThemeCard.
     color: `${ROTATION_DIR}/Animación Trabajador Color.png`,
-    nocolor: `${ROTATION_DIR}/Animacion Trabajador.png`, // detecta 5 frames OK
+    nocolor: `${ROTATION_DIR}/Animación Trabajador.png`,
   },
   salud: {
-    color: `${ROTATION_DIR}/Animacion Doctor Color.png`,
+    color: `${ROTATION_DIR}/Animacion Doctor Color.png`, // sin tilde en disco
     nocolor: `${ROTATION_DIR}/Animacion Doctor.png`,
   },
   economia: {

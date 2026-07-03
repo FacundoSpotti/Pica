@@ -1,0 +1,17 @@
+{
+  "id": "nivel-educativo",
+  "tematica": "educacion",
+  "entidad": "Personas",
+  "caracteristica": "Máximo nivel educativo alcanzado",
+  "tipoResultado": "B",
+  "fuente": "INE — ECH 2024",
+  "anio": 2024,
+  "descripcion": "Distribución de las personas de 25 años o más según el máximo nivel educativo alcanzado. VALORES PROVISORIOS — reemplazar con el procesamiento de la ECH 2024.",
+  "unidad": "%",
+  "categorias": [
+    { "label": "Primaria o menos", "valor": 27.4 },
+    { "label": "Ciclo básico", "valor": 25.9 },
+    { "label": "Bachillerato", "valor": 22.3 },
+    { "label": "Terciaria o universitaria", "valor": 24.4 }
+  ]
+}

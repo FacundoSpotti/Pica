@@ -1,0 +1,109 @@
+'use client';
+
+// Tipo D — Matriz Comparativa: heatmap con la escala de color de la temática.
+// El color NUNCA es el único indicador: cada celda muestra su valor (pica-accessibility).
+
+import { interpolateRgb, max, min, scaleLinear } from 'd3';
+import { TEMA_SCALE } from '@/lib/colors';
+import type { DatasetMatriz } from '@/types/data';
+import { DataTable, VizFooter, VizHeader } from './VizShared';
+
+const LABEL_W = 130;
+const CELL_W = 104;
+const CELL_H = 48;
+const HEAD_H = 28;
+const GAP = 4;
+
+export default function MatrixViz({ data }: { data: DatasetMatriz }) {
+  const [lo, hi] = TEMA_SCALE[data.tematica];
+  const flat = data.valores.flat();
+  const minV = min(flat) ?? 0;
+  const maxV = max(flat) ?? 1;
+  const t = scaleLinear().domain([minV, maxV]).range([0, 1]).clamp(true);
+  const colorOf = (v: number) => interpolateRgb(lo, hi)(t(v));
+
+  const W = LABEL_W + data.columnas.length * (CELL_W + GAP);
+  const H = HEAD_H + data.filas.length * (CELL_H + GAP);
+  const titleId = `${data.id}-title`;
+  const descId = `${data.id}-desc`;
+
+  return (
+    <div>
+      <VizHeader dataset={data} />
+
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        className="w-full max-w-xl"
+        role="img"
+        aria-labelledby={`${titleId} ${descId}`}
+        focusable="false"
+      >
+        <title id={titleId}>{data.caracteristica}</title>
+        <desc id={descId}>
+          Matriz de {data.filas.join(', ')} según {data.columnas.join(', ')}; valores de {minV} a{' '}
+          {maxV} {data.unidad ?? ''}.
+        </desc>
+
+        {/* Encabezados de columna */}
+        {data.columnas.map((col, j) => (
+          <text
+            key={col}
+            x={LABEL_W + j * (CELL_W + GAP) + CELL_W / 2}
+            y={HEAD_H - 10}
+            textAnchor="middle"
+            fill="#A0A09A"
+            style={{ fontFamily: 'var(--font-vt323)', fontSize: 15 }}
+          >
+            {col}
+          </text>
+        ))}
+
+        {data.filas.map((fila, i) => (
+          <g key={fila}>
+            <text
+              x={LABEL_W - 12}
+              y={HEAD_H + i * (CELL_H + GAP) + CELL_H / 2 + 5}
+              textAnchor="end"
+              fill="#A0A09A"
+              style={{ fontFamily: 'var(--font-vt323)', fontSize: 15 }}
+            >
+              {fila}
+            </text>
+            {data.columnas.map((col, j) => {
+              const v = data.valores[i]![j]!;
+              const dark = t(v) > 0.55;
+              return (
+                <g key={col}>
+                  <rect
+                    x={LABEL_W + j * (CELL_W + GAP)}
+                    y={HEAD_H + i * (CELL_H + GAP)}
+                    width={CELL_W}
+                    height={CELL_H}
+                    fill={colorOf(v)}
+                  />
+                  <text
+                    x={LABEL_W + j * (CELL_W + GAP) + CELL_W / 2}
+                    y={HEAD_H + i * (CELL_H + GAP) + CELL_H / 2 + 6}
+                    textAnchor="middle"
+                    fill={dark ? '#0A0A0A' : '#EBEBEB'}
+                    style={{ fontFamily: 'var(--font-handjet)', fontWeight: 700, fontSize: 17 }}
+                  >
+                    {v.toLocaleString('es-UY')}
+                    {data.unidad === '%' ? '%' : ''}
+                  </text>
+                </g>
+              );
+            })}
+          </g>
+        ))}
+      </svg>
+
+      <DataTable
+        caption={data.caracteristica}
+        head={['', ...data.columnas]}
+        rows={data.filas.map((f, i) => [f, ...data.valores[i]!])}
+      />
+      <VizFooter dataset={data} />
+    </div>
+  );
+}

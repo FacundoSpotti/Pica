@@ -1,0 +1,24 @@
+{
+  "id": "empleo-desempleo",
+  "tematica": "trabajo",
+  "entidad": "Personas económicamente activas",
+  "caracteristica": "Tasa de desempleo",
+  "tipoResultado": "C",
+  "fuente": "INE — ECH 2015-2024",
+  "fuenteUrl": "https://www7.ine.gub.uy/Dashboard-%20ML-ECH/MercadoLaboral/",
+  "anio": 2024,
+  "descripcion": "Tasa de desempleo anual promedio, total país. VALORES PROVISORIOS — reemplazar con la serie anual del visualizador de mercado laboral del INE. Puntos de referencia verificados (INE, dato mensual de diciembre): dic-2023 7,8% · dic-2024 7,4% · dic-2025 7,0%.",
+  "unidad": "%",
+  "puntos": [
+    { "periodo": "2015", "valor": 7.5 },
+    { "periodo": "2016", "valor": 7.8 },
+    { "periodo": "2017", "valor": 7.9 },
+    { "periodo": "2018", "valor": 8.3 },
+    { "periodo": "2019", "valor": 8.9 },
+    { "periodo": "2020", "valor": 10.4 },
+    { "periodo": "2021", "valor": 9.3 },
+    { "periodo": "2022", "valor": 7.9 },
+    { "periodo": "2023", "valor": 8.3 },
+    { "periodo": "2024", "valor": 8.2 }
+  ]
+}

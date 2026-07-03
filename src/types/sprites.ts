@@ -88,16 +88,20 @@ export interface ColorDot {
   pathIndex: number;
   /** progreso 0-1 dentro del path */
   progress: number;
-  /** px por tick */
+  /** fracción de path por segundo (con signo = dirección) */
   speed: number;
-  /** uno de los 16 colores de la paleta de sprites */
+  /** uno de los 8 colores 400 de la paleta */
   color: string;
-  /** radio en px (2 o 3) */
+  /** lado del cuadrado en px (2 o 3) */
   radius: number;
   /** fase de movimiento/convergencia */
   phase: DotPhase;
-  /** progreso objetivo en el path durante la convergencia (punto más cercano al edificio) */
-  convergeProgress?: number;
+  /** offset lateral (-1..1) dentro del ancho de la calle — las calles no son líneas */
+  lateral: number;
+  /** waypoints de calle (pathfinding) que sigue durante la convergencia */
+  route?: Array<{ x: number; y: number }>;
+  /** índice del waypoint actual de la ruta */
+  routeIndex?: number;
 }
 
 // ── Landscape / edificios ────────────────────────────────────────────────────

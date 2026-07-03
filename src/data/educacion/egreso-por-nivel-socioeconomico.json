@@ -1,0 +1,21 @@
+{
+  "id": "egreso-por-nivel-socioeconomico",
+  "tematica": "educacion",
+  "entidad": "Jóvenes de 21 a 23 años",
+  "caracteristica": "Culminación de media superior por nivel socioeconómico",
+  "tipoResultado": "D",
+  "fuente": "INEEd — Mirador Educativo, a partir de la ECH (INE)",
+  "fuenteUrl": "https://mirador.ineed.edu.uy/indicadores/tasa-de-egreso-de-educacion-media-superior-entre-jovenes-de-21-a-23-anos-8-2.html",
+  "anio": 2025,
+  "descripcion": "Tasa de egreso de educación media superior entre jóvenes de 21 a 23 años según nivel socioeconómico del hogar, en tres momentos de la serie. La brecha entre los extremos supera los 50 puntos. Datos oficiales del Mirador Educativo (copia local en datos-fuente/ineed-mirador-tabla8-egreso.xlsx).",
+  "unidad": "%",
+  "filas": ["Muy bajo", "Bajo", "Medio", "Alto", "Muy alto"],
+  "columnas": ["2015", "2019", "2025"],
+  "valores": [
+    [15.2, 18.5, 30.5],
+    [33.8, 41.5, 51.8],
+    [46.9, 52.0, 71.1],
+    [57.9, 65.5, 73.3],
+    [71.7, 78.3, 84.8]
+  ]
+}

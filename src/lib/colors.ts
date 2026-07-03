@@ -4,7 +4,7 @@
 // para no duplicar hex sueltos por el código.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { picaColors, tematicas } from '../../config/tailwind.colors';
+import { picaColors } from '../../config/tailwind.colors';
 import type { Tematica } from '@/types/sprites';
 
 /**
@@ -22,13 +22,13 @@ export const SPRITE_COLORS: readonly string[] = [
   picaColors.orange[400],
 ] as const;
 
-/** Color pleno (tono 400) de cada temática. */
+/** Color pleno (tono 400) de cada temática — directo de picaColors. */
 export const TEMA_COLOR: Record<Tematica, string> = {
-  educacion: tematicas.educacion[400],
-  trabajo: tematicas.trabajo[400],
-  salud: tematicas.salud[400],
-  economia: tematicas.economia[400],
-  seguridad: tematicas.seguridad[400],
+  educacion: picaColors.blue[400], // #2B49DD
+  trabajo: picaColors.yellow[400], // #FFC300
+  salud: picaColors.green[400], // #A8DD2B
+  economia: picaColors.orange[400], // #FF7A27
+  seguridad: picaColors.red[400], // #FF4A4D
 };
 
 /** Etiqueta legible de cada temática. */
@@ -40,12 +40,79 @@ export const TEMA_LABEL: Record<Tematica, string> = {
   seguridad: 'Seguridad',
 };
 
+/** Descripción editorial de cada temática (ThemeOverlay). */
+export const TEMA_DESCRIPTION: Record<Tematica, string> = {
+  educacion:
+    'Del IAVA a cada aula del país: matrícula, nivel educativo alcanzado y deserción. Los datos de cómo aprende Uruguay.',
+  trabajo:
+    'Empleo, desempleo, salarios e informalidad. Los números detrás de cada jornada de trabajo en Uruguay.',
+  salud:
+    'Cobertura, vacunación y mortalidad infantil. El estado de la salud de los uruguayos, medido en datos.',
+  economia:
+    'Precios, ingresos y cuentas públicas. La economía uruguaya explicada con datos.',
+  seguridad:
+    'Delitos, denuncias y convivencia. Los datos de la seguridad en Uruguay.',
+};
+
+/**
+ * Tonalidades del tema para categorías de isotype charts: variaciones dentro
+ * de la MISMA paleta, ordenadas para máximo contraste entre grupos vecinos.
+ */
+const SHADE_ORDER = [400, 600, 200, 700, 300, 500, 100, 800] as const;
+const TEMA_BASE = {
+  educacion: picaColors.blue,
+  trabajo: picaColors.yellow,
+  salud: picaColors.green,
+  economia: picaColors.orange,
+  seguridad: picaColors.red,
+} as const;
+
+export const TEMA_PALETTE: Record<Tematica, string[]> = Object.fromEntries(
+  (Object.keys(TEMA_BASE) as Tematica[]).map((t) => [
+    t,
+    SHADE_ORDER.map((s) => TEMA_BASE[t][s]),
+  ]),
+) as Record<Tematica, string[]>;
+
+/**
+ * Extremos de la escala de color para visualizaciones de intensidad
+ * (mapa coroplético, heatmap): tono 100 (valores bajos) → 600 (valores altos).
+ */
+export const TEMA_SCALE: Record<Tematica, [string, string]> = {
+  educacion: [picaColors.blue[100], picaColors.blue[600]],
+  trabajo: [picaColors.yellow[100], picaColors.yellow[600]],
+  salud: [picaColors.green[100], picaColors.green[600]],
+  economia: [picaColors.orange[100], picaColors.orange[600]],
+  seguridad: [picaColors.red[100], picaColors.red[600]],
+};
+
+/**
+ * Color de texto legible SOBRE el tono 400 de cada temática (botón EXPLORAR).
+ * El azul 400 es oscuro → texto blanco; el resto son claros → texto casi negro.
+ */
+export const TEMA_TEXT_ON_COLOR: Record<Tematica, string> = {
+  educacion: '#FFFFFF',
+  trabajo: '#0A0A0A',
+  salud: '#0A0A0A',
+  economia: '#0A0A0A',
+  seguridad: '#0A0A0A',
+};
+
 /** Temáticas disponibles en V1 (clickeables). El resto es V2 (próximamente). */
 export const ACTIVE_TEMAS: readonly Tematica[] = ['educacion', 'trabajo', 'salud'] as const;
 
-/** Orden de las temáticas para la barra inferior y la UI. */
+/** Orden de las temáticas para la UI general. */
 export const TEMA_ORDER: readonly Tematica[] = [
   'educacion', 'trabajo', 'salud', 'economia', 'seguridad',
+] as const;
+
+/**
+ * Orden específico de la ColorBar (izquierda → derecha):
+ * azul (educación) → verde (salud) → amarillo (trabajo) → rojo (seguridad, V2)
+ * → naranja (economía, V2).
+ */
+export const COLORBAR_ORDER: readonly Tematica[] = [
+  'educacion', 'salud', 'trabajo', 'seguridad', 'economia',
 ] as const;
 
 /** true si la temática está activa en V1. */

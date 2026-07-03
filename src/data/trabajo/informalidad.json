@@ -1,0 +1,33 @@
+{
+  "id": "informalidad",
+  "tematica": "trabajo",
+  "entidad": "Departamentos",
+  "caracteristica": "No registro a la seguridad social",
+  "tipoResultado": "E",
+  "fuente": "INE — Informe sobre subutilización e informalidad de la fuerza laboral 2024 (ECH)",
+  "fuenteUrl": "https://www.gub.uy/instituto-nacional-estadistica/tematica/actividad-empleo-desempleo",
+  "anio": 2024,
+  "descripcion": "Porcentaje de personas ocupadas no registradas a la seguridad social, año 2024 (nacional: 22,7%). VERIFICADOS con el informe INE: Montevideo, Colonia, Flores, Salto, Rivera, Cerro Largo y Artigas. El resto son PROVISORIOS — completar con el informe departamental completo del INE.",
+  "unidad": "%",
+  "departamentos": [
+    { "id": "UY-MO", "nombre": "Montevideo", "valor": 14.4 },
+    { "id": "UY-CA", "nombre": "Canelones", "valor": 21.4 },
+    { "id": "UY-MA", "nombre": "Maldonado", "valor": 19.2 },
+    { "id": "UY-CO", "nombre": "Colonia", "valor": 21.5 },
+    { "id": "UY-SJ", "nombre": "San José", "valor": 22.8 },
+    { "id": "UY-FD", "nombre": "Florida", "valor": 24.9 },
+    { "id": "UY-FS", "nombre": "Flores", "valor": 16.9 },
+    { "id": "UY-DU", "nombre": "Durazno", "valor": 27.8 },
+    { "id": "UY-LA", "nombre": "Lavalleja", "valor": 25.3 },
+    { "id": "UY-RO", "nombre": "Rocha", "valor": 26.1 },
+    { "id": "UY-TT", "nombre": "Treinta y Tres", "valor": 29.4 },
+    { "id": "UY-CL", "nombre": "Cerro Largo", "valor": 45.5 },
+    { "id": "UY-TA", "nombre": "Tacuarembó", "valor": 30.5 },
+    { "id": "UY-RV", "nombre": "Rivera", "valor": 39.0 },
+    { "id": "UY-AR", "nombre": "Artigas", "valor": 48.8 },
+    { "id": "UY-SA", "nombre": "Salto", "valor": 29.2 },
+    { "id": "UY-PA", "nombre": "Paysandú", "valor": 27.2 },
+    { "id": "UY-RN", "nombre": "Río Negro", "valor": 25.8 },
+    { "id": "UY-SO", "nombre": "Soriano", "valor": 26.7 }
+  ]
+}

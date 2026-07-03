@@ -1,0 +1,15 @@
+{
+  "id": "ingreso-medio-hogares",
+  "tematica": "trabajo",
+  "entidad": "Hogares",
+  "caracteristica": "Ingreso medio mensual del hogar",
+  "tipoResultado": "A",
+  "fuente": "INE — ECH, 4º trimestre 2024",
+  "fuenteUrl": "https://www.gub.uy/instituto-nacional-estadistica/tematica/ingreso-personas-hogares",
+  "anio": 2024,
+  "descripcion": "Ingreso medio mensual de los hogares a valores corrientes, sin aguinaldo ni valor locativo, total país (4º trimestre 2024). Montevideo: $114.988 · Interior: $81.796.",
+  "unidad": "$UYU",
+  "valor": 95182,
+  "variacion": { "valor": 5867, "periodo": "4º trimestre 2023" },
+  "contexto": "Aumento en pesos corrientes respecto al mismo trimestre del año anterior."
+}

@@ -5,19 +5,24 @@
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PICA — Home (/)
-// Landscape isométrico + puntos de colores + click en edificios.
-// El "stage" mantiene la relación de aspecto exacta del landscape (4096×2305)
-// y se dimensiona para CUBRIR el viewport con max() de CSS, de modo que las
-// capas, el canvas de puntos y las hitboxes compartan el mismo sistema de
-// coordenadas en % y queden siempre alineados.
-// (Sin ThemeOverlay todavía — eso es la próxima tarea.)
+// Landscape isométrico contenido + puntos de colores + click en edificios.
+// Flujo de selección:
+//   click edificio → ciudad en grayscale + edificio en color + puntos convergen
+//   por las calles (pathfinding) → al llegar ≥70% aparece el ThemeOverlay con
+//   el personaje 360° + EXPLORAR / VOLVER.
+// El "stage" mantiene la relación de aspecto del landscape (4096×2305) y entra
+// completo en el viewport; capas, canvas y hitboxes comparten coordenadas en %.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import Link from 'next/link';
+import { AnimatePresence } from 'framer-motion';
 import CityLandscape from '@/components/home/CityLandscape';
 import HomeCanvas from '@/components/home/HomeCanvas';
 import ColorBar from '@/components/home/ColorBar';
+import ThemeOverlay from '@/components/home/ThemeOverlay';
+import PathCalibrator from '@/components/home/PathCalibrator';
+import HitboxCalibrator from '@/components/home/HitboxCalibrator';
 import { assetUrl, LANDSCAPE_SIZE, LOGOS } from '@/lib/assets';
 import type { Tematica } from '@/types/sprites';
 
@@ -30,18 +35,30 @@ interface Selection {
 
 export default function HomePage() {
   const [selected, setSelected] = useState<Selection | null>(null);
+  const [overlayOpen, setOverlayOpen] = useState(false);
 
   const handleSelect = (tema: Tematica, center: { x: number; y: number }) => {
-    // Toggle: volver a clickear el mismo edificio deselecciona (vía de retorno
-    // provisoria hasta que exista el ThemeOverlay con su botón VOLVER).
-    setSelected((prev) => (prev?.tema === tema ? null : { tema, center }));
+    setSelected((prev) => {
+      if (prev?.tema === tema) {
+        // Click en el mismo edificio → deseleccionar
+        setOverlayOpen(false);
+        return null;
+      }
+      setOverlayOpen(false); // el overlay aparece recién cuando los puntos llegan
+      return { tema, center };
+    });
   };
+
+  const handleConverged = useCallback(() => setOverlayOpen(true), []);
+
+  const handleClose = useCallback(() => {
+    setOverlayOpen(false);
+    setSelected(null); // los puntos vuelven a sus calles (reset)
+  }, []);
 
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-bg-base">
-      {/* Stage: landscape CONTENIDO (no full-bleed), centrado con margen oscuro.
-          Mantiene la relación de aspecto y entra completo en el viewport dejando
-          espacio para la nav (arriba) y la ColorBar (abajo). */}
+      {/* Stage: landscape CONTENIDO (no full-bleed), centrado con margen oscuro */}
       <div
         className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl"
         style={{
@@ -49,15 +66,32 @@ export default function HomePage() {
           height: `min(100vh - 170px, calc(90vw / ${ASPECT}))`,
         }}
       >
-        <CityLandscape selectedTema={selected?.tema ?? null} onSelect={handleSelect} />
-        <HomeCanvas convergeTarget={selected?.center ?? null} />
+        <CityLandscape selectedTema={selected?.tema ?? null} onSelect={handleSelect}>
+          {/* El canvas de puntos va DEBAJO de las capas de edificios (ver CityLandscape) */}
+          <HomeCanvas
+            convergeTarget={selected?.center ?? null}
+            onConverged={handleConverged}
+          />
+        </CityLandscape>
+
+        {/* Overlay de temática — aparece al completarse la convergencia */}
+        <AnimatePresence>
+          {overlayOpen && selected && (
+            <ThemeOverlay tema={selected.tema} onClose={handleClose} />
+          )}
+        </AnimatePresence>
+
+        {/* Herramientas de calibración (dev) — dentro del stage para que las
+            coordenadas % coincidan con el landscape. P = paths, H = hitboxes */}
+        <PathCalibrator />
+        <HitboxCalibrator />
       </div>
 
       {/* Navegación — logo a la izquierda + link a Nosotros */}
       <header className="absolute inset-x-0 top-0 z-30 flex items-center justify-between p-6">
         <Link href="/" aria-label="Pica — inicio">
           <img
-            src={assetUrl(LOGOS.navbar.dark)}
+            src={assetUrl(LOGOS.navbar.light)}
             alt="Pica"
             className="h-12 w-auto"
             style={{ imageRendering: 'pixelated' }}
