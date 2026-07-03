@@ -2,99 +2,144 @@
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PICA — Tipo B isotype: distribución categórica con PERSONAS
-// Cada figura es una persona (sprite del Home, tintado con una tonalidad del
-// tema). Las figuras CAMINAN hasta su cluster al cargar (useSpriteWalkers).
-// 1 figura = 0,5% → ~200 figuras, densas y a 2× de tamaño (ref. The Pudding).
-//
-// Layout por presupuesto de ancho: el total de columnas es fijo y se reparte
-// proporcional al valor de cada categoría — los clusters crecen hacia abajo,
-// así el tamaño visual de las figuras no depende de cuántas haya.
+// Una sola MULTITUD densa (ref. The Pudding): figuras ordenadas por categoría
+// formando bandas de color, altura fija (sin scroll), gap mínimo e igual en
+// ambos ejes. La leyenda es CLICKEABLE: aísla una demografía (el resto queda
+// en gris, recoloreo en caliente — las figuras no vuelven a entrar).
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useMemo, useRef } from 'react';
-import { SPRITE_SHEET } from '@/lib/assets';
+import { useMemo, useRef, useState } from 'react';
 import { TEMA_PALETTE } from '@/lib/colors';
 import { figureCount, figureScale } from '@/lib/isotype';
 import { useSpriteWalkers, type WalkerTarget } from '@/hooks/useSpriteWalkers';
 import type { DatasetDistribucion } from '@/types/data';
 import { DataTable, VizFooter, VizHeader } from './VizShared';
 
-const SCALE = 2; // sprites a 2× (34×86 px lógicos)
-const SW = SPRITE_SHEET.frameWidth * SCALE;
-const SH = SPRITE_SHEET.frameHeight * SCALE;
-const GAP_X = 4;
-const GAP_Y = 6;
-const CLUSTER_GAP = 36;
-/** Columnas totales a repartir entre todas las categorías (presupuesto de ancho). */
-const TOTAL_COLS = 20;
+const SCALE = 2; // dibujo lógico a 2×
 
-interface Cluster {
+// Bounding box REAL de la figura dentro del frame 17×43 (medido sobre los
+// PNGs, unión de 6 modelos en idle): el frame tiene mucho padding transparente
+// (13px arriba/abajo). La grilla se calcula sobre el CONTENIDO, no el frame —
+// si no, el aire del frame simula gaps gigantes.
+const C_MIN_X = 4;
+const C_MIN_Y = 13;
+const C_W = 9;
+const C_H = 17;
+/** Separación real entre figuras (art px), idéntica en ambos ejes. */
+const GAP = 1;
+const PITCH_X = (C_W + GAP) * SCALE;
+const PITCH_Y = (C_H + GAP) * SCALE;
+const MARGIN = 2 * SCALE;
+/** Altura fija de la banda en filas — todo visible sin scroll. */
+const ROWS = 10;
+/** Color de las figuras fuera de la demografía aislada. */
+const MUTED = '#4B4B46';
+
+/** Texto legible sobre un color de fondo (chips de la leyenda). */
+function textOn(color: string): string {
+  const n = parseInt(color.slice(1), 16);
+  const lum = 0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255);
+  return lum > 150 ? '#0A0A0A' : '#EBEBEB';
+}
+
+interface LegendItem {
   label: string;
   valor: number;
   color: string;
   count: number;
-  width: number;
 }
 
 export default function IsotypeDistributionViz({ data }: { data: DatasetDistribucion }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const palette = TEMA_PALETTE[data.tematica];
+  // Demografía aislada (null = todas visibles)
+  const [focus, setFocus] = useState<string | null>(null);
 
-  const { scale, clusters, targets, W, H } = useMemo(() => {
+  const { scale, legend } = useMemo(() => {
     const total = data.categorias.reduce((a, c) => a + c.valor, 0);
     const scale = figureScale(total, data.unidad);
-    const counts = data.categorias.map((c) => figureCount(c.valor, scale.per));
-    const totalFigures = counts.reduce((a, n) => a + n, 0) || 1;
-
-    // Repartir columnas proporcional al valor (mínimo 1 por categoría)
-    const cols = counts.map((n) =>
-      Math.max(1, Math.round((n / totalFigures) * TOTAL_COLS)),
-    );
-
-    const rows = counts.map((n, i) => Math.max(1, Math.ceil(n / cols[i]!)));
-    const maxRows = Math.max(...rows);
-    const H = maxRows * (SH + GAP_Y) - GAP_Y;
-
-    const clusters: Cluster[] = [];
-    const targets: WalkerTarget[] = [];
-    let offsetX = 0;
-    data.categorias.forEach((cat, i) => {
-      const n = counts[i]!;
-      const c = cols[i]!;
-      const width = c * (SW + GAP_X) - GAP_X;
-      const color = cat.color ?? palette[i % palette.length]!;
-      const startY = H - rows[i]! * (SH + GAP_Y) + GAP_Y; // base alineada
-      for (let j = 0; j < n; j++) {
-        targets.push({
-          x: offsetX + (j % c) * (SW + GAP_X),
-          y: startY + Math.floor(j / c) * (SH + GAP_Y),
-          color,
-        });
-      }
-      clusters.push({ label: cat.label, valor: cat.valor, color, count: n, width });
-      offsetX += width + CLUSTER_GAP;
-    });
-    const W = offsetX - CLUSTER_GAP;
-    return { scale, clusters, targets, W, H };
+    const legend: LegendItem[] = data.categorias.map((cat, i) => ({
+      label: cat.label,
+      valor: cat.valor,
+      color: cat.color ?? palette[i % palette.length]!,
+      count: figureCount(cat.valor, scale.per),
+    }));
+    return { scale, legend };
   }, [data, palette]);
 
-  useSpriteWalkers(canvasRef, targets, { scale: SCALE });
+  // Posiciones (column-major → bandas verticales por categoría) + color según foco.
+  // El pitch es por CONTENIDO: los targets llevan el origen del FRAME (restando
+  // el offset del contenido); el padding transparente del frame puede quedar
+  // fuera del canvas sin problema.
+  const { targets, W, H } = useMemo(() => {
+    const totalFigures = legend.reduce((a, l) => a + l.count, 0);
+    const cols = Math.max(1, Math.ceil(totalFigures / ROWS));
+    const W = MARGIN * 2 + (cols - 1) * PITCH_X + C_W * SCALE;
+    const H = MARGIN * 2 + (ROWS - 1) * PITCH_Y + C_H * SCALE;
+
+    const targets: WalkerTarget[] = [];
+    let idx = 0;
+    for (const item of legend) {
+      const color = focus && item.label !== focus ? MUTED : item.color;
+      for (let j = 0; j < item.count; j++) {
+        targets.push({
+          x: MARGIN + Math.floor(idx / ROWS) * PITCH_X - C_MIN_X * SCALE,
+          y: MARGIN + (idx % ROWS) * PITCH_Y - C_MIN_Y * SCALE,
+          color,
+        });
+        idx++;
+      }
+    }
+    return { targets, W, H };
+  }, [legend, focus]);
+
+  useSpriteWalkers(canvasRef, targets, { scale: SCALE, layoutKey: data.id });
 
   const ariaLabel = `${data.caracteristica}: ${data.categorias
     .map((c) => `${c.label} ${c.valor}${data.unidad ?? ''}`)
-    .join(', ')}. Cada figura representa ${scale.label.replace('1 figura = ', '')}.`;
+    .join(', ')}. Escala: ${scale.label}.`;
 
   return (
-    <div>
-      <VizHeader dataset={data} />
+    <div className="flex flex-col items-center">
+      <div className="w-full">
+        <VizHeader dataset={data} />
+      </div>
 
-      {/* Escala de figuras */}
-      <p className="mb-3 text-right font-sans text-pica-subtitle text-text-secondary">
-        {scale.label}
-      </p>
+      {/* Leyenda clickeable: aísla una demografía */}
+      <div className="mb-3 flex w-full flex-wrap items-center gap-2">
+        {legend.map((item) => {
+          const isFocused = focus === item.label;
+          const dimmed = focus !== null && !isFocused;
+          return (
+            <button
+              key={item.label}
+              type="button"
+              aria-pressed={isFocused}
+              aria-label={`Aislar ${item.label}`}
+              onClick={() => setFocus((f) => (f === item.label ? null : item.label))}
+              className="flex items-center gap-2 px-2 py-1 font-sans text-pica-subtitle transition-opacity"
+              style={{
+                backgroundColor: item.color,
+                color: textOn(item.color),
+                opacity: dimmed ? 0.35 : 1,
+                boxShadow: isFocused ? `0 0 0 2px #EBEBEB` : 'none',
+              }}
+            >
+              <strong className="font-display text-pica-button font-bold leading-none">
+                {item.valor.toLocaleString('es-UY')}
+                {data.unidad === '%' ? '%' : ''}
+              </strong>
+              {item.label}
+            </button>
+          );
+        })}
+        <span className="ml-auto font-sans text-pica-subtitle text-text-secondary">
+          {scale.label}
+        </span>
+      </div>
 
-      {/* Grilla de personas — el canvas es decorativo, la info está en aria + tabla */}
-      <div role="img" aria-label={ariaLabel} className="w-full max-w-3xl">
+      {/* La multitud — canvas decorativo; la info está en aria + tabla */}
+      <div role="img" aria-label={ariaLabel} className="flex w-full justify-center">
         <canvas
           ref={canvasRef}
           width={W}
@@ -103,33 +148,16 @@ export default function IsotypeDistributionViz({ data }: { data: DatasetDistribu
           className="w-full"
           style={{ imageRendering: 'pixelated' }}
         />
-        {/* Labels alineados a cada cluster (mismas fracciones que el canvas) */}
-        <div className="mt-2 flex w-full" aria-hidden="true">
-          {clusters.map((c, i) => (
-            <div
-              key={c.label}
-              style={{
-                width: `${((c.width + (i < clusters.length - 1 ? CLUSTER_GAP : 0)) / W) * 100}%`,
-              }}
-            >
-              <p className="font-display text-pica-button font-bold" style={{ color: c.color }}>
-                {c.valor.toLocaleString('es-UY')}
-                {data.unidad === '%' ? '%' : ''}
-              </p>
-              <p className="pr-2 font-sans text-pica-subtitle leading-tight text-text-secondary">
-                {c.label}
-              </p>
-            </div>
-          ))}
-        </div>
       </div>
 
-      <DataTable
-        caption={data.caracteristica}
-        head={['Categoría', `Valor${data.unidad ? ` (${data.unidad})` : ''}`, 'Figuras']}
-        rows={clusters.map((c) => [c.label, c.valor, c.count])}
-      />
-      <VizFooter dataset={data} />
+      <div className="w-full">
+        <DataTable
+          caption={data.caracteristica}
+          head={['Categoría', `Valor${data.unidad ? ` (${data.unidad})` : ''}`, 'Figuras']}
+          rows={legend.map((l) => [l.label, l.valor, l.count])}
+        />
+        <VizFooter dataset={data} />
+      </div>
     </div>
   );
 }

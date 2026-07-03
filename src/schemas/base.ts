@@ -36,6 +36,18 @@ export const DatasetBase = z.object({
   descripcion: z.string().min(1),
   /** ej: '%', 'personas', '$UYU' */
   unidad: z.string().optional(),
+  /**
+   * Población de referencia para convertir porcentajes/tasas a números
+   * absolutos (ej: 8,2% de 1.760.000 activos ≈ 144.000 desocupados).
+   * `label` es el sustantivo del RESULTADO ('personas desocupadas').
+   */
+  base: z
+    .object({
+      valor: z.number().positive(),
+      label: z.string().min(1),
+      fuente: z.string().optional(),
+    })
+    .optional(),
 });
 
 // ── Tipo A — Resultado Escalar ───────────────────────────────────────────────

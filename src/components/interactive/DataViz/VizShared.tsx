@@ -10,16 +10,19 @@
 
 import type { Dataset } from '@/types/data';
 
-export function VizHeader({ dataset }: { dataset: Dataset }) {
+export function VizHeader({ dataset, compact = false }: { dataset: Dataset; compact?: boolean }) {
   return (
-    <header className="mb-6">
+    <header className={compact ? 'mb-3' : 'mb-6'}>
       <p className="font-sans text-pica-subtitle uppercase tracking-widest text-text-muted">
         {dataset.entidad} · {dataset.anio}
       </p>
       <h2 className="font-display text-pica-title font-bold text-text-primary">
         {dataset.caracteristica}
       </h2>
-      <p className="mt-2 max-w-xl font-sans text-pica-subtitle text-text-secondary">
+      <p
+        className={`mt-2 max-w-xl font-sans text-pica-subtitle text-text-secondary${compact ? ' line-clamp-2' : ''}`}
+        title={compact ? dataset.descripcion : undefined}
+      >
         {dataset.descripcion}
       </p>
     </header>

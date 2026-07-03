@@ -13,7 +13,9 @@ import ScalarViz from './ScalarViz';
 import DistributionViz from './DistributionViz';
 import IsotypeDistributionViz from './IsotypeDistributionViz';
 import TimeSeriesViz from './TimeSeriesViz';
+import IsotypeTimeSeriesViz from './IsotypeTimeSeriesViz';
 import MatrixViz from './MatrixViz';
+import IsotypeMatrixViz from './IsotypeMatrixViz';
 import MapViz from './MapViz';
 import { isPersonEntity } from '@/lib/isotype';
 import type { Dataset } from '@/types/data';
@@ -30,11 +32,9 @@ export default function VizRouter({ dataset }: { dataset: Dataset }) {
         <DistributionViz data={dataset} />
       );
     case 'C':
-      // TODO(isotype): versión con sprites en camino — validando enfoque con B
-      return <TimeSeriesViz data={dataset} />;
+      return persons ? <IsotypeTimeSeriesViz data={dataset} /> : <TimeSeriesViz data={dataset} />;
     case 'D':
-      // TODO(isotype): ídem C
-      return <MatrixViz data={dataset} />;
+      return persons ? <IsotypeMatrixViz data={dataset} /> : <MatrixViz data={dataset} />;
     case 'E':
       return <MapViz data={dataset} />;
   }

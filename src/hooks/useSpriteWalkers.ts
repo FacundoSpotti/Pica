@@ -25,9 +25,13 @@ export interface WalkerTarget {
 
 const FW = SPRITE_SHEET.frameWidth; // 17
 const FH = SPRITE_SHEET.frameHeight; // 43
+// Mapeo REAL del spritesheet (verificado visualmente sobre los PNGs — difiere
+// del skill): fila 0 = idle FRONTAL (4 variantes), fila 1 = idle ESPALDA,
+// fila 2 = caminata LATERAL de perfil (4 frames, mirando a la IZQUIERDA),
+// fila 3 = extras. El plano lateral es el recurso para el movimiento horizontal.
 const ROW_IDLE_FRONT = 0;
-const ROW_WALK_FRONT = 1;
-const ROW_WALK_BACK = 3;
+const ROW_IDLE_BACK = 1;
+const ROW_WALK_SIDE = 2;
 const WALK_FRAME_MS = 120;
 const IDLE_FRAME_MS = 600;
 const SIM_STEP_MS = 1000 / 30;
@@ -53,6 +57,25 @@ type Sheet = HTMLCanvasElement | OffscreenCanvas;
 const tintedCache = new Map<string, Sheet>();
 const tintedPending = new Map<string, Promise<Sheet>>();
 
+/**
+ * Endurece el canal alfa: todo píxel queda 100% opaco o 100% transparente.
+ * Los PNGs traen bordes semitransparentes (antialiasing) que, al escalar,
+ * se ven como pixelado sucio — la silueta binaria escala limpia.
+ */
+function hardenAlpha(sheet: Sheet): Sheet {
+  try {
+    const ctx = sheet.getContext('2d') as CanvasRenderingContext2D | null;
+    if (!ctx) return sheet;
+    const img = ctx.getImageData(0, 0, sheet.width, sheet.height);
+    const d = img.data;
+    for (let i = 3; i < d.length; i += 4) d[i] = d[i]! > 64 ? 255 : 0;
+    ctx.putImageData(img, 0, 0);
+  } catch {
+    /* si el contexto no permite lectura, dejar el sheet como está */
+  }
+  return sheet;
+}
+
 function getTinted(spriteIdx: number, color: string): Sheet | null {
   const key = `${spriteIdx}|${color}`;
   const hit = tintedCache.get(key);
@@ -60,7 +83,7 @@ function getTinted(spriteIdx: number, color: string): Sheet | null {
   if (!tintedPending.has(key)) {
     const config = SPRITE_CONFIGS[spriteIdx]!;
     const p = loadSprite(config.src).then((img) => {
-      const sheet = tintSprite(img, color);
+      const sheet = hardenAlpha(tintSprite(img, color));
       tintedCache.set(key, sheet);
       return sheet;
     });
@@ -73,6 +96,12 @@ function getTinted(spriteIdx: number, color: string): Sheet | null {
 interface WalkerOptions {
   /** factor de escala de dibujo de los sprites (2 = 34×86 px lógicos) */
   scale?: number;
+  /**
+   * Identidad del layout (ej. dataset.id): los walkers se reconstruyen SOLO
+   * cuando cambia — un cambio de colores (aislar demografía) recolorea en
+   * caliente sin que las figuras vuelvan a entrar caminando.
+   */
+  layoutKey?: string;
 }
 
 /**
@@ -85,10 +114,27 @@ export function useSpriteWalkers(
   options: WalkerOptions = {},
 ): void {
   const walkersRef = useRef<Walker[]>([]);
+  const targetsRef = useRef(targets);
+  targetsRef.current = targets;
   const scale = options.scale ?? 1;
+  const layoutKey = options.layoutKey ?? '';
+
+  // Recoloreo en caliente: mismas posiciones, colores nuevos
+  useEffect(() => {
+    const walkers = walkersRef.current;
+    if (walkers.length !== targets.length) return;
+    targets.forEach((t, i) => {
+      const w = walkers[i]!;
+      if (w.color !== t.color) {
+        w.color = t.color;
+        getTinted(w.spriteIdx, t.color); // precalentar el tint nuevo
+      }
+    });
+  }, [targets]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    const targets = targetsRef.current;
     if (!canvas || targets.length === 0) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
@@ -114,7 +160,9 @@ export function useSpriteWalkers(
         tx: t.x,
         ty: t.y,
         speed: (150 + Math.random() * 60) * scale,
-        delay: reduced ? 0 : i * 4 + Math.random() * 80,
+        // delay por índice a la mitad: con el doble de figuras (~800) la
+        // entrada completa mantiene la misma duración total (~1,6s)
+        delay: reduced ? 0 : i * 2 + Math.random() * 80,
         phase: reduced ? 'idle' : 'waiting',
         animT: Math.random() * 1000,
         dx: 0,
@@ -164,9 +212,17 @@ export function useSpriteWalkers(
 
         let row: number;
         let frame: number;
+        let flip = false;
         if (w.phase === 'walking' && !reduced) {
-          // Espalda si camina hacia arriba; frente en el resto
-          row = w.dy < 0 && Math.abs(w.dy) > Math.abs(w.dx) ? ROW_WALK_BACK : ROW_WALK_FRONT;
+          const horizontal = Math.abs(w.dx) >= 0.4 * Math.abs(w.dy);
+          if (horizontal) {
+            // Plano LATERAL del spritesheet (mira a la izquierda; flip para ir a la derecha)
+            row = ROW_WALK_SIDE;
+            flip = w.dx > 0;
+          } else {
+            // Movimiento vertical: espalda al alejarse (subir), frente al acercarse
+            row = w.dy < 0 ? ROW_IDLE_BACK : ROW_IDLE_FRONT;
+          }
           frame = Math.floor(w.animT / WALK_FRAME_MS) % SPRITE_SHEET.cols;
         } else {
           row = ROW_IDLE_FRONT;
@@ -180,8 +236,6 @@ export function useSpriteWalkers(
         const py = Math.round(w.y);
         const SW = FW * scale;
         const SH = FH * scale;
-        // Flip horizontal cuando camina hacia la izquierda
-        const flip = w.phase === 'walking' && w.dx < 0 && Math.abs(w.dx) >= Math.abs(w.dy);
         if (flip) {
           ctx.save();
           ctx.translate(px + SW, py);
@@ -208,5 +262,6 @@ export function useSpriteWalkers(
     raf = requestAnimationFrame(loop);
 
     return () => cancelAnimationFrame(raf);
-  }, [canvasRef, targets, scale]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- targets vía ref: reconstruir solo si cambia el layout
+  }, [canvasRef, layoutKey, scale]);
 }

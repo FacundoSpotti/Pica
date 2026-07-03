@@ -55,24 +55,38 @@ export const TEMA_DESCRIPTION: Record<Tematica, string> = {
 };
 
 /**
- * Tonalidades del tema para categorías de isotype charts: variaciones dentro
- * de la MISMA paleta, ordenadas para máximo contraste entre grupos vecinos.
+ * Paleta de categorías para isotype charts (ref. The Pudding): tonos 400 de
+ * DISTINTAS familias, curados por tema para máximo contraste entre grupos
+ * vecinos (alternando matiz y luminosidad). El primer color es siempre el del
+ * tema. Las tonalidades de una sola familia no contrastaban lo suficiente.
  */
-const SHADE_ORDER = [400, 600, 200, 700, 300, 500, 100, 800] as const;
-const TEMA_BASE = {
-  educacion: picaColors.blue,
-  trabajo: picaColors.yellow,
-  salud: picaColors.green,
-  economia: picaColors.orange,
-  seguridad: picaColors.red,
-} as const;
-
-export const TEMA_PALETTE: Record<Tematica, string[]> = Object.fromEntries(
-  (Object.keys(TEMA_BASE) as Tematica[]).map((t) => [
-    t,
-    SHADE_ORDER.map((s) => TEMA_BASE[t][s]),
-  ]),
-) as Record<Tematica, string[]>;
+export const TEMA_PALETTE: Record<Tematica, string[]> = {
+  educacion: [
+    picaColors.blue[400], picaColors.yellow[400], picaColors.cyan[400],
+    picaColors.pink[400], picaColors.green[400], picaColors.purple[400],
+    picaColors.orange[400], picaColors.blue[100],
+  ],
+  trabajo: [
+    picaColors.yellow[400], picaColors.blue[400], picaColors.pink[400],
+    picaColors.green[400], picaColors.purple[400], picaColors.cyan[400],
+    picaColors.red[400], picaColors.yellow[100],
+  ],
+  salud: [
+    picaColors.green[400], picaColors.purple[400], picaColors.cyan[400],
+    picaColors.pink[400], picaColors.yellow[400], picaColors.blue[400],
+    picaColors.orange[400], picaColors.green[100],
+  ],
+  economia: [
+    picaColors.orange[400], picaColors.blue[400], picaColors.green[400],
+    picaColors.pink[400], picaColors.cyan[400], picaColors.purple[400],
+    picaColors.yellow[400], picaColors.orange[100],
+  ],
+  seguridad: [
+    picaColors.red[400], picaColors.cyan[400], picaColors.yellow[400],
+    picaColors.purple[400], picaColors.green[400], picaColors.pink[400],
+    picaColors.blue[400], picaColors.red[100],
+  ],
+};
 
 /**
  * Extremos de la escala de color para visualizaciones de intensidad
@@ -118,4 +132,11 @@ export const COLORBAR_ORDER: readonly Tematica[] = [
 /** true si la temática está activa en V1. */
 export function isTemaActive(tema: Tematica): boolean {
   return ACTIVE_TEMAS.includes(tema);
+}
+
+/** Texto legible (casi negro o casi blanco) sobre un color de fondo dado. */
+export function textOnColor(hex: string): string {
+  const n = parseInt(hex.slice(1), 16);
+  const lum = 0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255);
+  return lum > 150 ? '#0A0A0A' : '#EBEBEB';
 }
