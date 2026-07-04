@@ -23,6 +23,8 @@ import ColorBar from '@/components/home/ColorBar';
 import ThemeOverlay from '@/components/home/ThemeOverlay';
 import PathCalibrator from '@/components/home/PathCalibrator';
 import HitboxCalibrator from '@/components/home/HitboxCalibrator';
+import StickyNotes from '@/components/home/StickyNotes';
+import AmbientWalkers from '@/components/shared/AmbientWalkers';
 import PixelIcon from '@/components/shared/PixelIcon';
 import PicaLogo from '@/components/shared/PicaLogo';
 import { assetUrl, LANDSCAPE_SIZE, LOGOS } from '@/lib/assets';
@@ -60,12 +62,19 @@ export default function HomePage() {
 
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-bg-base">
-      {/* Stage: landscape CONTENIDO (no full-bleed), centrado con margen oscuro */}
+      {/* Personas grises caminando por el margen oscuro (como en Nosotros) —
+          detrás del stage; mantené el click sobre una y te mira */}
+      <AmbientWalkers count={8} className="absolute inset-0 h-full w-full" />
+
+      {/* Stage: landscape CONTENIDO (no full-bleed), centrado con margen oscuro.
+          Borde blanco fino con brillo suave (detalle, no protagonista). */}
       <div
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl"
+        className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl"
         style={{
           width: `min(90vw, calc((100vh - 170px) * ${ASPECT}))`,
           height: `min(100vh - 170px, calc(90vw / ${ASPECT}))`,
+          boxShadow:
+            '0 0 0 2px rgba(235, 235, 235, 0.85), 0 0 22px 3px rgba(235, 235, 235, 0.22)',
         }}
       >
         <CityLandscape selectedTema={selected?.tema ?? null} onSelect={handleSelect}>
@@ -87,6 +96,19 @@ export default function HomePage() {
             coordenadas % coincidan con el landscape. P = paths, H = hitboxes */}
         <PathCalibrator />
         <HitboxCalibrator />
+      </div>
+
+      {/* Notas "pegadas" alrededor del mapa — misma geometría que el stage pero
+          SIN overflow-hidden, así los papeles asoman sobre el margen oscuro.
+          pointer-events-none: los clicks pasan a los edificios. */}
+      <div
+        className="pointer-events-none absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2"
+        style={{
+          width: `min(90vw, calc((100vh - 170px) * ${ASPECT}))`,
+          height: `min(100vh - 170px, calc(90vw / ${ASPECT}))`,
+        }}
+      >
+        <StickyNotes />
       </div>
 
       {/* Navegación — logo a la izquierda + link a Nosotros */}

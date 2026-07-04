@@ -18,7 +18,7 @@
 // del edificio elegido queda en color.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   assetUrl,
   BUILDING_HITBOX_POLYGONS,
@@ -29,7 +29,8 @@ import {
   polygonCentroid,
   polygonClipPath,
 } from '@/lib/assets';
-import { isTemaActive, TEMA_COLOR, TEMA_LABEL, TEMA_ORDER } from '@/lib/colors';
+import WindowTwinkles from '@/components/home/WindowTwinkles';
+import { ACTIVE_TEMAS, isTemaActive, TEMA_COLOR, TEMA_LABEL, TEMA_ORDER } from '@/lib/colors';
 import { STREET_PATHS } from '@/hooks/useColorDots';
 import type { Tematica } from '@/types/sprites';
 
@@ -51,6 +52,28 @@ const GRAYSCALE = 'grayscale(100%) brightness(0.5)';
 export default function CityLandscape({ selectedTema, onSelect, children }: CityLandscapeProps) {
   // Hover sobre un edificio: cartel con la temática + elevación intermedia
   const [hoveredTema, setHoveredTema] = useState<Tematica | null>(null);
+  const hoveredRef = useRef<Tematica | null>(null);
+  hoveredRef.current = hoveredTema;
+
+  // Modo "atract": sin interacción, cada tanto un edificio destella con su
+  // color rotando entre las temáticas activas — invita a clickear.
+  // Se pausa mientras hay hover (para no confundir con otro edificio).
+  const [pulseTema, setPulseTema] = useState<Tematica | null>(null);
+  useEffect(() => {
+    if (selectedTema || hoveredTema) {
+      setPulseTema(null);
+      return;
+    }
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    let i = 0;
+    const interval = setInterval(() => {
+      if (hoveredRef.current) return; // no destellar mientras se explora con hover
+      setPulseTema(ACTIVE_TEMAS[i % ACTIVE_TEMAS.length]!);
+      i++;
+      setTimeout(() => setPulseTema(null), 1900);
+    }, 4200);
+    return () => clearInterval(interval);
+  }, [selectedTema, hoveredTema]);
 
   return (
     <div className="absolute inset-0 h-full w-full">
@@ -78,24 +101,37 @@ export default function CityLandscape({ selectedTema, onSelect, children }: City
       {BUILDING_LAYER_ORDER.map((tema) => {
         const isSelected = selectedTema === tema;
         const isHovered = hoveredTema === tema;
+        const isPulsing = pulseTema === tema && !selectedTema && !isHovered;
+        const glow = TEMA_COLOR[tema];
         // Dos estados de elevación: hover (leve) y click definitivo (más alto)
         const lift = isSelected ? '-0.9%' : isHovered ? '-0.45%' : '0';
+        // Destello SOSTENIDO en hover (sutil); el pulso periódico va por la clase
+        const filter =
+          selectedTema && !isSelected
+            ? GRAYSCALE
+            : isHovered
+              ? `drop-shadow(0 0 2px ${glow}) drop-shadow(0 0 7px color-mix(in srgb, ${glow} 40%, transparent))`
+              : 'none';
         return (
           <img
             key={tema}
             src={assetUrl(BUILDING_LAYERS[tema])}
             alt=""
-            className={layerClass}
+            className={`${layerClass}${isPulsing ? ' pica-attract' : ''}`}
             style={{
               ...pixelated,
-              filter: selectedTema && !isSelected ? GRAYSCALE : 'none',
+              '--glow': glow,
+              filter,
               transform: `translateY(${lift})`,
               transition:
-                'filter 500ms ease, transform 400ms cubic-bezier(0.22, 1, 0.36, 1)',
-            }}
+                'filter 350ms ease, transform 400ms cubic-bezier(0.22, 1, 0.36, 1)',
+            } as React.CSSProperties}
           />
         );
       })}
+
+      {/* 3b. Microvida: ventanas encendiéndose y apagándose en los edificios */}
+      <WindowTwinkles selectedTema={selectedTema} />
 
       {/* 4a. Debug de paths — líneas rojas sobre las calles */}
       {DEBUG_PATHS && (

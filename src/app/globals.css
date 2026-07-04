@@ -74,6 +74,24 @@ img[data-pixelated='true'] {
   border-radius: 2px;
 }
 
+/* ── Destello "atract" de los edificios del Home ─────────────────────────── */
+/* Pulso de invitación: cada tanto un edificio brilla con su color (--glow)
+   para señalar que ahí hay interacción. El hover aplica el brillo sostenido
+   por inline style; esta animación es solo el guiño periódico. */
+
+@keyframes pica-attract {
+  0%, 100% { filter: none; }
+  35%, 65% {
+    /* sutil: radios cortos y el halo exterior bien diluido */
+    filter: drop-shadow(0 0 2px var(--glow))
+      drop-shadow(0 0 8px color-mix(in srgb, var(--glow) 35%, transparent));
+  }
+}
+
+.pica-attract {
+  animation: pica-attract 1.8s ease-in-out;
+}
+
 /* ── Ojos del logo: mirada + parpadeo pasivos (ver PicaLogo) ─────────────── */
 
 @keyframes pica-eye-cycle {
