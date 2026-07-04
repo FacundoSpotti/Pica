@@ -27,7 +27,8 @@ const FW = SPRITE_SHEET.frameWidth; // 17
 const FH = SPRITE_SHEET.frameHeight; // 43
 // Mapeo REAL del spritesheet (verificado visualmente sobre los PNGs — difiere
 // del skill): fila 0 = idle FRONTAL (4 variantes), fila 1 = idle ESPALDA,
-// fila 2 = caminata LATERAL de perfil (4 frames, mirando a la IZQUIERDA),
+// fila 2 = caminata LATERAL de perfil (4 frames, mirando a la DERECHA — lo
+// confirmó Facundo al ver figuras caminando "hacia atrás" con el flip inverso),
 // fila 3 = extras. El plano lateral es el recurso para el movimiento horizontal.
 const ROW_IDLE_FRONT = 0;
 const ROW_IDLE_BACK = 1;
@@ -74,6 +75,11 @@ export function hardenAlpha(sheet: Sheet): Sheet {
     /* si el contexto no permite lectura, dejar el sheet como está */
   }
   return sheet;
+}
+
+/** Acceso público a la caché de sheets tintados (para componentes ambient). */
+export function getTintedSheet(spriteIdx: number, color: string): Sheet | null {
+  return getTinted(spriteIdx, color);
 }
 
 function getTinted(spriteIdx: number, color: string): Sheet | null {
@@ -216,9 +222,9 @@ export function useSpriteWalkers(
         if (w.phase === 'walking' && !reduced) {
           const horizontal = Math.abs(w.dx) >= 0.4 * Math.abs(w.dy);
           if (horizontal) {
-            // Plano LATERAL del spritesheet (mira a la izquierda; flip para ir a la derecha)
+            // Plano LATERAL del spritesheet (mira a la derecha; flip para ir a la izquierda)
             row = ROW_WALK_SIDE;
-            flip = w.dx > 0;
+            flip = w.dx < 0;
           } else {
             // Movimiento vertical: espalda al alejarse (subir), frente al acercarse
             row = w.dy < 0 ? ROW_IDLE_BACK : ROW_IDLE_FRONT;

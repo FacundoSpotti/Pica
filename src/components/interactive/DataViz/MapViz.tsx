@@ -1,19 +1,21 @@
 'use client';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// PICA — Tipo E: mapa de Uruguay por departamento (v2)
-// · Mapa a la IZQUIERDA; a la derecha, además del número, la MULTITUD que
-//   representa ese porcentaje (contraste poblacional: figuras de color sobre
-//   el resto en gris, como en el resto de Pica).
-// · Click en un departamento lo AÍSLA: el resto del mapa queda en gris.
-//   (Hover previsualiza; click fija. Arranca en el departamento de mayor valor.)
-// · Leyenda de gradiente en BLOQUES pixel (sin degradé continuo).
+// PICA — Tipo E: mapa de Uruguay por departamento (v3)
+// · Mapa a la izquierda; a la derecha el panel del departamento SELECCIONADO
+//   (click) con su multitud proporcional.
+// · COMPARADOR: con uno seleccionado, hacer HOVER sobre otro abre un segundo
+//   panel al lado (número + multitud + diferencia) — comparar es instantáneo.
+// · Click aísla en el mapa (los demás en gris); el hovereado también se
+//   enciende para leer la comparación.
+// · Todo dimensionado al alto disponible medido → sin scroll vertical.
+// · Leyenda de gradiente en BLOQUES pixel.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
 import { interpolateRgb, max, min, scaleLinear } from 'd3';
-import { TEMA_COLOR, TEMA_SCALE } from '@/lib/colors';
+import { TEMA_SCALE } from '@/lib/colors';
 import { figureCount, perLabel, seriesScale } from '@/lib/isotype';
 import { useSpriteWalkers, type WalkerTarget } from '@/hooks/useSpriteWalkers';
 import type { DatasetEspacial } from '@/types/data';
@@ -31,13 +33,14 @@ const GAP = 1;
 const PITCH_X = (C_W + GAP) * SCALE;
 const PITCH_Y = (C_H + GAP) * SCALE;
 const MARGIN = 2 * SCALE;
-/** Multitud del panel: 20 columnas × 10 filas = 200 figuras (2 figuras = 1%). */
+/** Multitud por panel: 20 columnas × 10 filas = 200 figuras (2 figuras = 1%). */
 const CROWD_COLS = 20;
 const CROWD_ROWS = 10;
+const CROWD_W = MARGIN * 2 + (CROWD_COLS - 1) * PITCH_X + C_W * SCALE;
+const CROWD_H = MARGIN * 2 + (CROWD_ROWS - 1) * PITCH_Y + C_H * SCALE;
 const CONTEXT_GRAY = '#4E4E48';
 /** Gris de los departamentos no seleccionados. */
 const MAP_GRAY = '#3B3B36';
-/** Bloques de la leyenda pixel. */
 const LEGEND_BLOCKS = 7;
 
 interface GeoProps {
@@ -51,10 +54,90 @@ interface Dept {
   valor: number;
 }
 
+/** Panel de un departamento: nombre + número + multitud proporcional. */
+function DeptPanel({
+  dept,
+  colorOf,
+  unidad,
+  per,
+  maxW,
+  hint,
+  compareTo,
+}: {
+  dept: Dept;
+  colorOf: (v: number) => string;
+  unidad?: string;
+  per: number;
+  maxW: number;
+  hint?: string;
+  compareTo?: Dept | null;
+}) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const targets = useMemo(() => {
+    const colored = figureCount(dept.valor, per);
+    const total = Math.round(100 / per);
+    const out: WalkerTarget[] = [];
+    for (let j = 0; j < total; j++) {
+      out.push({
+        x: MARGIN + Math.floor(j / CROWD_ROWS) * PITCH_X - C_MIN_X * SCALE,
+        y: MARGIN + (j % CROWD_ROWS) * PITCH_Y - C_MIN_Y * SCALE,
+        color: j < colored ? colorOf(dept.valor) : CONTEXT_GRAY,
+      });
+    }
+    return out;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dept.id, dept.valor, per]);
+
+  useSpriteWalkers(canvasRef, targets, { scale: SCALE, layoutKey: `map:${dept.id}` });
+
+  const delta = compareTo ? dept.valor - compareTo.valor : null;
+
+  return (
+    <div className="min-w-0" style={{ maxWidth: maxW }}>
+      <p className="truncate font-display text-pica-button font-bold uppercase text-text-primary">
+        {dept.nombre}
+        {hint && (
+          <span className="ml-2 font-sans text-pica-subtitle font-normal normal-case text-text-muted">
+            {hint}
+          </span>
+        )}
+      </p>
+      <p
+        className="font-display font-black leading-none"
+        style={{
+          color: colorOf(dept.valor),
+          fontSize: 44,
+          fontVariationSettings: '"ELGR" 1, "ELSH" 2',
+        }}
+      >
+        {dept.valor.toLocaleString('es-UY')}
+        {unidad === '%' ? '%' : ''}
+      </p>
+      {delta !== null && (
+        <p className="font-sans text-pica-subtitle text-text-secondary">
+          <span aria-hidden="true" style={{ color: colorOf(dept.valor) }}>
+            {delta >= 0 ? '▲' : '▼'}
+          </span>{' '}
+          {delta >= 0 ? '+' : ''}
+          {delta.toLocaleString('es-UY', { maximumFractionDigits: 1 })} pp vs {compareTo!.nombre}
+        </p>
+      )}
+      <canvas
+        ref={canvasRef}
+        width={CROWD_W}
+        height={CROWD_H}
+        role="img"
+        aria-label={`${dept.nombre}: ${dept.valor}${unidad ?? ''} representado con figuras sobre un total de 100.`}
+        className="mt-2 w-full"
+        style={{ imageRendering: 'pixelated' }}
+      />
+    </div>
+  );
+}
+
 export default function MapViz({ data }: { data: DatasetEspacial }) {
   const [lo, hi] = TEMA_SCALE[data.tematica];
-  const temaColor = TEMA_COLOR[data.tematica];
-  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const vals = data.departamentos.map((d) => d.valor);
   const minV = min(vals) ?? 0;
@@ -71,57 +154,36 @@ export default function MapViz({ data }: { data: DatasetEspacial }) {
     [data],
   );
 
-  // Click fija la selección; hover previsualiza
+  // Click fija la selección; hover sobre OTRO abre el comparador
   const [selected, setSelected] = useState<Dept | null>(topDept);
   const [hovered, setHovered] = useState<Dept | null>(null);
-  const active = hovered ?? selected ?? topDept;
+  const active = selected ?? topDept;
+  const compare = hovered && hovered.id !== active.id ? hovered : null;
 
-  // El mapa se dimensiona al alto disponible (tabla+fuente reservados) → sin scroll
+  // Escala de la multitud (2 figuras = 1%)
+  const { per } = useMemo(() => seriesScale(100, '%', CROWD_COLS * CROWD_ROWS), []);
+  const proportional = data.unidad === '%';
+
+  // Alto disponible medido → mapa y multitudes entran sin scroll
   const rowRef = useRef<HTMLDivElement>(null);
-  const [mapW, setMapW] = useState(400);
+  const [fit, setFit] = useState({ mapW: 400, panelW: 300 });
   useEffect(() => {
     const el = rowRef.current;
     if (!el) return;
     const update = () => {
       const rect = el.getBoundingClientRect();
-      const avail = Math.max(240, window.innerHeight - rect.top - 170);
-      // proyección 480×520 → ancho = alto × (480/520)
-      setMapW(Math.round(Math.min(448, (avail * 480) / 520)));
+      const avail = Math.max(240, window.innerHeight - rect.top - 190);
+      setFit({
+        mapW: Math.round(Math.min(430, ((avail - 30) * 480) / 520)),
+        // panel: nombre+número+delta ≈ 130px; el resto para la multitud
+        panelW: Math.round(Math.min(340, Math.max(180, (avail - 140) * (CROWD_W / CROWD_H)))),
+      });
     };
     update();
     window.addEventListener('resize', update);
     return () => window.removeEventListener('resize', update);
   }, []);
 
-  // ── Multitud proporcional del departamento activo ──────────────────────────
-  const proportional = data.unidad === '%';
-  const { per, crowd } = useMemo(() => {
-    // 2 figuras = 1% → 200 figuras el total
-    const { per } = seriesScale(100, '%', CROWD_COLS * CROWD_ROWS);
-    const W = MARGIN * 2 + (CROWD_COLS - 1) * PITCH_X + C_W * SCALE;
-    const H = MARGIN * 2 + (CROWD_ROWS - 1) * PITCH_Y + C_H * SCALE;
-    return { per, crowd: { W, H } };
-  }, []);
-
-  const targets = useMemo(() => {
-    if (!proportional) return [];
-    const colored = figureCount(active.valor, per);
-    const total = Math.round(100 / per);
-    const out: WalkerTarget[] = [];
-    for (let j = 0; j < total; j++) {
-      out.push({
-        x: MARGIN + Math.floor(j / CROWD_ROWS) * PITCH_X - C_MIN_X * SCALE,
-        y: MARGIN + (j % CROWD_ROWS) * PITCH_Y - C_MIN_Y * SCALE,
-        color: j < colored ? colorOf(active.valor) : CONTEXT_GRAY,
-      });
-    }
-    return out;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active.id, active.valor, per, proportional]);
-
-  useSpriteWalkers(canvasRef, targets, { scale: SCALE, layoutKey: `${data.id}:${active.id}` });
-
-  // Bloques de la leyenda pixel (gradiente discreto)
   const legendBlocks = Array.from({ length: LEGEND_BLOCKS }, (_, i) =>
     interpolateRgb(lo, hi)(i / (LEGEND_BLOCKS - 1)),
   );
@@ -133,13 +195,31 @@ export default function MapViz({ data }: { data: DatasetEspacial }) {
     <div>
       <VizHeader dataset={data} compact />
 
-      <div ref={rowRef} className="flex flex-col gap-6 md:flex-row md:items-start">
-        {/* IZQUIERDA — mapa (dimensionado al alto disponible) */}
+      {/* Composición centrada: [seleccionado] [MAPA] [comparado] */}
+      <div
+        ref={rowRef}
+        className="grid grid-cols-1 items-center gap-6 md:grid-cols-[1fr_auto_1fr]"
+      >
+        {/* IZQUIERDA — panel del departamento seleccionado */}
+        {proportional && (
+          <div className="min-w-0 justify-self-center md:justify-self-end">
+            <DeptPanel
+              dept={active}
+              colorOf={colorOf}
+              unidad={data.unidad}
+              per={per}
+              maxW={fit.panelW}
+              hint="(click en el mapa para cambiar)"
+            />
+          </div>
+        )}
+
+        {/* CENTRO — mapa (dimensionado al alto disponible) */}
         <div
           role="img"
-          aria-label={`Mapa de Uruguay: ${data.caracteristica}. Valores de ${minV} a ${maxV} ${data.unidad ?? ''}. Departamento seleccionado: ${selected?.nombre ?? 'ninguno'}.`}
-          className="w-full shrink-0"
-          style={{ maxWidth: mapW }}
+          aria-label={`Mapa de Uruguay: ${data.caracteristica}. Valores de ${minV} a ${maxV} ${data.unidad ?? ''}. Seleccionado: ${active.nombre}. Pasá el cursor por otro departamento para comparar.`}
+          className="w-full shrink-0 justify-self-center"
+          style={{ maxWidth: fit.mapW }}
         >
           <ComposableMap
             projection="geoMercator"
@@ -154,12 +234,9 @@ export default function MapViz({ data }: { data: DatasetEspacial }) {
                   const props = geo.properties as GeoProps;
                   const iso = props.HASC_1?.replace('.', '-') ?? '';
                   const dept = byId.get(iso);
-                  // Con selección: solo el elegido conserva color
-                  const fill = !dept
-                    ? '#26262A'
-                    : selected && selected.id !== dept.id
-                      ? MAP_GRAY
-                      : colorOf(dept.valor);
+                  // Con selección: el elegido y el hovereado en color, el resto gris
+                  const lit = dept && (dept.id === active.id || dept.id === hovered?.id);
+                  const fill = !dept ? '#26262A' : selected && !lit ? MAP_GRAY : colorOf(dept.valor);
                   return (
                     <Geography
                       key={geo.rsmKey}
@@ -172,7 +249,7 @@ export default function MapViz({ data }: { data: DatasetEspacial }) {
                       onClick={() => dept && toggleSelect(dept)}
                       style={{
                         default: { outline: 'none' },
-                        hover: { outline: 'none', opacity: 0.85, cursor: 'pointer' },
+                        hover: { outline: 'none', opacity: 0.9, cursor: 'pointer' },
                         pressed: { outline: 'none' },
                       }}
                     />
@@ -182,8 +259,8 @@ export default function MapViz({ data }: { data: DatasetEspacial }) {
             </Geographies>
           </ComposableMap>
 
-          {/* Leyenda pixel: bloques discretos, no degradé continuo */}
-          <div className="mt-2 flex items-center gap-2 font-sans text-pica-subtitle text-text-secondary">
+          {/* Leyenda pixel: bloques discretos + escala de figuras */}
+          <div className="mt-2 flex items-center justify-center gap-2 font-sans text-pica-subtitle text-text-secondary">
             <span>{minV.toLocaleString('es-UY')}</span>
             <div className="flex" aria-hidden="true">
               {legendBlocks.map((c, i) => (
@@ -194,60 +271,32 @@ export default function MapViz({ data }: { data: DatasetEspacial }) {
               {maxV.toLocaleString('es-UY')}
               {data.unidad === '%' ? '%' : ''}
             </span>
+            <span className="ml-3 text-text-muted">{perLabel(per, '%')}</span>
           </div>
         </div>
 
-        {/* DERECHA — número + multitud proporcional del departamento activo */}
-        <div className="min-w-0 flex-1">
-          <p className="font-display text-pica-button font-bold uppercase text-text-primary">
-            {active.nombre}
-            {selected?.id === active.id && !hovered && (
-              <span className="ml-2 font-sans text-pica-subtitle font-normal normal-case text-text-muted">
-                (click en el mapa para cambiar)
-              </span>
-            )}
-          </p>
-          <p
-            className="font-display font-black leading-none"
-            style={{
-              color: colorOf(active.valor),
-              fontSize: 56,
-              fontVariationSettings: '"ELGR" 1, "ELSH" 2',
-            }}
-          >
-            {active.valor.toLocaleString('es-UY')}
-            {data.unidad === '%' ? '%' : ''}
-          </p>
-
-          {proportional && (
-            <>
-              <div className="mt-1 flex items-center gap-2 font-sans text-pica-subtitle text-text-secondary">
-                <span
-                  aria-hidden="true"
-                  className="inline-block h-3 w-3"
-                  style={{ backgroundColor: colorOf(active.valor) }}
-                />
-                {data.caracteristica}
-                <span
-                  aria-hidden="true"
-                  className="ml-1 inline-block h-3 w-3"
-                  style={{ backgroundColor: CONTEXT_GRAY }}
-                />
-                resto de cada 100
-                <span className="ml-auto">{perLabel(per, '%')}</span>
-              </div>
-              <canvas
-                ref={canvasRef}
-                width={crowd.W}
-                height={crowd.H}
-                aria-label={`${active.nombre}: ${active.valor}${data.unidad ?? ''} representado con figuras de personas sobre un total de 100.`}
-                role="img"
-                className="mt-2 w-full max-w-xl"
-                style={{ imageRendering: 'pixelated' }}
+        {/* DERECHA — comparador al hover (placeholder mantiene la composición) */}
+        {proportional && (
+          <div className="min-w-0 justify-self-center md:justify-self-start">
+            {compare ? (
+              <DeptPanel
+                dept={compare}
+                colorOf={colorOf}
+                unidad={data.unidad}
+                per={per}
+                maxW={fit.panelW}
+                compareTo={active}
               />
-            </>
-          )}
-        </div>
+            ) : (
+              <div
+                className="flex items-center justify-center border-2 border-dashed border-white/15 p-6 text-center font-sans text-pica-subtitle text-text-muted"
+                style={{ width: fit.panelW, minHeight: 180 }}
+              >
+                Pasá el cursor por otro departamento para compararlo con {active.nombre}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <DataTable
