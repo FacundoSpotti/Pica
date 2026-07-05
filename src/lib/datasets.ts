@@ -15,6 +15,7 @@ import educacion_nivel_por_generacion from "@/data/educacion/nivel-por-generacio
 import educacion_nivel_por_sexo from "@/data/educacion/nivel-por-sexo.json";
 import educacion_sin_ciclo_basico_por_departamento from "@/data/educacion/sin-ciclo-basico-por-departamento.json";
 import educacion_terciaria_por_departamento from "@/data/educacion/terciaria-por-departamento.json";
+import salud_cobertura_por_edad from "@/data/salud/cobertura-por-edad.json";
 import salud_cobertura_salud from "@/data/salud/cobertura-salud.json";
 import salud_mortalidad_infantil from "@/data/salud/mortalidad-infantil.json";
 import salud_vacunacion from "@/data/salud/vacunacion.json";
@@ -53,6 +54,7 @@ const RAW_DATASETS: unknown[] = [
   educacion_nivel_por_sexo,
   educacion_sin_ciclo_basico_por_departamento,
   educacion_terciaria_por_departamento,
+  salud_cobertura_por_edad,
   salud_cobertura_salud,
   salud_mortalidad_infantil,
   salud_vacunacion,

@@ -2,17 +2,33 @@
   "id": "cobertura-salud",
   "tematica": "salud",
   "entidad": "Personas",
-  "caracteristica": "Prestador principal de salud",
+  "caracteristica": "Prestador integral de salud",
   "tipoResultado": "B",
-  "fuente": "INE — ECH 2024",
+  "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.2.3 (fuente SINADI-AES, MSP)",
+  "fuenteUrl": "https://www.gub.uy/instituto-nacional-estadistica/",
   "anio": 2024,
-  "descripcion": "Distribución de las personas según su prestador principal de atención a la salud. VALORES PROVISORIOS — reemplazar con el procesamiento de la ECH 2024.",
+  "descripcion": "Distribución de la población según su prestador integral de salud. Afiliaciones a prestadores integrales de salud, 2024. Copia local en datos-fuente/salud/3.2.3ok.xls.",
   "unidad": "%",
   "categorias": [
-    { "label": "IAMC (mutualista)", "valor": 61.4 },
-    { "label": "ASSE (pública)", "valor": 30.2 },
-    { "label": "Sanidad militar o policial", "valor": 4.3 },
-    { "label": "Seguro privado", "valor": 3.0 },
-    { "label": "Sin cobertura declarada", "valor": 1.1 }
+    {
+      "label": "IAMC (mutualista)",
+      "valor": 54.4
+    },
+    {
+      "label": "ASSE (pública)",
+      "valor": 36.3
+    },
+    {
+      "label": "Seguro privado",
+      "valor": 3.2
+    },
+    {
+      "label": "Sanidad militar",
+      "valor": 3.2
+    },
+    {
+      "label": "Sanidad policial",
+      "valor": 2.9
+    }
   ]
 }
