@@ -121,7 +121,9 @@ export default function IsotypeDistributionViz({ data }: { data: DatasetDistribu
     return { targets, W, H };
   }, [cats, isRate, focus]);
 
-  useSpriteWalkers(canvasRef, targets, { scale: SCALE, layoutKey: `${data.id}:${focus ?? ''}` });
+  // layoutKey estable (sin focus): aislar una demografía solo RECOLOREA en
+  // caliente (gris/color), sin que las figuras vuelvan a entrar caminando.
+  useSpriteWalkers(canvasRef, targets, { scale: SCALE, layoutKey: data.id });
 
   const ariaLabel = `${data.caracteristica}: ${data.categorias
     .map((c) => `${c.label} ${c.valor}${data.unidad ?? ''}`)
