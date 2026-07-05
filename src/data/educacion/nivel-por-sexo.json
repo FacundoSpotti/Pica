@@ -1,0 +1,36 @@
+{
+  "id": "nivel-por-sexo",
+  "tematica": "educacion",
+  "entidad": "Personas de 25 años o más",
+  "caracteristica": "Nivel educativo por sexo",
+  "tipoResultado": "D",
+  "fuente": "INE — Encuesta Continua de Hogares, enero 2024 (microdatos)",
+  "fuenteUrl": "https://www4.ine.gub.uy/Anda5/index.php/catalog/767",
+  "anio": 2024,
+  "descripcion": "Distribución del máximo nivel educativo alcanzado según sexo (cada fila suma 100%). Calculado sobre los microdatos de la ECH (enero 2024) con el ponderador W, población de 25 años o más. Es un mes puntual (no promedio anual). Copia local en datos-fuente/trabajo/ECH_01_24.csv.",
+  "unidad": "%",
+  "filas": [
+    "Varones",
+    "Mujeres"
+  ],
+  "columnas": [
+    "Hasta ciclo básico incompleto",
+    "Ciclo básico completo",
+    "Media superior completa",
+    "Terciaria completa"
+  ],
+  "valores": [
+    [
+      39.3,
+      29.4,
+      18.8,
+      12.5
+    ],
+    [
+      35.1,
+      26.5,
+      20.6,
+      17.9
+    ]
+  ]
+}

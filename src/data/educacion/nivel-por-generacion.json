@@ -1,0 +1,50 @@
+{
+  "id": "nivel-por-generacion",
+  "tematica": "educacion",
+  "entidad": "Personas de 25 años o más",
+  "caracteristica": "Nivel educativo por generación",
+  "tipoResultado": "D",
+  "fuente": "INE — Encuesta Continua de Hogares, enero 2024 (microdatos)",
+  "fuenteUrl": "https://www4.ine.gub.uy/Anda5/index.php/catalog/767",
+  "anio": 2024,
+  "descripcion": "Máximo nivel educativo alcanzado según tramo de edad — refleja la expansión educativa entre generaciones (cada fila suma 100%). Calculado sobre los microdatos de la ECH (enero 2024) con el ponderador W, población de 25 años o más. Es un mes puntual (no promedio anual). Copia local en datos-fuente/trabajo/ECH_01_24.csv.",
+  "unidad": "%",
+  "filas": [
+    "25 a 34 años",
+    "35 a 49 años",
+    "50 a 64 años",
+    "65 y más"
+  ],
+  "columnas": [
+    "Hasta ciclo básico incompleto",
+    "Ciclo básico completo",
+    "Media superior completa",
+    "Terciaria completa"
+  ],
+  "valores": [
+    [
+      22,
+      31.1,
+      30.2,
+      16.6
+    ],
+    [
+      29.9,
+      31.2,
+      19.7,
+      19.1
+    ],
+    [
+      39.6,
+      29.1,
+      16.7,
+      14.6
+    ],
+    [
+      58.2,
+      18.8,
+      13.2,
+      9.9
+    ]
+  ]
+}

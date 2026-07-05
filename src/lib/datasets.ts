@@ -8,10 +8,13 @@
 import { parseDataset, type Dataset } from "@/schemas/base";
 import type { Tematica } from "@/types/sprites";
 
-import educacion_asistencia_por_departamento from "@/data/educacion/asistencia-por-departamento.json";
 import educacion_egreso_media_superior from "@/data/educacion/egreso-media-superior.json";
 import educacion_egreso_por_nivel_socioeconomico from "@/data/educacion/egreso-por-nivel-socioeconomico.json";
 import educacion_nivel_educativo from "@/data/educacion/nivel-educativo.json";
+import educacion_nivel_por_generacion from "@/data/educacion/nivel-por-generacion.json";
+import educacion_nivel_por_sexo from "@/data/educacion/nivel-por-sexo.json";
+import educacion_sin_ciclo_basico_por_departamento from "@/data/educacion/sin-ciclo-basico-por-departamento.json";
+import educacion_terciaria_por_departamento from "@/data/educacion/terciaria-por-departamento.json";
 import salud_cobertura_salud from "@/data/salud/cobertura-salud.json";
 import salud_mortalidad_infantil from "@/data/salud/mortalidad-infantil.json";
 import salud_vacunacion from "@/data/salud/vacunacion.json";
@@ -43,10 +46,13 @@ import trabajo_subempleo_por_nivel_educativo from "@/data/trabajo/subempleo-por-
 import trabajo_subempleo_por_sexo from "@/data/trabajo/subempleo-por-sexo.json";
 
 const RAW_DATASETS: unknown[] = [
-  educacion_asistencia_por_departamento,
   educacion_egreso_media_superior,
   educacion_egreso_por_nivel_socioeconomico,
   educacion_nivel_educativo,
+  educacion_nivel_por_generacion,
+  educacion_nivel_por_sexo,
+  educacion_sin_ciclo_basico_por_departamento,
+  educacion_terciaria_por_departamento,
   salud_cobertura_salud,
   salud_mortalidad_infantil,
   salud_vacunacion,

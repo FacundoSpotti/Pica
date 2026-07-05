@@ -1,0 +1,109 @@
+{
+  "id": "terciaria-por-departamento",
+  "tematica": "educacion",
+  "entidad": "Departamentos",
+  "caracteristica": "Población con terciaria completa",
+  "tipoResultado": "E",
+  "fuente": "INE — Encuesta Continua de Hogares, enero 2024 (microdatos)",
+  "fuenteUrl": "https://www4.ine.gub.uy/Anda5/index.php/catalog/767",
+  "anio": 2024,
+  "descripcion": "Porcentaje de la población de 25 años o más con nivel terciario completo o posgrado, por departamento. Calculado sobre los microdatos de la ECH (enero 2024) con el ponderador W, población de 25 años o más. Es un mes puntual (no promedio anual). Copia local en datos-fuente/trabajo/ECH_01_24.csv.",
+  "unidad": "%",
+  "departamentos": [
+    {
+      "id": "UY-MO",
+      "nombre": "Montevideo",
+      "valor": 23.3
+    },
+    {
+      "id": "UY-AR",
+      "nombre": "Artigas",
+      "valor": 4
+    },
+    {
+      "id": "UY-CA",
+      "nombre": "Canelones",
+      "valor": 11.5
+    },
+    {
+      "id": "UY-CL",
+      "nombre": "Cerro Largo",
+      "valor": 9.4
+    },
+    {
+      "id": "UY-CO",
+      "nombre": "Colonia",
+      "valor": 6.7
+    },
+    {
+      "id": "UY-DU",
+      "nombre": "Durazno",
+      "valor": 10.9
+    },
+    {
+      "id": "UY-FS",
+      "nombre": "Flores",
+      "valor": 6.5
+    },
+    {
+      "id": "UY-FD",
+      "nombre": "Florida",
+      "valor": 9
+    },
+    {
+      "id": "UY-LA",
+      "nombre": "Lavalleja",
+      "valor": 9.2
+    },
+    {
+      "id": "UY-MA",
+      "nombre": "Maldonado",
+      "valor": 12.7
+    },
+    {
+      "id": "UY-PA",
+      "nombre": "Paysandú",
+      "valor": 11.8
+    },
+    {
+      "id": "UY-RN",
+      "nombre": "Río Negro",
+      "valor": 8.8
+    },
+    {
+      "id": "UY-RV",
+      "nombre": "Rivera",
+      "valor": 10.8
+    },
+    {
+      "id": "UY-RO",
+      "nombre": "Rocha",
+      "valor": 10.5
+    },
+    {
+      "id": "UY-SA",
+      "nombre": "Salto",
+      "valor": 11.7
+    },
+    {
+      "id": "UY-SJ",
+      "nombre": "San José",
+      "valor": 11.9
+    },
+    {
+      "id": "UY-SO",
+      "nombre": "Soriano",
+      "valor": 6.3
+    },
+    {
+      "id": "UY-TA",
+      "nombre": "Tacuarembó",
+      "valor": 8.7
+    },
+    {
+      "id": "UY-TT",
+      "nombre": "Treinta y Tres",
+      "valor": 1.9
+    }
+  ]
+}

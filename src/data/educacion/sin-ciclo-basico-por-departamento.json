@@ -1,0 +1,109 @@
+{
+  "id": "sin-ciclo-basico-por-departamento",
+  "tematica": "educacion",
+  "entidad": "Departamentos",
+  "caracteristica": "Población sin ciclo básico completo",
+  "tipoResultado": "E",
+  "fuente": "INE — Encuesta Continua de Hogares, enero 2024 (microdatos)",
+  "fuenteUrl": "https://www4.ine.gub.uy/Anda5/index.php/catalog/767",
+  "anio": 2024,
+  "descripcion": "Porcentaje de la población de 25 años o más que no completó el ciclo básico, por departamento. Calculado sobre los microdatos de la ECH (enero 2024) con el ponderador W, población de 25 años o más. Es un mes puntual (no promedio anual). Copia local en datos-fuente/trabajo/ECH_01_24.csv.",
+  "unidad": "%",
+  "departamentos": [
+    {
+      "id": "UY-MO",
+      "nombre": "Montevideo",
+      "valor": 26
+    },
+    {
+      "id": "UY-AR",
+      "nombre": "Artigas",
+      "valor": 63.9
+    },
+    {
+      "id": "UY-CA",
+      "nombre": "Canelones",
+      "valor": 40.8
+    },
+    {
+      "id": "UY-CL",
+      "nombre": "Cerro Largo",
+      "valor": 50.7
+    },
+    {
+      "id": "UY-CO",
+      "nombre": "Colonia",
+      "valor": 44.9
+    },
+    {
+      "id": "UY-DU",
+      "nombre": "Durazno",
+      "valor": 47
+    },
+    {
+      "id": "UY-FS",
+      "nombre": "Flores",
+      "valor": 53.4
+    },
+    {
+      "id": "UY-FD",
+      "nombre": "Florida",
+      "valor": 46.7
+    },
+    {
+      "id": "UY-LA",
+      "nombre": "Lavalleja",
+      "valor": 53.3
+    },
+    {
+      "id": "UY-MA",
+      "nombre": "Maldonado",
+      "valor": 32.2
+    },
+    {
+      "id": "UY-PA",
+      "nombre": "Paysandú",
+      "valor": 42.1
+    },
+    {
+      "id": "UY-RN",
+      "nombre": "Río Negro",
+      "valor": 42.2
+    },
+    {
+      "id": "UY-RV",
+      "nombre": "Rivera",
+      "valor": 46
+    },
+    {
+      "id": "UY-RO",
+      "nombre": "Rocha",
+      "valor": 39.3
+    },
+    {
+      "id": "UY-SA",
+      "nombre": "Salto",
+      "valor": 46.6
+    },
+    {
+      "id": "UY-SJ",
+      "nombre": "San José",
+      "valor": 48.3
+    },
+    {
+      "id": "UY-SO",
+      "nombre": "Soriano",
+      "valor": 45.7
+    },
+    {
+      "id": "UY-TA",
+      "nombre": "Tacuarembó",
+      "valor": 53.1
+    },
+    {
+      "id": "UY-TT",
+      "nombre": "Treinta y Tres",
+      "valor": 52
+    }
+  ]
+}

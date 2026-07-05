@@ -1,17 +1,30 @@
 {
   "id": "nivel-educativo",
   "tematica": "educacion",
-  "entidad": "Personas",
+  "entidad": "Personas de 25 años o más",
   "caracteristica": "Máximo nivel educativo alcanzado",
   "tipoResultado": "B",
-  "fuente": "INE — ECH 2024",
+  "fuente": "INE — Encuesta Continua de Hogares, enero 2024 (microdatos)",
+  "fuenteUrl": "https://www4.ine.gub.uy/Anda5/index.php/catalog/767",
   "anio": 2024,
-  "descripcion": "Distribución de las personas de 25 años o más según el máximo nivel educativo alcanzado. VALORES PROVISORIOS — reemplazar con el procesamiento de la ECH 2024.",
+  "descripcion": "Distribución de la población de 25 años o más según el máximo nivel educativo alcanzado. Calculado sobre los microdatos de la ECH (enero 2024) con el ponderador W, población de 25 años o más. Es un mes puntual (no promedio anual). Copia local en datos-fuente/trabajo/ECH_01_24.csv.",
   "unidad": "%",
   "categorias": [
-    { "label": "Primaria o menos", "valor": 27.4 },
-    { "label": "Ciclo básico", "valor": 25.9 },
-    { "label": "Bachillerato", "valor": 22.3 },
-    { "label": "Terciaria o universitaria", "valor": 24.4 }
+    {
+      "label": "Hasta ciclo básico incompleto",
+      "valor": 37.1
+    },
+    {
+      "label": "Ciclo básico completo",
+      "valor": 27.8
+    },
+    {
+      "label": "Media superior completa",
+      "valor": 19.8
+    },
+    {
+      "label": "Terciaria completa",
+      "valor": 15.3
+    }
   ]
 }
