@@ -17,10 +17,27 @@ import { useEffect, useRef } from 'react';
 import { SPRITE_CONFIGS, SPRITE_SHEET } from '@/lib/assets';
 import { loadSprite, tintSprite } from '@/lib/spriteManager';
 
+/** Pool de sprites según demografía. */
+export type SpritePool = 'm' | 'w' | 'child' | 'any';
+
 export interface WalkerTarget {
   x: number;
   y: number;
   color: string;
+  /** de qué conjunto de modelos sale la figura (mujeres/hombres/niños/mixto) */
+  pool?: SpritePool;
+}
+
+/** Índices de SPRITE_CONFIGS por pool: masculino, femenino, infantil, todos. */
+const POOL_IDX: Record<SpritePool, number[]> = {
+  m: SPRITE_CONFIGS.map((c, i) => (c.id.startsWith('m-') ? i : -1)).filter((i) => i >= 0),
+  w: SPRITE_CONFIGS.map((c, i) => (c.id.startsWith('w-') ? i : -1)).filter((i) => i >= 0),
+  child: SPRITE_CONFIGS.map((c, i) => (c.id.startsWith('cm-') || c.id.startsWith('cw-') ? i : -1)).filter((i) => i >= 0),
+  any: SPRITE_CONFIGS.map((_, i) => i),
+};
+function pickSprite(pool: SpritePool = 'any'): number {
+  const list = POOL_IDX[pool].length ? POOL_IDX[pool] : POOL_IDX.any;
+  return list[Math.floor(Math.random() * list.length)]!;
 }
 
 const FW = SPRITE_SHEET.frameWidth; // 17
@@ -152,14 +169,15 @@ export function useSpriteWalkers(
     const SW = FW * scale;
     const SH = FH * scale;
 
-    // Crear walkers: spawn desde los bordes laterales/inferior, en tandas.
-    // Velocidad y delays escalados al tamaño del sprite (ritmo ~3× el original).
+    // Crear walkers: cada figura entra desde el borde MÁS CERCANO a su destino
+    // (derecha si el destino está en la mitad derecha, izquierda si no) para no
+    // atravesar la pantalla. Velocidad/delays escalados al tamaño del sprite.
     walkersRef.current = targets.map((t, i) => {
-      const edge = Math.random();
-      const sx = edge < 0.4 ? -SW - Math.random() * 60 : edge < 0.8 ? W + Math.random() * 60 : t.x;
-      const sy = edge < 0.8 ? Math.min(H - SH, Math.max(0, t.y + (Math.random() * 80 - 40))) : H + SH;
+      const fromRight = t.x > W / 2;
+      const sx = fromRight ? W + Math.random() * 120 : -SW - Math.random() * 120;
+      const sy = Math.min(H - SH, Math.max(0, t.y + (Math.random() * 40 - 20)));
       return {
-        spriteIdx: Math.floor(Math.random() * SPRITE_CONFIGS.length),
+        spriteIdx: pickSprite(t.pool),
         color: t.color,
         x: reduced ? t.x : sx,
         y: reduced ? t.y : sy,

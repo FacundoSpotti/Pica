@@ -1,0 +1,34 @@
+{
+  "id": "informalidad-por-categoria",
+  "tematica": "trabajo",
+  "entidad": "Personas ocupadas",
+  "caracteristica": "No registro por categoría ocupacional",
+  "tipoResultado": "B",
+  "fuente": "INE — Encuesta Continua de Hogares, enero 2024 (microdatos)",
+  "fuenteUrl": "https://www4.ine.gub.uy/Anda5/index.php/catalog/767",
+  "anio": 2024,
+  "descripcion": "Porcentaje de no registrados a la seguridad social, según categoría en la ocupación. Calculado sobre los microdatos de la ECH (enero 2024) con el ponderador de expansión W. Es un mes puntual (no promedio anual). Copia local en datos-fuente/trabajo/ECH_01_24.csv.",
+  "unidad": "%",
+  "categorias": [
+    {
+      "label": "Asalariado",
+      "valor": 10.8
+    },
+    {
+      "label": "Cuentapropista",
+      "valor": 62
+    },
+    {
+      "label": "Contratista dependiente",
+      "valor": 47.7
+    },
+    {
+      "label": "Empleador",
+      "valor": 4.8
+    },
+    {
+      "label": "Trab. familiar no remunerado",
+      "valor": 100
+    }
+  ]
+}

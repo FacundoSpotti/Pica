@@ -1,103 +1,131 @@
 'use client';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// PICA — Tipo B isotype: distribución categórica con PERSONAS
-// Una sola MULTITUD densa (ref. The Pudding): figuras ordenadas por categoría
-// formando bandas de color, altura fija (sin scroll), gap mínimo e igual en
-// ambos ejes. La leyenda es CLICKEABLE: aísla una demografía (el resto queda
-// en gris, recoloreo en caliente — las figuras no vuelven a entrar).
+// PICA — Tipo B isotype: categorías con PERSONAS. Dos modos:
+//
+// · DISTRIBUCIÓN (las categorías suman ~100%): una multitud densa con una banda
+//   de color por categoría (ref. The Pudding).
+// · TASA (no suman 100%, ej. "desempleo por sexo"): small-multiples — cada
+//   categoría es un grupo de 100 figuras con la tasa en color y el RESTO en
+//   gris, para leer la proporción de cada grupo.
+//
+// Sprites por demografía: categorías de mujeres usan modelos femeninos, de
+// varones masculinos, de niños infantiles; si no hay distinción, mezclados.
+// La leyenda es clickeable: aísla una categoría (el resto en gris).
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useMemo, useRef, useState } from 'react';
-import { TEMA_PALETTE } from '@/lib/colors';
+import { TEMA_PALETTE, textOnColor } from '@/lib/colors';
 import { figureCount, figureScale } from '@/lib/isotype';
-import { useSpriteWalkers, type WalkerTarget } from '@/hooks/useSpriteWalkers';
+import { useSpriteWalkers, type SpritePool, type WalkerTarget } from '@/hooks/useSpriteWalkers';
 import type { DatasetDistribucion } from '@/types/data';
 import { DataTable, VizFooter, VizHeader } from './VizShared';
 
-const SCALE = 2; // dibujo lógico a 2×
-
-// Bounding box REAL de la figura dentro del frame 17×43 (medido sobre los
-// PNGs, unión de 6 modelos en idle): el frame tiene mucho padding transparente
-// (13px arriba/abajo). La grilla se calcula sobre el CONTENIDO, no el frame —
-// si no, el aire del frame simula gaps gigantes.
+const SCALE = 2;
+// Bounding box real de la figura dentro del frame 17×43 (contenido, no frame)
 const C_MIN_X = 4;
 const C_MIN_Y = 13;
 const C_W = 9;
 const C_H = 17;
-/** Separación real entre figuras (art px), idéntica en ambos ejes. */
 const GAP = 1;
 const PITCH_X = (C_W + GAP) * SCALE;
 const PITCH_Y = (C_H + GAP) * SCALE;
 const MARGIN = 2 * SCALE;
-/** Altura fija de la banda en filas — todo visible sin scroll. */
 const ROWS = 10;
-/** Color de las figuras fuera de la demografía aislada. */
-const MUTED = '#4B4B46';
+/** Modo tasa: filas por grupo y separación entre grupos. */
+const RATE_ROWS = 10;
+const GROUP_GAP = 10 * SCALE;
+/** Gris del "resto" (remanente hasta 100%) y de las categorías atenuadas. */
+const GRAY = '#4B4B46';
 
-/** Texto legible sobre un color de fondo (chips de la leyenda). */
-function textOn(color: string): string {
-  const n = parseInt(color.slice(1), 16);
-  const lum = 0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255);
-  return lum > 150 ? '#0A0A0A' : '#EBEBEB';
+/** Pool de sprites de una categoría según su demografía. */
+function poolFor(entidad: string, caracteristica: string, label: string): SpritePool {
+  if (/niñ|infant|menor/i.test(`${entidad} ${caracteristica}`)) return 'child';
+  if (/mujer|femenin/i.test(label)) return 'w';
+  if (/var[oó]n|hombre|masculin/i.test(label)) return 'm';
+  return 'any';
 }
 
-interface LegendItem {
+interface Cat {
   label: string;
   valor: number;
   color: string;
-  count: number;
+  pool: SpritePool;
 }
 
 export default function IsotypeDistributionViz({ data }: { data: DatasetDistribucion }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const palette = TEMA_PALETTE[data.tematica];
-  // Demografía aislada (null = todas visibles)
   const [focus, setFocus] = useState<string | null>(null);
 
-  const { scale, legend } = useMemo(() => {
-    const total = data.categorias.reduce((a, c) => a + c.valor, 0);
-    const scale = figureScale(total, data.unidad);
-    const legend: LegendItem[] = data.categorias.map((cat, i) => ({
-      label: cat.label,
-      valor: cat.valor,
-      color: cat.color ?? palette[i % palette.length]!,
-      count: figureCount(cat.valor, scale.per),
+  const { cats, isRate, scaleLabel } = useMemo(() => {
+    const sum = data.categorias.reduce((a, c) => a + c.valor, 0);
+    // Suman ~100 → distribución (partes de un todo); si no → tasas
+    const isRate = data.unidad === '%' && Math.abs(sum - 100) > 3;
+    const cats: Cat[] = data.categorias.map((c, i) => ({
+      label: c.label,
+      valor: c.valor,
+      color: c.color ?? palette[i % palette.length]!,
+      pool: poolFor(data.entidad, data.caracteristica, c.label),
     }));
-    return { scale, legend };
+    const scaleLabel = isRate ? '1 figura = 1% (resto en gris)' : figureScale(sum, data.unidad).label;
+    return { cats, isRate, scaleLabel };
   }, [data, palette]);
 
-  // Posiciones (column-major → bandas verticales por categoría) + color según foco.
-  // El pitch es por CONTENIDO: los targets llevan el origen del FRAME (restando
-  // el offset del contenido); el padding transparente del frame puede quedar
-  // fuera del canvas sin problema.
+  // Posiciones + colores según modo y foco
   const { targets, W, H } = useMemo(() => {
-    const totalFigures = legend.reduce((a, l) => a + l.count, 0);
-    const cols = Math.max(1, Math.ceil(totalFigures / ROWS));
+    const targets: WalkerTarget[] = [];
+
+    if (isRate) {
+      // Small-multiples: cada categoría un grupo de 100 (tasa + gris)
+      const groupCols = Math.ceil(100 / RATE_ROWS);
+      const groupW = (groupCols - 1) * PITCH_X + C_W * SCALE;
+      const W = MARGIN * 2 + cats.length * groupW + (cats.length - 1) * GROUP_GAP;
+      const H = MARGIN * 2 + (RATE_ROWS - 1) * PITCH_Y + C_H * SCALE;
+      cats.forEach((cat, g) => {
+        const colored = Math.max(0, Math.min(100, Math.round(cat.valor)));
+        const gx = MARGIN + g * (groupW + GROUP_GAP);
+        const dim = focus !== null && cat.label !== focus;
+        for (let j = 0; j < 100; j++) {
+          const isColored = j < colored;
+          targets.push({
+            x: gx + Math.floor(j / RATE_ROWS) * PITCH_X - C_MIN_X * SCALE,
+            y: MARGIN + (j % RATE_ROWS) * PITCH_Y - C_MIN_Y * SCALE,
+            color: dim ? GRAY : isColored ? cat.color : GRAY,
+            pool: cat.pool,
+          });
+        }
+      });
+      return { targets, W, H };
+    }
+
+    // Distribución: multitud densa, una banda por categoría (column-major)
+    const counts = cats.map((c) => figureCount(c.valor, figureScale(100, '%').per));
+    const total = counts.reduce((a, n) => a + n, 0);
+    const cols = Math.max(1, Math.ceil(total / ROWS));
     const W = MARGIN * 2 + (cols - 1) * PITCH_X + C_W * SCALE;
     const H = MARGIN * 2 + (ROWS - 1) * PITCH_Y + C_H * SCALE;
-
-    const targets: WalkerTarget[] = [];
     let idx = 0;
-    for (const item of legend) {
-      const color = focus && item.label !== focus ? MUTED : item.color;
-      for (let j = 0; j < item.count; j++) {
+    cats.forEach((cat, i) => {
+      const dim = focus !== null && cat.label !== focus;
+      for (let j = 0; j < counts[i]!; j++) {
         targets.push({
           x: MARGIN + Math.floor(idx / ROWS) * PITCH_X - C_MIN_X * SCALE,
           y: MARGIN + (idx % ROWS) * PITCH_Y - C_MIN_Y * SCALE,
-          color,
+          color: dim ? GRAY : cat.color,
+          pool: cat.pool,
         });
         idx++;
       }
-    }
+    });
     return { targets, W, H };
-  }, [legend, focus]);
+  }, [cats, isRate, focus]);
 
-  useSpriteWalkers(canvasRef, targets, { scale: SCALE, layoutKey: data.id });
+  useSpriteWalkers(canvasRef, targets, { scale: SCALE, layoutKey: `${data.id}:${focus ?? ''}` });
 
   const ariaLabel = `${data.caracteristica}: ${data.categorias
     .map((c) => `${c.label} ${c.valor}${data.unidad ?? ''}`)
-    .join(', ')}. Escala: ${scale.label}.`;
+    .join(', ')}. ${isRate ? 'Cada grupo son 100 personas; en color la proporción, en gris el resto. ' : ''}`;
 
   return (
     <div className="flex flex-col items-center">
@@ -105,9 +133,9 @@ export default function IsotypeDistributionViz({ data }: { data: DatasetDistribu
         <VizHeader dataset={data} compact />
       </div>
 
-      {/* Leyenda clickeable: aísla una demografía */}
+      {/* Leyenda clickeable */}
       <div className="mb-3 flex w-full flex-wrap items-center gap-2">
-        {legend.map((item) => {
+        {cats.map((item) => {
           const isFocused = focus === item.label;
           const dimmed = focus !== null && !isFocused;
           return (
@@ -120,7 +148,7 @@ export default function IsotypeDistributionViz({ data }: { data: DatasetDistribu
               className="flex items-center gap-2 px-2 py-1 font-sans text-pica-subtitle transition-opacity"
               style={{
                 backgroundColor: item.color,
-                color: textOn(item.color),
+                color: textOnColor(item.color),
                 opacity: dimmed ? 0.35 : 1,
                 boxShadow: isFocused ? `0 0 0 2px #EBEBEB` : 'none',
               }}
@@ -134,12 +162,11 @@ export default function IsotypeDistributionViz({ data }: { data: DatasetDistribu
           );
         })}
         <span className="ml-auto font-sans text-pica-subtitle text-text-secondary">
-          {scale.label}
+          {scaleLabel}
         </span>
       </div>
 
-      {/* La multitud — canvas decorativo; la info está en aria + tabla.
-          maxWidth=W evita sobre-estirar en pantallas anchas (y el scroll). */}
+      {/* La multitud */}
       <div role="img" aria-label={ariaLabel} className="flex w-full justify-center">
         <canvas
           ref={canvasRef}
@@ -154,8 +181,8 @@ export default function IsotypeDistributionViz({ data }: { data: DatasetDistribu
       <div className="w-full">
         <DataTable
           caption={data.caracteristica}
-          head={['Categoría', `Valor${data.unidad ? ` (${data.unidad})` : ''}`, 'Figuras']}
-          rows={legend.map((l) => [l.label, l.valor, l.count])}
+          head={['Categoría', `Valor${data.unidad ? ` (${data.unidad})` : ''}`]}
+          rows={cats.map((c) => [c.label, c.valor])}
         />
         <VizFooter dataset={data} />
       </div>

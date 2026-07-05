@@ -1,0 +1,22 @@
+{
+  "id": "informalidad-por-sexo",
+  "tematica": "trabajo",
+  "entidad": "Personas por sexo",
+  "caracteristica": "No registro a la seguridad social",
+  "tipoResultado": "B",
+  "fuente": "INE — Encuesta Continua de Hogares, enero 2024 (microdatos)",
+  "fuenteUrl": "https://www4.ine.gub.uy/Anda5/index.php/catalog/767",
+  "anio": 2024,
+  "descripcion": "Ocupados no registrados a la seguridad social, según sexo. Calculado sobre los microdatos de la ECH (enero 2024) con el ponderador de expansión W. Es un mes puntual (no promedio anual). Copia local en datos-fuente/trabajo/ECH_01_24.csv.",
+  "unidad": "%",
+  "categorias": [
+    {
+      "label": "Varones",
+      "valor": 25.1
+    },
+    {
+      "label": "Mujeres",
+      "valor": 21.5
+    }
+  ]
+}

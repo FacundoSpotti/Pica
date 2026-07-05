@@ -1,0 +1,30 @@
+{
+  "id": "actividad-por-edad",
+  "tematica": "trabajo",
+  "entidad": "Personas por tramo de edad",
+  "caracteristica": "Tasa de actividad",
+  "tipoResultado": "B",
+  "fuente": "INE — Encuesta Continua de Hogares, enero 2024 (microdatos)",
+  "fuenteUrl": "https://www4.ine.gub.uy/Anda5/index.php/catalog/767",
+  "anio": 2024,
+  "descripcion": "Población económicamente activa sobre la población en edad de trabajar, según tramo de edad. Calculado sobre los microdatos de la ECH (enero 2024) con el ponderador de expansión W. Es un mes puntual (no promedio anual). Copia local en datos-fuente/trabajo/ECH_01_24.csv.",
+  "unidad": "%",
+  "categorias": [
+    {
+      "label": "14 a 24 años",
+      "valor": 45.4
+    },
+    {
+      "label": "25 a 49 años",
+      "valor": 90.6
+    },
+    {
+      "label": "50 a 64 años",
+      "valor": 72.5
+    },
+    {
+      "label": "65 y más",
+      "valor": 14.4
+    }
+  ]
+}

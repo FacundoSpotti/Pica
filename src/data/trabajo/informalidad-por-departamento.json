@@ -1,0 +1,109 @@
+{
+  "id": "informalidad-por-departamento",
+  "tematica": "trabajo",
+  "entidad": "Departamentos",
+  "caracteristica": "No registro a la seguridad social",
+  "tipoResultado": "E",
+  "fuente": "INE — Encuesta Continua de Hogares, enero 2024 (microdatos)",
+  "fuenteUrl": "https://www4.ine.gub.uy/Anda5/index.php/catalog/767",
+  "anio": 2024,
+  "descripcion": "Porcentaje de ocupados no registrados a la seguridad social, por departamento. Calculado sobre los microdatos de la ECH (enero 2024) con el ponderador de expansión W. Es un mes puntual (no promedio anual). Copia local en datos-fuente/trabajo/ECH_01_24.csv.",
+  "unidad": "%",
+  "departamentos": [
+    {
+      "id": "UY-MO",
+      "nombre": "Montevideo",
+      "valor": 14.8
+    },
+    {
+      "id": "UY-AR",
+      "nombre": "Artigas",
+      "valor": 57.6
+    },
+    {
+      "id": "UY-CA",
+      "nombre": "Canelones",
+      "valor": 25.2
+    },
+    {
+      "id": "UY-CL",
+      "nombre": "Cerro Largo",
+      "valor": 47.4
+    },
+    {
+      "id": "UY-CO",
+      "nombre": "Colonia",
+      "valor": 21.3
+    },
+    {
+      "id": "UY-DU",
+      "nombre": "Durazno",
+      "valor": 25.3
+    },
+    {
+      "id": "UY-FS",
+      "nombre": "Flores",
+      "valor": 27.3
+    },
+    {
+      "id": "UY-FD",
+      "nombre": "Florida",
+      "valor": 24.3
+    },
+    {
+      "id": "UY-LA",
+      "nombre": "Lavalleja",
+      "valor": 28.8
+    },
+    {
+      "id": "UY-MA",
+      "nombre": "Maldonado",
+      "valor": 23.3
+    },
+    {
+      "id": "UY-PA",
+      "nombre": "Paysandú",
+      "valor": 25.6
+    },
+    {
+      "id": "UY-RN",
+      "nombre": "Río Negro",
+      "valor": 26.8
+    },
+    {
+      "id": "UY-RV",
+      "nombre": "Rivera",
+      "valor": 32.4
+    },
+    {
+      "id": "UY-RO",
+      "nombre": "Rocha",
+      "valor": 30.9
+    },
+    {
+      "id": "UY-SA",
+      "nombre": "Salto",
+      "valor": 37
+    },
+    {
+      "id": "UY-SJ",
+      "nombre": "San José",
+      "valor": 23.6
+    },
+    {
+      "id": "UY-SO",
+      "nombre": "Soriano",
+      "valor": 36.7
+    },
+    {
+      "id": "UY-TA",
+      "nombre": "Tacuarembó",
+      "valor": 42.3
+    },
+    {
+      "id": "UY-TT",
+      "nombre": "Treinta y Tres",
+      "valor": 33.4
+    }
+  ]
+}

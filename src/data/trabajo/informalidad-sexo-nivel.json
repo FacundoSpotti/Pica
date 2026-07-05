@@ -1,0 +1,36 @@
+{
+  "id": "informalidad-sexo-nivel",
+  "tematica": "trabajo",
+  "entidad": "Personas por nivel educativo",
+  "caracteristica": "Informalidad por sexo y nivel educativo",
+  "tipoResultado": "D",
+  "fuente": "INE — Encuesta Continua de Hogares, enero 2024 (microdatos)",
+  "fuenteUrl": "https://www4.ine.gub.uy/Anda5/index.php/catalog/767",
+  "anio": 2024,
+  "descripcion": "Porcentaje de no registro a la seguridad social según sexo y nivel educativo. Calculado sobre los microdatos de la ECH (enero 2024) con el ponderador de expansión W. Es un mes puntual (no promedio anual). Copia local en datos-fuente/trabajo/ECH_01_24.csv.",
+  "unidad": "%",
+  "filas": [
+    "Varones",
+    "Mujeres"
+  ],
+  "columnas": [
+    "Hasta ciclo básico incompleto",
+    "Ciclo básico completo",
+    "Media superior completa",
+    "Terciaria completa"
+  ],
+  "valores": [
+    [
+      41.1,
+      26.2,
+      12.7,
+      3.5
+    ],
+    [
+      43.8,
+      27.1,
+      14,
+      3.7
+    ]
+  ]
+}

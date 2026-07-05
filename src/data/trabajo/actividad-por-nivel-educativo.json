@@ -1,0 +1,30 @@
+{
+  "id": "actividad-por-nivel-educativo",
+  "tematica": "trabajo",
+  "entidad": "Personas por nivel educativo",
+  "caracteristica": "Tasa de actividad",
+  "tipoResultado": "B",
+  "fuente": "INE — Encuesta Continua de Hogares, enero 2024 (microdatos)",
+  "fuenteUrl": "https://www4.ine.gub.uy/Anda5/index.php/catalog/767",
+  "anio": 2024,
+  "descripcion": "Población económicamente activa sobre la población en edad de trabajar, según máximo nivel educativo alcanzado. Calculado sobre los microdatos de la ECH (enero 2024) con el ponderador de expansión W. Es un mes puntual (no promedio anual). Copia local en datos-fuente/trabajo/ECH_01_24.csv.",
+  "unidad": "%",
+  "categorias": [
+    {
+      "label": "Hasta ciclo básico incompleto",
+      "valor": 50
+    },
+    {
+      "label": "Ciclo básico completo",
+      "valor": 67
+    },
+    {
+      "label": "Media superior completa",
+      "valor": 73
+    },
+    {
+      "label": "Terciaria completa",
+      "valor": 82.3
+    }
+  ]
+}

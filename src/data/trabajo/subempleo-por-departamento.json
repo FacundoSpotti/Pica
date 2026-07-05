@@ -1,0 +1,109 @@
+{
+  "id": "subempleo-por-departamento",
+  "tematica": "trabajo",
+  "entidad": "Departamentos",
+  "caracteristica": "Tasa de subempleo",
+  "tipoResultado": "E",
+  "fuente": "INE — Encuesta Continua de Hogares, enero 2024 (microdatos)",
+  "fuenteUrl": "https://www4.ine.gub.uy/Anda5/index.php/catalog/767",
+  "anio": 2024,
+  "descripcion": "Porcentaje de subempleados sobre la población económicamente activa, por departamento. Calculado sobre los microdatos de la ECH (enero 2024) con el ponderador de expansión W. Es un mes puntual (no promedio anual). Copia local en datos-fuente/trabajo/ECH_01_24.csv.",
+  "unidad": "%",
+  "departamentos": [
+    {
+      "id": "UY-MO",
+      "nombre": "Montevideo",
+      "valor": 7.4
+    },
+    {
+      "id": "UY-AR",
+      "nombre": "Artigas",
+      "valor": 11
+    },
+    {
+      "id": "UY-CA",
+      "nombre": "Canelones",
+      "valor": 9.1
+    },
+    {
+      "id": "UY-CL",
+      "nombre": "Cerro Largo",
+      "valor": 7.1
+    },
+    {
+      "id": "UY-CO",
+      "nombre": "Colonia",
+      "valor": 6.3
+    },
+    {
+      "id": "UY-DU",
+      "nombre": "Durazno",
+      "valor": 12.3
+    },
+    {
+      "id": "UY-FS",
+      "nombre": "Flores",
+      "valor": 7.7
+    },
+    {
+      "id": "UY-FD",
+      "nombre": "Florida",
+      "valor": 9.6
+    },
+    {
+      "id": "UY-LA",
+      "nombre": "Lavalleja",
+      "valor": 16.2
+    },
+    {
+      "id": "UY-MA",
+      "nombre": "Maldonado",
+      "valor": 3.8
+    },
+    {
+      "id": "UY-PA",
+      "nombre": "Paysandú",
+      "valor": 10.8
+    },
+    {
+      "id": "UY-RN",
+      "nombre": "Río Negro",
+      "valor": 8.1
+    },
+    {
+      "id": "UY-RV",
+      "nombre": "Rivera",
+      "valor": 7.5
+    },
+    {
+      "id": "UY-RO",
+      "nombre": "Rocha",
+      "valor": 11.3
+    },
+    {
+      "id": "UY-SA",
+      "nombre": "Salto",
+      "valor": 12.8
+    },
+    {
+      "id": "UY-SJ",
+      "nombre": "San José",
+      "valor": 6.6
+    },
+    {
+      "id": "UY-SO",
+      "nombre": "Soriano",
+      "valor": 6.7
+    },
+    {
+      "id": "UY-TA",
+      "nombre": "Tacuarembó",
+      "valor": 16.2
+    },
+    {
+      "id": "UY-TT",
+      "nombre": "Treinta y Tres",
+      "valor": 5.9
+    }
+  ]
+}
