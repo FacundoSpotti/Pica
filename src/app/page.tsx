@@ -32,6 +32,9 @@ import type { Tematica } from '@/types/sprites';
 
 const ASPECT = LANDSCAPE_SIZE.width / LANDSCAPE_SIZE.height;
 
+/** Calibradores de dev: off salvo NEXT_PUBLIC_CALIBRATORS=on en .env.local */
+const CALIBRATORS_ON = process.env.NEXT_PUBLIC_CALIBRATORS === 'on';
+
 interface Selection {
   tema: Tematica;
   center: { x: number; y: number };
@@ -92,10 +95,16 @@ export default function HomePage() {
           )}
         </AnimatePresence>
 
-        {/* Herramientas de calibración (dev) — dentro del stage para que las
-            coordenadas % coincidan con el landscape. P = paths, H = hitboxes */}
-        <PathCalibrator />
-        <HitboxCalibrator />
+        {/* Herramientas de calibración (dev) — apagadas por defecto. Para
+            reactivarlas: crear .env.local con NEXT_PUBLIC_CALIBRATORS=on
+            (P = paths, H = hitboxes). Dentro del stage para que las
+            coordenadas % coincidan con el landscape. */}
+        {CALIBRATORS_ON && (
+          <>
+            <PathCalibrator />
+            <HitboxCalibrator />
+          </>
+        )}
       </div>
 
       {/* Notas "pegadas" alrededor del mapa — misma geometría que el stage pero
