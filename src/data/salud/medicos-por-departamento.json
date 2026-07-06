@@ -1,0 +1,109 @@
+{
+  "id": "medicos-por-departamento",
+  "tematica": "salud",
+  "entidad": "Departamentos",
+  "caracteristica": "Médicos por 1.000 habitantes",
+  "tipoResultado": "E",
+  "fuente": "INE — Anuario Estadístico Nacional 2025, cuadros 3.2.1 y 2.1.1",
+  "fuenteUrl": "https://www.ine.gub.uy/",
+  "anio": 2024,
+  "descripcion": "Médicos afiliados a la Caja de Jubilaciones de Profesionales Universitarios por cada 1.000 habitantes, por departamento (médicos 2024 sobre población estimada 2023). Es una aproximación: mide médicos registrados por residencia, no en ejercicio. Copia local en 3.2.1ok.xls (médicos) y 2.1.1.xlsx (población).",
+  "unidad": "médicos/1.000 hab",
+  "departamentos": [
+    {
+      "id": "UY-MO",
+      "nombre": "Montevideo",
+      "valor": 10.89
+    },
+    {
+      "id": "UY-AR",
+      "nombre": "Artigas",
+      "valor": 2.04
+    },
+    {
+      "id": "UY-CA",
+      "nombre": "Canelones",
+      "valor": 3.35
+    },
+    {
+      "id": "UY-CL",
+      "nombre": "Cerro Largo",
+      "valor": 2.3
+    },
+    {
+      "id": "UY-CO",
+      "nombre": "Colonia",
+      "valor": 2.74
+    },
+    {
+      "id": "UY-DU",
+      "nombre": "Durazno",
+      "valor": 1.84
+    },
+    {
+      "id": "UY-FS",
+      "nombre": "Flores",
+      "valor": 1.94
+    },
+    {
+      "id": "UY-FD",
+      "nombre": "Florida",
+      "valor": 2.86
+    },
+    {
+      "id": "UY-LA",
+      "nombre": "Lavalleja",
+      "valor": 2.7
+    },
+    {
+      "id": "UY-MA",
+      "nombre": "Maldonado",
+      "valor": 3.86
+    },
+    {
+      "id": "UY-PA",
+      "nombre": "Paysandú",
+      "valor": 3.13
+    },
+    {
+      "id": "UY-RN",
+      "nombre": "Río Negro",
+      "valor": 2.15
+    },
+    {
+      "id": "UY-RV",
+      "nombre": "Rivera",
+      "valor": 2.67
+    },
+    {
+      "id": "UY-RO",
+      "nombre": "Rocha",
+      "valor": 2.45
+    },
+    {
+      "id": "UY-SA",
+      "nombre": "Salto",
+      "valor": 2.82
+    },
+    {
+      "id": "UY-SJ",
+      "nombre": "San José",
+      "valor": 2.09
+    },
+    {
+      "id": "UY-SO",
+      "nombre": "Soriano",
+      "valor": 2.49
+    },
+    {
+      "id": "UY-TA",
+      "nombre": "Tacuarembó",
+      "valor": 2
+    },
+    {
+      "id": "UY-TT",
+      "nombre": "Treinta y Tres",
+      "valor": 2.2
+    }
+  ]
+}

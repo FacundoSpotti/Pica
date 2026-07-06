@@ -1,0 +1,31 @@
+{
+  "id": "egresos-hospitalarios",
+  "tematica": "salud",
+  "entidad": "Prestadores de salud",
+  "caracteristica": "Egresos hospitalarios por 1.000 afiliados",
+  "tipoResultado": "B",
+  "presentacion": "lista",
+  "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.2.5 (fuente MSP-SINADI)",
+  "fuenteUrl": "https://www.ine.gub.uy/",
+  "anio": 2024,
+  "descripcion": "Egresos hospitalarios de cuidados moderados por cada 1.000 afiliados, por tipo de prestador integral de salud, 2024. Copia local en datos-fuente/datos_INE_2025/cap3_aspectos_sociales/3.2.5ok.xls.",
+  "unidad": "egresos/1.000 afiliados",
+  "categorias": [
+    {
+      "label": "IAMC Montevideo",
+      "valor": 82.5
+    },
+    {
+      "label": "IAMC Resto País",
+      "valor": 108.8
+    },
+    {
+      "label": "Seguros privados",
+      "valor": 94.4
+    },
+    {
+      "label": "ASSE",
+      "valor": 82.2
+    }
+  ]
+}

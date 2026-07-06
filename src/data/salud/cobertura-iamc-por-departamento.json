@@ -1,0 +1,109 @@
+{
+  "id": "cobertura-iamc-por-departamento",
+  "tematica": "salud",
+  "entidad": "Departamentos",
+  "caracteristica": "Cobertura IAMC (mutualista)",
+  "tipoResultado": "E",
+  "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.2.4 (fuente SINADI-AES, MSP)",
+  "fuenteUrl": "https://www.ine.gub.uy/",
+  "anio": 2024,
+  "descripcion": "Porcentaje de las afiliaciones a prestadores integrales de salud que corresponden a IAMC (mutualistas), por departamento, 2024. Cociente IAMC/Total del cuadro. Copia local en datos-fuente/datos_INE_2025/cap3_aspectos_sociales/3.2.4ok.xls.",
+  "unidad": "%",
+  "departamentos": [
+    {
+      "id": "UY-MO",
+      "nombre": "Montevideo",
+      "valor": 59.5
+    },
+    {
+      "id": "UY-AR",
+      "nombre": "Artigas",
+      "valor": 32
+    },
+    {
+      "id": "UY-CA",
+      "nombre": "Canelones",
+      "valor": 58.6
+    },
+    {
+      "id": "UY-CL",
+      "nombre": "Cerro Largo",
+      "valor": 41.7
+    },
+    {
+      "id": "UY-CO",
+      "nombre": "Colonia",
+      "valor": 58.9
+    },
+    {
+      "id": "UY-DU",
+      "nombre": "Durazno",
+      "valor": 48.7
+    },
+    {
+      "id": "UY-FS",
+      "nombre": "Flores",
+      "valor": 46.3
+    },
+    {
+      "id": "UY-FD",
+      "nombre": "Florida",
+      "valor": 45.5
+    },
+    {
+      "id": "UY-LA",
+      "nombre": "Lavalleja",
+      "valor": 49.3
+    },
+    {
+      "id": "UY-MA",
+      "nombre": "Maldonado",
+      "valor": 64.5
+    },
+    {
+      "id": "UY-PA",
+      "nombre": "Paysandú",
+      "valor": 48
+    },
+    {
+      "id": "UY-RN",
+      "nombre": "Río Negro",
+      "valor": 33.5
+    },
+    {
+      "id": "UY-RV",
+      "nombre": "Rivera",
+      "valor": 42.7
+    },
+    {
+      "id": "UY-RO",
+      "nombre": "Rocha",
+      "valor": 48.2
+    },
+    {
+      "id": "UY-SA",
+      "nombre": "Salto",
+      "valor": 44.4
+    },
+    {
+      "id": "UY-SJ",
+      "nombre": "San José",
+      "valor": 60.9
+    },
+    {
+      "id": "UY-SO",
+      "nombre": "Soriano",
+      "valor": 48.8
+    },
+    {
+      "id": "UY-TA",
+      "nombre": "Tacuarembó",
+      "valor": 32.2
+    },
+    {
+      "id": "UY-TT",
+      "nombre": "Treinta y Tres",
+      "valor": 39.3
+    }
+  ]
+}

@@ -16,8 +16,13 @@ import educacion_nivel_por_sexo from "@/data/educacion/nivel-por-sexo.json";
 import educacion_sin_ciclo_basico_por_departamento from "@/data/educacion/sin-ciclo-basico-por-departamento.json";
 import educacion_terciaria_por_departamento from "@/data/educacion/terciaria-por-departamento.json";
 import salud_camas_por_prestador from "@/data/salud/camas-por-prestador.json";
+import salud_cobertura_asse_por_departamento from "@/data/salud/cobertura-asse-por-departamento.json";
+import salud_cobertura_iamc_por_departamento from "@/data/salud/cobertura-iamc-por-departamento.json";
 import salud_cobertura_por_edad from "@/data/salud/cobertura-por-edad.json";
 import salud_cobertura_salud from "@/data/salud/cobertura-salud.json";
+import salud_consultas_por_afiliado from "@/data/salud/consultas-por-afiliado.json";
+import salud_egresos_hospitalarios from "@/data/salud/egresos-hospitalarios.json";
+import salud_medicos_por_departamento from "@/data/salud/medicos-por-departamento.json";
 import salud_mortalidad_infantil from "@/data/salud/mortalidad-infantil.json";
 import salud_vacunacion from "@/data/salud/vacunacion.json";
 import trabajo_actividad_por_departamento from "@/data/trabajo/actividad-por-departamento.json";
@@ -58,8 +63,13 @@ const RAW_DATASETS: unknown[] = [
   educacion_sin_ciclo_basico_por_departamento,
   educacion_terciaria_por_departamento,
   salud_camas_por_prestador,
+  salud_cobertura_asse_por_departamento,
+  salud_cobertura_iamc_por_departamento,
   salud_cobertura_por_edad,
   salud_cobertura_salud,
+  salud_consultas_por_afiliado,
+  salud_egresos_hospitalarios,
+  salud_medicos_por_departamento,
   salud_mortalidad_infantil,
   salud_vacunacion,
   trabajo_actividad_por_departamento,

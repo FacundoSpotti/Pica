@@ -1,0 +1,109 @@
+{
+  "id": "cobertura-asse-por-departamento",
+  "tematica": "salud",
+  "entidad": "Departamentos",
+  "caracteristica": "Cobertura ASSE (pública)",
+  "tipoResultado": "E",
+  "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.2.4 (fuente SINADI-AES, MSP)",
+  "fuenteUrl": "https://www.ine.gub.uy/",
+  "anio": 2024,
+  "descripcion": "Porcentaje de las afiliaciones a prestadores integrales de salud que corresponden a ASSE (prestador público), por departamento, 2024. Cociente ASSE/Total del cuadro. Copia local en datos-fuente/datos_INE_2025/cap3_aspectos_sociales/3.2.4ok.xls.",
+  "unidad": "%",
+  "departamentos": [
+    {
+      "id": "UY-MO",
+      "nombre": "Montevideo",
+      "valor": 27.3
+    },
+    {
+      "id": "UY-AR",
+      "nombre": "Artigas",
+      "valor": 59.8
+    },
+    {
+      "id": "UY-CA",
+      "nombre": "Canelones",
+      "valor": 33.6
+    },
+    {
+      "id": "UY-CL",
+      "nombre": "Cerro Largo",
+      "valor": 49.3
+    },
+    {
+      "id": "UY-CO",
+      "nombre": "Colonia",
+      "valor": 36.8
+    },
+    {
+      "id": "UY-DU",
+      "nombre": "Durazno",
+      "valor": 41.2
+    },
+    {
+      "id": "UY-FS",
+      "nombre": "Flores",
+      "valor": 44
+    },
+    {
+      "id": "UY-FD",
+      "nombre": "Florida",
+      "valor": 47.9
+    },
+    {
+      "id": "UY-LA",
+      "nombre": "Lavalleja",
+      "valor": 43.4
+    },
+    {
+      "id": "UY-MA",
+      "nombre": "Maldonado",
+      "valor": 30.6
+    },
+    {
+      "id": "UY-PA",
+      "nombre": "Paysandú",
+      "valor": 48.3
+    },
+    {
+      "id": "UY-RN",
+      "nombre": "Río Negro",
+      "valor": 59.4
+    },
+    {
+      "id": "UY-RV",
+      "nombre": "Rivera",
+      "valor": 48.4
+    },
+    {
+      "id": "UY-RO",
+      "nombre": "Rocha",
+      "valor": 44.5
+    },
+    {
+      "id": "UY-SA",
+      "nombre": "Salto",
+      "valor": 50.9
+    },
+    {
+      "id": "UY-SJ",
+      "nombre": "San José",
+      "valor": 33.2
+    },
+    {
+      "id": "UY-SO",
+      "nombre": "Soriano",
+      "valor": 45.1
+    },
+    {
+      "id": "UY-TA",
+      "nombre": "Tacuarembó",
+      "valor": 59.8
+    },
+    {
+      "id": "UY-TT",
+      "nombre": "Treinta y Tres",
+      "valor": 52.1
+    }
+  ]
+}
