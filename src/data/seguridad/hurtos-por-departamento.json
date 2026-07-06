@@ -8,6 +8,10 @@
   "fuenteUrl": "https://www.ine.gub.uy/",
   "anio": 2024,
   "unidad": "por 1.000 hab",
+  "base": {
+    "valor": 1000,
+    "label": "habitantes"
+  },
   "descripcion": "Denuncias de hurtos por cada 1.000 habitantes, por departamento, 2024 (denuncias 2024 sobre población estimada 2023). Refiere a denuncias registradas, no a hechos totales.",
   "departamentos": [
     {

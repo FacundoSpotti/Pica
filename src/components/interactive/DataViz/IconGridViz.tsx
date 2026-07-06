@@ -22,10 +22,12 @@ export default function IconGridViz({ data }: { data: DatasetDistribucion }) {
   const base = TEMA_COLOR[data.tematica];
 
   return (
-    <div>
-      <VizHeader dataset={data} />
+    <div className="flex flex-col items-center">
+      <div className="w-full">
+        <VizHeader dataset={data} center />
+      </div>
 
-      <ul className="grid max-w-3xl grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-2">
+      <ul className="grid w-full max-w-3xl grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-2">
         {data.categorias.map((cat, i) => {
           const tint = cat.tema ? TEMA_COLOR[cat.tema as Tematica] : cat.color ?? base;
           const highlighted = Boolean(cat.tema);
@@ -55,12 +57,14 @@ export default function IconGridViz({ data }: { data: DatasetDistribucion }) {
         })}
       </ul>
 
-      <DataTable
-        caption={data.caracteristica}
-        head={['Categoría', `Valor${data.unidad ? ` (${data.unidad})` : ''}`]}
-        rows={data.categorias.map((c) => [c.label, c.valor])}
-      />
-      <VizFooter dataset={data} />
+      <div className="w-full">
+        <DataTable
+          caption={data.caracteristica}
+          head={['Categoría', `Valor${data.unidad ? ` (${data.unidad})` : ''}`]}
+          rows={data.categorias.map((c) => [c.label, c.valor])}
+        />
+        <VizFooter dataset={data} />
+      </div>
     </div>
   );
 }

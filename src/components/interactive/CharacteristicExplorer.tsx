@@ -96,8 +96,8 @@ export default function CharacteristicExplorer({
         })}
       </div>
 
-      {/* Visualización activa */}
-      <div className="mt-6 min-h-0 flex-1 overflow-y-auto">
+      {/* Visualización activa — centrada y sin scroll (encaja en el alto disponible) */}
+      <div className="mt-6 flex min-h-0 flex-1 items-center justify-center overflow-hidden">
         <AnimatePresence mode="wait">
           {active && (
             <motion.div
@@ -106,6 +106,7 @@ export default function CharacteristicExplorer({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: shouldReduce ? 0 : -20 }}
               transition={{ duration: shouldReduce ? 0 : 0.3 }}
+              className="mx-auto w-full max-w-5xl"
             >
               <VizRouter dataset={active} />
             </motion.div>

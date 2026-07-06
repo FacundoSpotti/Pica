@@ -39,12 +39,14 @@ export default function IsotypeGlyphViz({ data }: { data: DatasetDistribucion })
       : `${Math.round(1 / per)} glifos = 1${unidad}`;
 
   return (
-    <div>
-      <VizHeader dataset={data} />
+    <div className="flex flex-col items-center">
+      <div className="w-full">
+        <VizHeader dataset={data} center />
+      </div>
 
-      <p className="mb-4 font-sans text-pica-subtitle text-text-muted">{escala}</p>
+      <p className="mb-4 text-center font-sans text-pica-subtitle text-text-muted">{escala}</p>
 
-      <ul className="flex max-w-2xl flex-col gap-5">
+      <ul className="flex w-full max-w-2xl flex-col gap-5">
         {data.categorias.map((cat, ci) => {
           const c = cat.color ?? color;
           // % → 100 glifos (coloreados = valor, resto gris). Magnitud → valor/per.
@@ -86,12 +88,14 @@ export default function IsotypeGlyphViz({ data }: { data: DatasetDistribucion })
         })}
       </ul>
 
-      <DataTable
-        caption={data.caracteristica}
-        head={['Categoría', `Valor${data.unidad ? ` (${data.unidad})` : ''}`]}
-        rows={data.categorias.map((c) => [c.label, c.valor])}
-      />
-      <VizFooter dataset={data} />
+      <div className="w-full">
+        <DataTable
+          caption={data.caracteristica}
+          head={['Categoría', `Valor${data.unidad ? ` (${data.unidad})` : ''}`]}
+          rows={data.categorias.map((c) => [c.label, c.valor])}
+        />
+        <VizFooter dataset={data} />
+      </div>
     </div>
   );
 }

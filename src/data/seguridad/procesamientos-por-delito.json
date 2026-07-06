@@ -4,7 +4,7 @@
   "entidad": "Delitos",
   "caracteristica": "Procesamientos por tipo de delito",
   "tipoResultado": "B",
-  "presentacion": "lista",
+  "presentacion": "grilla",
   "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.6.4 (fuente Poder Judicial)",
   "fuenteUrl": "https://www.ine.gub.uy/",
   "anio": 2024,
@@ -13,63 +13,78 @@
   "categorias": [
     {
       "label": "Hurto",
-      "valor": 7351
+      "valor": 7351,
+      "icono": "shield"
     },
     {
       "label": "Estupefacientes",
-      "valor": 2083
+      "valor": 2083,
+      "icono": "shield"
     },
     {
       "label": "Lesiones",
-      "valor": 1477
+      "valor": 1477,
+      "icono": "shield"
     },
     {
       "label": "Rapiña",
-      "valor": 1057
+      "valor": 1057,
+      "icono": "shield"
     },
     {
       "label": "Estafa",
-      "valor": 604
+      "valor": 604,
+      "icono": "shield"
     },
     {
       "label": "Homicidio",
-      "valor": 458
+      "valor": 458,
+      "icono": "shield"
     },
     {
       "label": "Apropiación indebida",
-      "valor": 168
+      "valor": 168,
+      "icono": "shield"
     },
     {
       "label": "Encubrimiento",
-      "valor": 166
+      "valor": 166,
+      "icono": "shield"
     },
     {
       "label": "Atentado",
-      "valor": 141
+      "valor": 141,
+      "icono": "shield"
     },
     {
       "label": "Atentado violento al pudor",
-      "valor": 115
+      "valor": 115,
+      "icono": "shield"
     },
     {
       "label": "Falsificación documentaria",
-      "valor": 48
+      "valor": 48,
+      "icono": "shield"
     },
     {
       "label": "Violación",
-      "valor": 44
+      "valor": 44,
+      "icono": "shield"
     },
     {
       "label": "Daño",
-      "valor": 32
+      "valor": 32,
+      "icono": "shield"
     },
     {
       "label": "Ultraje",
-      "valor": 21
+      "valor": 21,
+      "icono": "shield"
     },
     {
       "label": "Libramiento de cheques",
-      "valor": 7
+      "valor": 7,
+      "icono": "shield"
     }
   ]
 }

@@ -25,16 +25,18 @@ export default function PerCapitaViz({ data }: { data: DatasetDistribucion }) {
   const unidadSingular = (data.unidad ?? 'unidad').replace(/\/.*$/, '').replace(/s$/, '');
 
   return (
-    <div>
-      <VizHeader dataset={data} />
+    <div className="flex flex-col items-center">
+      <div className="w-full">
+        <VizHeader dataset={data} center />
+      </div>
 
-      <p className="mb-4 flex items-center gap-2 font-sans text-pica-subtitle text-text-muted">
+      <p className="mb-4 flex items-center justify-center gap-2 font-sans text-pica-subtitle text-text-muted">
         cada persona = 1 afiliado · cada
         <PixelIcon name={glyph} size={16} color={color} />
         = 1 {unidadSingular}
       </p>
 
-      <ul className="flex flex-col gap-4">
+      <ul className="flex w-full max-w-xl flex-col gap-4">
         {data.categorias.map((cat, ci) => {
           const c = cat.color ?? color;
           const n = Math.min(MAX_GLYPHS, Math.max(0, Math.round(cat.valor)));
@@ -72,12 +74,14 @@ export default function PerCapitaViz({ data }: { data: DatasetDistribucion }) {
         })}
       </ul>
 
-      <DataTable
-        caption={data.caracteristica}
-        head={['Categoría', `Valor${data.unidad ? ` (${data.unidad})` : ''}`]}
-        rows={data.categorias.map((c) => [c.label, c.valor])}
-      />
-      <VizFooter dataset={data} />
+      <div className="w-full">
+        <DataTable
+          caption={data.caracteristica}
+          head={['Categoría', `Valor${data.unidad ? ` (${data.unidad})` : ''}`]}
+          rows={data.categorias.map((c) => [c.label, c.valor])}
+        />
+        <VizFooter dataset={data} />
+      </div>
     </div>
   );
 }

@@ -26,9 +26,11 @@ function RankedList({ data }: { data: DatasetDistribucion }) {
   const maxVal = max(ranked, (c) => c.valor) ?? 1;
 
   return (
-    <div>
-      <VizHeader dataset={data} />
-      <ol className="flex max-w-2xl flex-col gap-2">
+    <div className="flex flex-col items-center">
+      <div className="w-full">
+        <VizHeader dataset={data} center />
+      </div>
+      <ol className="flex w-full max-w-2xl flex-col gap-2">
         {ranked.map((cat, i) => {
           const pct = Math.max(1, (100 * cat.valor) / maxVal);
           const c = cat.color ?? color;
@@ -55,12 +57,14 @@ function RankedList({ data }: { data: DatasetDistribucion }) {
           );
         })}
       </ol>
-      <DataTable
-        caption={data.caracteristica}
-        head={['Categoría', `Valor${data.unidad ? ` (${data.unidad})` : ''}`]}
-        rows={ranked.map((c) => [c.label, c.valor])}
-      />
-      <VizFooter dataset={data} />
+      <div className="w-full">
+        <DataTable
+          caption={data.caracteristica}
+          head={['Categoría', `Valor${data.unidad ? ` (${data.unidad})` : ''}`]}
+          rows={ranked.map((c) => [c.label, c.valor])}
+        />
+        <VizFooter dataset={data} />
+      </div>
     </div>
   );
 }
@@ -75,8 +79,10 @@ function BarChart({ data }: { data: DatasetDistribucion }) {
   const descId = `${data.id}-desc`;
 
   return (
-    <div>
-      <VizHeader dataset={data} />
+    <div className="flex flex-col items-center">
+      <div className="w-full">
+        <VizHeader dataset={data} center />
+      </div>
 
       <svg
         viewBox={`0 0 ${W} ${height}`}
@@ -117,12 +123,14 @@ function BarChart({ data }: { data: DatasetDistribucion }) {
         })}
       </svg>
 
-      <DataTable
-        caption={data.caracteristica}
-        head={['Categoría', `Valor${data.unidad ? ` (${data.unidad})` : ''}`]}
-        rows={data.categorias.map((c) => [c.label, c.valor])}
-      />
-      <VizFooter dataset={data} />
+      <div className="w-full">
+        <DataTable
+          caption={data.caracteristica}
+          head={['Categoría', `Valor${data.unidad ? ` (${data.unidad})` : ''}`]}
+          rows={data.categorias.map((c) => [c.label, c.valor])}
+        />
+        <VizFooter dataset={data} />
+      </div>
     </div>
   );
 }

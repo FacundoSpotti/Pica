@@ -92,7 +92,7 @@ function ScalarCrowd({ count, color, pool, id }: { count: number; color: string;
   useSpriteWalkers(canvasRef, targets, { scale: SCALE, layoutKey: `scalar:${id}` });
 
   return (
-    <div className="flex flex-col items-start gap-2">
+    <div className="flex flex-col items-center gap-2">
       <canvas
         ref={canvasRef}
         width={W}
@@ -136,7 +136,7 @@ export default function ScalarViz({ data }: { data: DatasetEscalar }) {
     <div
       className={
         conPersonas
-          ? 'flex min-h-[60vh] flex-col justify-center gap-6 px-2'
+          ? 'flex min-h-[60vh] flex-col items-center justify-center gap-5 px-2 text-center'
           : 'flex min-h-[60vh] flex-col items-center justify-center text-center'
       }
     >
@@ -153,8 +153,8 @@ export default function ScalarViz({ data }: { data: DatasetEscalar }) {
       </h2>
 
       {conPersonas ? (
-        // Número a la izquierda, personas a la derecha
-        <div className="flex flex-wrap items-center gap-x-10 gap-y-4">
+        // Número a la izquierda, personas a la derecha (centrado en pantalla)
+        <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
           <div className="flex items-center gap-4">
             {icon && <PixelIcon name={icon} size={72} color={color} />}
             {numero}
