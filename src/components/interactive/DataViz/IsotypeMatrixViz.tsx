@@ -36,6 +36,8 @@ const MARGIN = 2 * SCALE;
 const CELL_ROWS = 4;
 /** Separación horizontal entre slots de columna. */
 const SLOT_GAP = 12 * SCALE;
+/** Gris de las categorías atenuadas al aislar una en la leyenda. */
+const GRAY = '#4B4B46';
 
 /** Paso más fino de la secuencia 1/2/5 (para llenar el ancho disponible). */
 function finerPer(per: number): number {
@@ -75,6 +77,8 @@ function CrowdRow({
 export default function IsotypeMatrixViz({ data }: { data: DatasetMatriz }) {
   const palette = TEMA_PALETTE[data.tematica];
   const gridRef = useRef<HTMLDivElement>(null);
+  // Categoría aislada al clickear su chip (el resto de la multitud va a gris)
+  const [focus, setFocus] = useState<string | null>(null);
 
   // Espacio disponible medido (columna de contenido, sin la de etiquetas)
   const [fit, setFit] = useState({ cw: 1000, ah: 420 });
@@ -158,7 +162,8 @@ export default function IsotypeMatrixViz({ data }: { data: DatasetMatriz }) {
       const targets: WalkerTarget[] = [];
       hLabels.forEach((_, h) => {
         const n = m.counts[v]![h]!;
-        const color = shadeFor(palette[h % palette.length]!, v);
+        const dim = focus !== null && hLabels[h] !== focus;
+        const color = dim ? GRAY : shadeFor(palette[h % palette.length]!, v);
         for (let j = 0; j < n; j++) {
           targets.push({
             x: slotX[h]! + Math.floor(j / CELL_ROWS) * PITCH_X - C_MIN_X * SCALE,
@@ -178,7 +183,7 @@ export default function IsotypeMatrixViz({ data }: { data: DatasetMatriz }) {
       canvasW,
       rowH,
     };
-  }, [data, palette, fit]);
+  }, [data, palette, fit, focus]);
 
   const ariaLabel = `${data.caracteristica}: matriz de ${vLabels.join(', ')} según ${hLabels.join(
     ', ',
@@ -196,14 +201,25 @@ export default function IsotypeMatrixViz({ data }: { data: DatasetMatriz }) {
       <div className="mb-3 flex w-full flex-wrap items-center gap-2">
         {hLabels.map((l, h) => {
           const c = palette[h % palette.length]!;
+          const isFocused = focus === l;
+          const dimmed = focus !== null && !isFocused;
           return (
-            <span
+            <button
               key={l}
-              className="whitespace-nowrap px-2 py-1 font-sans text-pica-subtitle"
-              style={{ backgroundColor: c, color: textOnColor(c) }}
+              type="button"
+              aria-pressed={isFocused}
+              aria-label={`Aislar ${l}`}
+              onClick={() => setFocus((f) => (f === l ? null : l))}
+              className="whitespace-nowrap px-2 py-1 font-sans text-pica-subtitle transition-opacity"
+              style={{
+                backgroundColor: c,
+                color: textOnColor(c),
+                opacity: dimmed ? 0.35 : 1,
+                boxShadow: isFocused ? '0 0 0 2px #EBEBEB' : 'none',
+              }}
             >
               {l}
-            </span>
+            </button>
           );
         })}
         <span className="ml-auto font-sans text-pica-subtitle text-text-secondary">{label}</span>
