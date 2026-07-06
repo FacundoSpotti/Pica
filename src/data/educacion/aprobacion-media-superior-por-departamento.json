@@ -1,0 +1,109 @@
+{
+  "id": "aprobacion-media-superior-por-departamento",
+  "tematica": "educacion",
+  "entidad": "Departamentos",
+  "caracteristica": "Aprobación en Media Superior",
+  "tipoResultado": "E",
+  "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.1.12 (fuente MEC-ANEP)",
+  "fuenteUrl": "https://www.ine.gub.uy/",
+  "anio": 2024,
+  "unidad": "%",
+  "descripcion": "Porcentaje de aprobación en Educación Media Superior pública (modalidad general), por departamento, 2024. Copia local en datos-fuente/datos_INE_2025/cap3_aspectos_sociales/3.1.12ok.xls.",
+  "departamentos": [
+    {
+      "id": "UY-MO",
+      "nombre": "Montevideo",
+      "valor": 65.5
+    },
+    {
+      "id": "UY-AR",
+      "nombre": "Artigas",
+      "valor": 80.4
+    },
+    {
+      "id": "UY-CA",
+      "nombre": "Canelones",
+      "valor": 77.2
+    },
+    {
+      "id": "UY-CL",
+      "nombre": "Cerro Largo",
+      "valor": 82.7
+    },
+    {
+      "id": "UY-CO",
+      "nombre": "Colonia",
+      "valor": 86.7
+    },
+    {
+      "id": "UY-DU",
+      "nombre": "Durazno",
+      "valor": 79.7
+    },
+    {
+      "id": "UY-FS",
+      "nombre": "Flores",
+      "valor": 85.9
+    },
+    {
+      "id": "UY-FD",
+      "nombre": "Florida",
+      "valor": 83.5
+    },
+    {
+      "id": "UY-LA",
+      "nombre": "Lavalleja",
+      "valor": 80.8
+    },
+    {
+      "id": "UY-MA",
+      "nombre": "Maldonado",
+      "valor": 78.1
+    },
+    {
+      "id": "UY-PA",
+      "nombre": "Paysandú",
+      "valor": 83.1
+    },
+    {
+      "id": "UY-RN",
+      "nombre": "Río Negro",
+      "valor": 79.8
+    },
+    {
+      "id": "UY-RV",
+      "nombre": "Rivera",
+      "valor": 81.1
+    },
+    {
+      "id": "UY-RO",
+      "nombre": "Rocha",
+      "valor": 78.4
+    },
+    {
+      "id": "UY-SA",
+      "nombre": "Salto",
+      "valor": 78.2
+    },
+    {
+      "id": "UY-SJ",
+      "nombre": "San José",
+      "valor": 79.3
+    },
+    {
+      "id": "UY-SO",
+      "nombre": "Soriano",
+      "valor": 79.6
+    },
+    {
+      "id": "UY-TA",
+      "nombre": "Tacuarembó",
+      "valor": 81.1
+    },
+    {
+      "id": "UY-TT",
+      "nombre": "Treinta y Tres",
+      "valor": 75.8
+    }
+  ]
+}

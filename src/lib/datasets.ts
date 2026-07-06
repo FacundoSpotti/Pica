@@ -8,6 +8,9 @@
 import { parseDataset, type Dataset } from "@/schemas/base";
 import type { Tematica } from "@/types/sprites";
 
+import educacion_aprobacion_media_basica_por_departamento from "@/data/educacion/aprobacion-media-basica-por-departamento.json";
+import educacion_aprobacion_media_superior_por_departamento from "@/data/educacion/aprobacion-media-superior-por-departamento.json";
+import educacion_egresados_terciaria_por_area from "@/data/educacion/egresados-terciaria-por-area.json";
 import educacion_egreso_media_superior from "@/data/educacion/egreso-media-superior.json";
 import educacion_egreso_por_nivel_socioeconomico from "@/data/educacion/egreso-por-nivel-socioeconomico.json";
 import educacion_nivel_educativo from "@/data/educacion/nivel-educativo.json";
@@ -58,6 +61,9 @@ import trabajo_subempleo_por_nivel_educativo from "@/data/trabajo/subempleo-por-
 import trabajo_subempleo_por_sexo from "@/data/trabajo/subempleo-por-sexo.json";
 
 const RAW_DATASETS: unknown[] = [
+  educacion_aprobacion_media_basica_por_departamento,
+  educacion_aprobacion_media_superior_por_departamento,
+  educacion_egresados_terciaria_por_area,
   educacion_egreso_media_superior,
   educacion_egreso_por_nivel_socioeconomico,
   educacion_nivel_educativo,

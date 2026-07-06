@@ -1,0 +1,55 @@
+{
+  "id": "egresados-terciaria-por-area",
+  "tematica": "educacion",
+  "entidad": "Áreas de conocimiento",
+  "caracteristica": "Egresados de educación terciaria",
+  "tipoResultado": "B",
+  "presentacion": "lista",
+  "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.1.13 (fuente MEC)",
+  "fuenteUrl": "https://www.ine.gub.uy/",
+  "anio": 2024,
+  "unidad": "egresados",
+  "descripcion": "Egresados de educación terciaria (universitaria y no universitaria, pública y privada, grado y posgrado) según área de conocimiento UIS, 2024. Copia local en datos-fuente/datos_INE_2025/cap3_aspectos_sociales/3.1.13ok.xlsx.",
+  "categorias": [
+    {
+      "label": "Educación",
+      "valor": 3464
+    },
+    {
+      "label": "Administración y derecho",
+      "valor": 2946
+    },
+    {
+      "label": "Salud y bienestar",
+      "valor": 2859
+    },
+    {
+      "label": "Ciencias sociales y comunicación",
+      "valor": 1804
+    },
+    {
+      "label": "Ingeniería y construcción",
+      "valor": 1089
+    },
+    {
+      "label": "TIC",
+      "valor": 975
+    },
+    {
+      "label": "Artes y humanidades",
+      "valor": 952
+    },
+    {
+      "label": "Servicios",
+      "valor": 585
+    },
+    {
+      "label": "Agro y veterinaria",
+      "valor": 424
+    },
+    {
+      "label": "Ciencias naturales y matemática",
+      "valor": 380
+    }
+  ]
+}
