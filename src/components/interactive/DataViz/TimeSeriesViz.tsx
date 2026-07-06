@@ -33,8 +33,10 @@ export default function TimeSeriesViz({ data }: { data: DatasetSerie }) {
   const descId = `${data.id}-desc`;
 
   return (
-    <div>
-      <VizHeader dataset={data} />
+    <div className="flex flex-col items-center">
+      <div className="w-full">
+        <VizHeader dataset={data} center />
+      </div>
 
       <svg
         viewBox={`0 0 ${W} ${H}`}

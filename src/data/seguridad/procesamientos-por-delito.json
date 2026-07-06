@@ -14,12 +14,12 @@
     {
       "label": "Hurto",
       "valor": 7351,
-      "icono": "shield"
+      "icono": "coins"
     },
     {
       "label": "Estupefacientes",
       "valor": 2083,
-      "icono": "shield"
+      "icono": "drop"
     },
     {
       "label": "Lesiones",
@@ -29,12 +29,12 @@
     {
       "label": "Rapiña",
       "valor": 1057,
-      "icono": "shield"
+      "icono": "coins"
     },
     {
       "label": "Estafa",
       "valor": 604,
-      "icono": "shield"
+      "icono": "coins"
     },
     {
       "label": "Homicidio",
@@ -44,12 +44,12 @@
     {
       "label": "Apropiación indebida",
       "valor": 168,
-      "icono": "shield"
+      "icono": "coins"
     },
     {
       "label": "Encubrimiento",
       "valor": 166,
-      "icono": "shield"
+      "icono": "coins"
     },
     {
       "label": "Atentado",
@@ -64,7 +64,7 @@
     {
       "label": "Falsificación documentaria",
       "valor": 48,
-      "icono": "shield"
+      "icono": "coins"
     },
     {
       "label": "Violación",
@@ -74,7 +74,7 @@
     {
       "label": "Daño",
       "valor": 32,
-      "icono": "shield"
+      "icono": "coins"
     },
     {
       "label": "Ultraje",
@@ -84,7 +84,7 @@
     {
       "label": "Libramiento de cheques",
       "valor": 7,
-      "icono": "shield"
+      "icono": "coins"
     }
   ]
 }

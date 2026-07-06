@@ -96,8 +96,9 @@ export default function CharacteristicExplorer({
         })}
       </div>
 
-      {/* Visualización activa — centrada y sin scroll (encaja en el alto disponible) */}
-      <div className="mt-6 flex min-h-0 flex-1 items-center justify-center overflow-hidden">
+      {/* Visualización activa — encabezado anclado arriba (nunca se corta el
+          título) + viz centrada debajo, sin scroll. */}
+      <div className="mt-6 flex min-h-0 flex-1 items-start justify-center overflow-hidden">
         <AnimatePresence mode="wait">
           {active && (
             <motion.div

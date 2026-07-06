@@ -216,7 +216,7 @@ export default function MapViz({ data }: { data: DatasetEspacial }) {
 
   return (
     <div>
-      <VizHeader dataset={data} compact />
+      <VizHeader dataset={data} compact center />
 
       {/* Composición centrada: [seleccionado] [MAPA] [comparado] */}
       <div

@@ -279,10 +279,12 @@ export default function IsotypeTimeSeriesViz({ data }: { data: DatasetSerie }) {
   }Escala: ${isAll ? all.label : single.label}.`;
 
   return (
-    <div>
-      <VizHeader dataset={data} compact />
+    <div className="flex flex-col items-center">
+      <div className="w-full">
+        <VizHeader dataset={data} compact center />
+      </div>
 
-      <div ref={wrapperRef} className="flex items-start gap-4">
+      <div ref={wrapperRef} className="flex w-full items-start gap-4">
         {/* Área principal */}
         <div ref={mainRef} className="min-w-0 flex-1">
           {/* Encabezado del estado actual */}

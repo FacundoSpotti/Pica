@@ -18,11 +18,13 @@
     },
     {
       "label": "Bebidas alcohólicas y tabaco",
-      "valor": 4.1
+      "valor": 4.1,
+      "icono": "bottle"
     },
     {
       "label": "Ropa y calzado",
-      "valor": -3.5
+      "valor": -3.5,
+      "icono": "shirt"
     },
     {
       "label": "Vivienda y servicios",
@@ -31,7 +33,8 @@
     },
     {
       "label": "Mobiliario y hogar",
-      "valor": 4.5
+      "valor": 4.5,
+      "icono": "bed"
     },
     {
       "label": "Salud",
@@ -46,11 +49,13 @@
     },
     {
       "label": "Información y comunicación",
-      "valor": 4.8
+      "valor": 4.8,
+      "icono": "phone"
     },
     {
       "label": "Recreación y cultura",
-      "valor": 5.7
+      "valor": 5.7,
+      "icono": "ticket"
     },
     {
       "label": "Educación",
@@ -60,7 +65,8 @@
     },
     {
       "label": "Restaurantes y alojamiento",
-      "valor": 7.3
+      "valor": 7.3,
+      "icono": "plate"
     },
     {
       "label": "Seguros y finanzas",
@@ -69,7 +75,8 @@
     },
     {
       "label": "Cuidado personal",
-      "valor": 4.7
+      "valor": 4.7,
+      "icono": "drop"
     }
   ]
 }

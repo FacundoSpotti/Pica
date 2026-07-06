@@ -135,7 +135,7 @@ export default function IsotypeDistributionViz({ data }: { data: DatasetDistribu
   return (
     <div className="flex flex-col items-center">
       <div className="w-full">
-        <VizHeader dataset={data} compact />
+        <VizHeader dataset={data} compact center />
       </div>
 
       {/* Leyenda clickeable */}

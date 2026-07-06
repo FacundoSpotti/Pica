@@ -194,10 +194,12 @@ export default function IsotypeMatrixViz({ data }: { data: DatasetMatriz }) {
   )}. Escala: ${label}. Valores completos en la tabla.`;
 
   return (
-    <div>
-      <VizHeader dataset={data} compact />
+    <div className="flex flex-col items-center">
+      <div className="w-full">
+        <VizHeader dataset={data} compact center />
+      </div>
 
-      <p className="mb-2 text-right font-sans text-pica-subtitle text-text-secondary">{label}</p>
+      <p className="mb-2 w-full text-right font-sans text-pica-subtitle text-text-secondary">{label}</p>
 
       {/* Matriz de multitudes */}
       <div
