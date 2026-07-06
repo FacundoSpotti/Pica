@@ -25,7 +25,6 @@ interface CharacteristicExplorerProps {
 
 export default function CharacteristicExplorer({
   tema,
-  entidad,
   datasets,
   activeId,
   onChangeCaracteristica,
@@ -53,27 +52,12 @@ export default function CharacteristicExplorer({
 
   return (
     <div className="flex h-full flex-col px-6 pb-8 pt-2 md:px-12">
-      {/* Entidad bloqueada + volver */}
-      <div className="mb-4 flex items-center gap-4">
-        <button
-          type="button"
-          onClick={onUnlockEntidad}
-          aria-label="Volver a la lista de entidades"
-          className="font-sans text-pica-paragraph text-text-secondary underline-offset-4 hover:underline"
-        >
-          ← {entidad}
-        </button>
-        <span aria-hidden="true" className="text-text-muted">·</span>
-        <p className="font-sans text-pica-subtitle text-text-muted">
-          ←/→ para recorrer características · Esc para cambiar de entidad
-        </p>
-      </div>
-
-      {/* Fila horizontal de características */}
+      {/* Fila de características como pestañas, con una línea de margen a margen
+          (full-bleed) que deja claro que se puede cambiar entre categorías. */}
       <div
         role="tablist"
         aria-label="Características disponibles"
-        className="flex snap-x gap-2 overflow-x-auto pb-2"
+        className="-mx-6 flex gap-8 overflow-x-auto border-b border-white/15 px-6 md:-mx-12 md:px-12"
       >
         {datasets.map((d) => {
           const isActive = d.id === activeId;
@@ -84,7 +68,7 @@ export default function CharacteristicExplorer({
               role="tab"
               aria-selected={isActive}
               onClick={() => onChangeCaracteristica(d.id)}
-              className="shrink-0 snap-start whitespace-nowrap border-b-2 px-4 py-2 font-display text-pica-button font-bold transition-colors"
+              className="-mb-px shrink-0 whitespace-nowrap border-b-2 px-1 pb-3 pt-1 font-display text-pica-button font-bold transition-colors"
               style={{
                 borderColor: isActive ? color : 'transparent',
                 color: isActive ? color : '#A0A09A',

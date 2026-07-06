@@ -92,7 +92,14 @@ export default function InteractiveLayout() {
             {entidad && (
               <>
                 <span aria-hidden="true" className="text-text-muted">/</span>
-                <span className="text-text-secondary">{entidad}</span>
+                <button
+                  type="button"
+                  onClick={() => setParams({ tema })}
+                  aria-label="Volver a la lista de entidades"
+                  className="text-text-secondary underline-offset-4 hover:underline"
+                >
+                  {entidad}
+                </button>
               </>
             )}
           </nav>
