@@ -37,8 +37,6 @@ const CELL_ROWS = 4;
 /** Separación horizontal entre slots de columna. */
 const SLOT_GAP = 12 * SCALE;
 
-const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
-
 /** Paso más fino de la secuencia 1/2/5 (para llenar el ancho disponible). */
 function finerPer(per: number): number {
   const e = 10 ** Math.floor(Math.log10(per));
@@ -100,7 +98,7 @@ export default function IsotypeMatrixViz({ data }: { data: DatasetMatriz }) {
     };
   }, []);
 
-  const { label, hLabels, vLabels, rows, canvasW, rowH, slots } = useMemo(() => {
+  const { label, hLabels, vLabels, rows, canvasW, rowH } = useMemo(() => {
     // La dimensión con más categorías va en horizontal
     const filasH = data.filas.length >= data.columnas.length;
     const hLabels = filasH ? data.filas : data.columnas;
@@ -111,7 +109,7 @@ export default function IsotypeMatrixViz({ data }: { data: DatasetMatriz }) {
     const sum = data.valores.flat().reduce((a, n) => a + n, 0);
     let per = matrixScale(sum, data.unidad).per;
     const rowH = MARGIN * 2 + (CELL_ROWS - 1) * PITCH_Y + C_H * SCALE;
-    // Alto disponible por fila (reservando chips y separación entre filas)
+    // Alto disponible por fila (reservando la leyenda y separación entre filas)
     const rowBudget = Math.max(90, (fit.ah - 48) / vLabels.length - 4);
 
     const compute = (p: number) => {
@@ -136,9 +134,10 @@ export default function IsotypeMatrixViz({ data }: { data: DatasetMatriz }) {
       m = compute(per);
     }
 
-    const view = clamp(Math.min(fit.cw / (m.crowdW + MARGIN * 2), rowBudget / rowH), 0.3, 1.8);
-    // Canvas con sangrado horizontal: cubre el ancho del área (full-bleed)
-    const canvasW = Math.max(m.crowdW + MARGIN * 2, Math.floor(fit.cw / view));
+    // La multitud LLENA el ancho disponible (canvasW = ancho real de la multitud,
+    // se muestra a w-full). Si tuviera pocas figuras, se limita el agrandado para
+    // que la fila no supere el alto disponible (rowBudget).
+    const canvasW = Math.max(m.crowdW + MARGIN * 2, Math.ceil((fit.cw * rowH) / rowBudget));
 
     // Posiciones: multitudes alineadas a la izquierda (junto a las etiquetas)
     const slotX: number[] = [];
@@ -171,12 +170,6 @@ export default function IsotypeMatrixViz({ data }: { data: DatasetMatriz }) {
       return { vLabel, targets };
     });
 
-    const slots = hLabels.map((label, h) => ({
-      label,
-      color: palette[h % palette.length]!,
-      frac: (m.slotW[h]! + (h < hLabels.length - 1 ? SLOT_GAP : 0)) / m.crowdW,
-    }));
-
     return {
       label: perLabel(per, data.unidad),
       hLabels,
@@ -184,7 +177,6 @@ export default function IsotypeMatrixViz({ data }: { data: DatasetMatriz }) {
       rows,
       canvasW,
       rowH,
-      slots,
     };
   }, [data, palette, fit]);
 
@@ -198,7 +190,24 @@ export default function IsotypeMatrixViz({ data }: { data: DatasetMatriz }) {
         <VizHeader dataset={data} compact center />
       </div>
 
-      <p className="mb-2 w-full text-right font-sans text-pica-subtitle text-text-secondary">{label}</p>
+      {/* Leyenda arriba (mismo sistema que la distribución): un chip por
+          categoría con su etiqueta completa + color; la escala a la derecha.
+          Así el texto nunca se corta ni depende del ancho de cada columna. */}
+      <div className="mb-3 flex w-full flex-wrap items-center gap-2">
+        {hLabels.map((l, h) => {
+          const c = palette[h % palette.length]!;
+          return (
+            <span
+              key={l}
+              className="whitespace-nowrap px-2 py-1 font-sans text-pica-subtitle"
+              style={{ backgroundColor: c, color: textOnColor(c) }}
+            >
+              {l}
+            </span>
+          );
+        })}
+        <span className="ml-auto font-sans text-pica-subtitle text-text-secondary">{label}</span>
+      </div>
 
       {/* Matriz de multitudes */}
       <div
@@ -221,27 +230,6 @@ export default function IsotypeMatrixViz({ data }: { data: DatasetMatriz }) {
             />
           </div>
         ))}
-
-        {/* Chips de la dimensión horizontal. Cada chip crece proporcional a su
-            columna (frac) pero NUNCA baja del ancho de su etiqueta (flex-basis
-            auto + whitespace-nowrap) y envuelve si no entra — así los rubros
-            chicos (Militar, Policial…) no se truncan. */}
-        <div aria-hidden="true" />
-        <div className="mt-1 flex w-full flex-wrap gap-1" aria-hidden="true">
-          {slots.map((s) => (
-            <span
-              key={s.label}
-              className="whitespace-nowrap px-2 py-1 text-center font-sans text-pica-subtitle"
-              style={{
-                flex: `${s.frac} 1 auto`,
-                backgroundColor: s.color,
-                color: textOnColor(s.color),
-              }}
-            >
-              {s.label}
-            </span>
-          ))}
-        </div>
       </div>
 
       <DataTable

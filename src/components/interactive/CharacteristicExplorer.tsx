@@ -91,7 +91,7 @@ export default function CharacteristicExplorer({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: shouldReduce ? 0 : -20 }}
               transition={{ duration: shouldReduce ? 0 : 0.3 }}
-              className="mx-auto w-full max-w-5xl"
+              className="mx-auto w-full"
             >
               <VizRouter dataset={active} />
             </motion.div>
