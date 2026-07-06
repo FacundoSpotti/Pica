@@ -1,0 +1,17 @@
+{
+  "id": "gasto-salud-por-habitante",
+  "tematica": "salud",
+  "entidad": "Gasto en salud",
+  "caracteristica": "Gasto en salud por habitante",
+  "tipoResultado": "C",
+  "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.2.8 (fuente MSP — Área Económica de la Salud)",
+  "fuenteUrl": "https://www.ine.gub.uy/",
+  "anio": 2023,
+  "descripcion": "Gasto corriente en salud por habitante por año, en dólares corrientes. Copia local en datos-fuente/datos_INE_2025/cap3_aspectos_sociales/3.2.8ok.xls.",
+  "unidad": "US$",
+  "puntos": [
+    { "periodo": "2021", "valor": 1592.7 },
+    { "periodo": "2022", "valor": 1802.2 },
+    { "periodo": "2023", "valor": 1935.8 }
+  ]
+}

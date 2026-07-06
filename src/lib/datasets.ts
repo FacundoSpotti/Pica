@@ -22,8 +22,11 @@ import salud_cobertura_por_edad from "@/data/salud/cobertura-por-edad.json";
 import salud_cobertura_salud from "@/data/salud/cobertura-salud.json";
 import salud_consultas_por_afiliado from "@/data/salud/consultas-por-afiliado.json";
 import salud_egresos_hospitalarios from "@/data/salud/egresos-hospitalarios.json";
+import salud_financiamiento_salud from "@/data/salud/financiamiento-salud.json";
+import salud_gasto_salud_por_habitante from "@/data/salud/gasto-salud-por-habitante.json";
 import salud_medicos_por_departamento from "@/data/salud/medicos-por-departamento.json";
 import salud_mortalidad_infantil from "@/data/salud/mortalidad-infantil.json";
+import salud_profesionales_por_profesion from "@/data/salud/profesionales-por-profesion.json";
 import salud_vacunacion from "@/data/salud/vacunacion.json";
 import trabajo_actividad_por_departamento from "@/data/trabajo/actividad-por-departamento.json";
 import trabajo_actividad_por_edad from "@/data/trabajo/actividad-por-edad.json";
@@ -69,8 +72,11 @@ const RAW_DATASETS: unknown[] = [
   salud_cobertura_salud,
   salud_consultas_por_afiliado,
   salud_egresos_hospitalarios,
+  salud_financiamiento_salud,
+  salud_gasto_salud_por_habitante,
   salud_medicos_por_departamento,
   salud_mortalidad_infantil,
+  salud_profesionales_por_profesion,
   salud_vacunacion,
   trabajo_actividad_por_departamento,
   trabajo_actividad_por_edad,

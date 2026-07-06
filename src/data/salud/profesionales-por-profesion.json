@@ -1,0 +1,22 @@
+{
+  "id": "profesionales-por-profesion",
+  "tematica": "salud",
+  "entidad": "Profesionales de la salud",
+  "caracteristica": "Cantidad por profesión",
+  "tipoResultado": "B",
+  "presentacion": "lista",
+  "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.2.1 (fuente Caja de Jubilaciones de Profesionales Universitarios)",
+  "fuenteUrl": "https://www.ine.gub.uy/",
+  "anio": 2024,
+  "descripcion": "Profesionales de la salud afiliados a la Caja de Jubilaciones de Profesionales Universitarios, según profesión, 2024 (total país). Mide profesionales registrados, no necesariamente en ejercicio. Copia local en datos-fuente/datos_INE_2025/cap3_aspectos_sociales/3.2.1ok.xls.",
+  "unidad": "profesionales",
+  "categorias": [
+    { "label": "Médicos", "valor": 20453 },
+    { "label": "Psicólogos", "valor": 11875 },
+    { "label": "Otros profesionales", "valor": 9930 },
+    { "label": "Enfermeros", "valor": 8707 },
+    { "label": "Odontólogos", "valor": 5004 },
+    { "label": "Químicos farmacéuticos", "valor": 3349 },
+    { "label": "Parteras", "valor": 903 }
+  ]
+}
