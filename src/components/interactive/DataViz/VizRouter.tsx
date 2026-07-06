@@ -14,6 +14,7 @@ import DistributionViz from './DistributionViz';
 import IsotypeDistributionViz from './IsotypeDistributionViz';
 import IsotypeGlyphViz from './IsotypeGlyphViz';
 import IconGridViz from './IconGridViz';
+import PerCapitaViz from './PerCapitaViz';
 import TimeSeriesViz from './TimeSeriesViz';
 import IsotypeTimeSeriesViz from './IsotypeTimeSeriesViz';
 import MatrixViz from './MatrixViz';
@@ -31,7 +32,9 @@ export default function VizRouter({ dataset }: { dataset: Dataset }) {
       return <ScalarViz data={dataset} />;
     case 'B':
       if (persons) return <IsotypeDistributionViz data={dataset} />;
-      // No-personas: glifo de dominio (N1) · grilla de íconos (N5) · barras/lista
+      // No-personas: per-cápita (persona + glifos) · glifo de dominio (N1) ·
+      // grilla de íconos (N5) · barras/lista
+      if (dataset.presentacion === 'per-capita') return <PerCapitaViz data={dataset} />;
       if (dataset.glifo) return <IsotypeGlyphViz data={dataset} />;
       if (dataset.presentacion === 'grilla') return <IconGridViz data={dataset} />;
       return <DistributionViz data={dataset} />;

@@ -4,7 +4,7 @@
   "entidad": "Sectores de actividad económica",
   "caracteristica": "Participación en el empleo",
   "tipoResultado": "B",
-  "presentacion": "lista",
+  "personas": true,
   "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.4.7 (fuente ECH, CIIU Rev. 4)",
   "fuenteUrl": "https://www.ine.gub.uy/",
   "anio": 2024,

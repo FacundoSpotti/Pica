@@ -9,6 +9,7 @@
   "anio": 2024,
   "descripcion": "Médicos afiliados a la Caja de Jubilaciones de Profesionales Universitarios por cada 1.000 habitantes, por departamento (médicos 2024 sobre población estimada 2023). Es una aproximación: mide médicos registrados por residencia, no en ejercicio.",
   "unidad": "médicos/1.000 hab",
+  "base": { "valor": 1000, "label": "habitantes" },
   "departamentos": [
     {
       "id": "UY-MO",

@@ -61,6 +61,7 @@ function DeptPanel({
   unidad,
   per,
   mode,
+  base,
   maxW,
   hint,
   compareTo,
@@ -69,8 +70,10 @@ function DeptPanel({
   colorOf: (v: number) => string;
   unidad?: string;
   per: number;
-  /** 'proporcion' = % con resto en gris hasta 100 · 'magnitud' = conteo de personas */
+  /** 'proporcion' = parte de un todo (`base`) con el resto en gris · 'magnitud' = conteo */
   mode: 'proporcion' | 'magnitud';
+  /** total de referencia en modo proporción (100 para %, 1.000 para "por mil"…) */
+  base: number;
   maxW: number;
   hint?: string;
   compareTo?: Dept | null;
@@ -80,8 +83,8 @@ function DeptPanel({
 
   const targets = useMemo(() => {
     const colored = Math.min(CAP, figureCount(dept.valor, per));
-    // Proporción: 100 figuras con el resto en gris. Magnitud: solo las coloreadas.
-    const total = mode === 'proporcion' ? Math.round(100 / per) : colored;
+    // Proporción: `base/per` figuras con el resto en gris. Magnitud: solo coloreadas.
+    const total = mode === 'proporcion' ? Math.min(CAP, Math.round(base / per)) : colored;
     const out: WalkerTarget[] = [];
     for (let j = 0; j < total; j++) {
       out.push({
@@ -92,7 +95,7 @@ function DeptPanel({
     }
     return out;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dept.id, dept.valor, per, mode]);
+  }, [dept.id, dept.valor, per, mode, base]);
 
   useSpriteWalkers(canvasRef, targets, { scale: SCALE, layoutKey: `map:${dept.id}` });
 
@@ -167,18 +170,21 @@ export default function MapViz({ data }: { data: DatasetEspacial }) {
   const active = selected ?? topDept;
   const compare = hovered && hovered.id !== active.id ? hovered : null;
 
-  // Con % → multitud proporcional (100 figuras, resto en gris). Con conteo de
-  // personas (`personas: true`, ej. fallecidos) → multitud por MAGNITUD para
-  // comparar departamentos por cantidad de figuras.
-  const proportional = data.unidad === '%';
+  // Proporción (resto en gris) cuando el dato es parte de un todo: % → base 100;
+  // "por mil" con `base` (ej. médicos/1.000 hab) → base 1.000. Si es un conteo de
+  // personas suelto (`personas: true`, ej. fallecidos) → multitud por MAGNITUD.
+  const CAP = CROWD_COLS * CROWD_ROWS;
+  const proporcionBase = data.unidad === '%' ? 100 : (data.base?.valor ?? null);
+  const proportional = proporcionBase !== null;
   const showCrowd = proportional || data.personas === true;
   const mode: 'proporcion' | 'magnitud' = proportional ? 'proporcion' : 'magnitud';
+  const baseLabel = data.unidad === '%' ? '%' : data.base?.label;
   const { per } = useMemo(
     () =>
       proportional
-        ? seriesScale(100, '%', CROWD_COLS * CROWD_ROWS)
+        ? seriesScale(proporcionBase!, baseLabel, CAP)
         : seriesScale(maxV, data.unidad, 150),
-    [proportional, maxV, data.unidad],
+    [proportional, proporcionBase, baseLabel, maxV, data.unidad, CAP],
   );
 
   // Alto disponible medido → mapa y multitudes entran sin scroll
@@ -226,6 +232,7 @@ export default function MapViz({ data }: { data: DatasetEspacial }) {
               unidad={data.unidad}
               per={per}
               mode={mode}
+              base={proporcionBase ?? 100}
               maxW={fit.panelW}
               hint="(click en el mapa para cambiar)"
             />
@@ -290,7 +297,7 @@ export default function MapViz({ data }: { data: DatasetEspacial }) {
               {data.unidad === '%' ? '%' : ''}
             </span>
             <span className="ml-3 text-text-muted">
-              {perLabel(per, proportional ? '%' : data.unidad)}
+              {perLabel(per, proportional ? baseLabel : data.unidad)}
             </span>
           </div>
         </div>
@@ -305,6 +312,7 @@ export default function MapViz({ data }: { data: DatasetEspacial }) {
                 unidad={data.unidad}
                 per={per}
                 mode={mode}
+                base={proporcionBase ?? 100}
                 maxW={fit.panelW}
                 compareTo={active}
               />

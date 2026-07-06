@@ -85,7 +85,7 @@ export const DatasetDistribucion = DatasetBase.extend({
    *              las celdas con `tema` se tintan con el color de esa temática
    * · 'glifo'  — isotype de dominio (N1): unidades repetidas de un ícono pixel
    */
-  presentacion: z.enum(['barras', 'lista', 'grilla', 'glifo']).optional(),
+  presentacion: z.enum(['barras', 'lista', 'grilla', 'glifo', 'per-capita']).optional(),
   /** Para 'glifo': nombre del ícono pixel que representa 1 unidad (ej. 'bolt', 'drop'). */
   glifo: z.string().optional(),
   categorias: z

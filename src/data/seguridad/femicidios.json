@@ -4,6 +4,7 @@
   "entidad": "Violencia de género",
   "caracteristica": "Femicidios",
   "tipoResultado": "A",
+  "personas": true,
   "fuente": "Observatorio de Violencia de Género hacia las Mujeres (Inmujeres–MIDES, Ministerio del Interior y Fiscalía General de la Nación) — estudio «Femicidios en Uruguay, 2019–2024»",
   "fuenteUrl": "https://www.gub.uy/observatorio-violencia-genero",
   "anio": 2023,

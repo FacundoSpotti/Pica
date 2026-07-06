@@ -4,7 +4,7 @@
   "entidad": "Tipos de ocupación",
   "caracteristica": "Distribución de ocupados",
   "tipoResultado": "B",
-  "presentacion": "grilla",
+  "personas": true,
   "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.4.8 (fuente ECH, CIUO 08)",
   "fuenteUrl": "https://www.ine.gub.uy/",
   "anio": 2024,
@@ -13,53 +13,43 @@
   "categorias": [
     {
       "label": "Trabajadores de servicios y vendedores",
-      "valor": 22.5,
-      "icono": "users"
+      "valor": 22.5
     },
     {
       "label": "Ocupaciones elementales",
-      "valor": 17.2,
-      "icono": "briefcase"
+      "valor": 17.2
     },
     {
       "label": "Oficiales, operarios y artesanos",
-      "valor": 13.7,
-      "icono": "building"
+      "valor": 13.7
     },
     {
       "label": "Profesionales, científicos e intelectuales",
-      "valor": 13.6,
-      "icono": "book"
+      "valor": 13.6
     },
     {
       "label": "Personal de apoyo administrativo",
-      "valor": 10.5,
-      "icono": "coins"
+      "valor": 10.5
     },
     {
       "label": "Técnicos y profesionales de nivel medio",
-      "valor": 7.8,
-      "icono": "building"
+      "valor": 7.8
     },
     {
       "label": "Operadores de instalaciones y máquinas",
-      "valor": 7.1,
-      "icono": "bus"
+      "valor": 7.1
     },
     {
       "label": "Trabajadores agropecuarios y pesqueros",
-      "valor": 3.9,
-      "icono": "bottle"
+      "valor": 3.9
     },
     {
       "label": "Directores y gerentes",
-      "valor": 3.1,
-      "icono": "briefcase"
+      "valor": 3.1
     },
     {
       "label": "Ocupaciones militares",
-      "valor": 0.6,
-      "icono": "shield"
+      "valor": 0.6
     }
   ]
 }
