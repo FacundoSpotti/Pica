@@ -1,0 +1,109 @@
+{
+  "id": "fallecidos-transito-por-departamento",
+  "tematica": "seguridad",
+  "entidad": "Departamentos",
+  "caracteristica": "Fallecidos en siniestros de tránsito",
+  "tipoResultado": "E",
+  "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.10.1 (fuente UNASEV)",
+  "fuenteUrl": "https://www.ine.gub.uy/",
+  "anio": 2024,
+  "unidad": "por 100.000 hab",
+  "descripcion": "Personas fallecidas en siniestros de tránsito por cada 100.000 habitantes, por departamento de ocurrencia, 2024 (fallecidos 2024 sobre población estimada 2023). Copia local en datos-fuente/datos_INE_2025/cap3_aspectos_sociales/3.10.1ok.xls.",
+  "departamentos": [
+    {
+      "id": "UY-MO",
+      "nombre": "Montevideo",
+      "valor": 7.8
+    },
+    {
+      "id": "UY-AR",
+      "nombre": "Artigas",
+      "valor": 18.1
+    },
+    {
+      "id": "UY-CA",
+      "nombre": "Canelones",
+      "valor": 14.3
+    },
+    {
+      "id": "UY-CL",
+      "nombre": "Cerro Largo",
+      "valor": 16.5
+    },
+    {
+      "id": "UY-CO",
+      "nombre": "Colonia",
+      "valor": 17.7
+    },
+    {
+      "id": "UY-DU",
+      "nombre": "Durazno",
+      "valor": 12.9
+    },
+    {
+      "id": "UY-FS",
+      "nombre": "Flores",
+      "valor": 19
+    },
+    {
+      "id": "UY-FD",
+      "nombre": "Florida",
+      "valor": 15.6
+    },
+    {
+      "id": "UY-LA",
+      "nombre": "Lavalleja",
+      "valor": 16.9
+    },
+    {
+      "id": "UY-MA",
+      "nombre": "Maldonado",
+      "valor": 15
+    },
+    {
+      "id": "UY-PA",
+      "nombre": "Paysandú",
+      "valor": 17.2
+    },
+    {
+      "id": "UY-RN",
+      "nombre": "Río Negro",
+      "valor": 17.4
+    },
+    {
+      "id": "UY-RV",
+      "nombre": "Rivera",
+      "valor": 7.3
+    },
+    {
+      "id": "UY-RO",
+      "nombre": "Rocha",
+      "valor": 19.8
+    },
+    {
+      "id": "UY-SA",
+      "nombre": "Salto",
+      "valor": 12.5
+    },
+    {
+      "id": "UY-SJ",
+      "nombre": "San José",
+      "valor": 15
+    },
+    {
+      "id": "UY-SO",
+      "nombre": "Soriano",
+      "valor": 10.8
+    },
+    {
+      "id": "UY-TA",
+      "nombre": "Tacuarembó",
+      "valor": 15.6
+    },
+    {
+      "id": "UY-TT",
+      "nombre": "Treinta y Tres",
+      "valor": 27.3
+    }
+  ]
+}

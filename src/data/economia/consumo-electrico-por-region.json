@@ -1,0 +1,23 @@
+{
+  "id": "consumo-electrico-por-region",
+  "tematica": "economia",
+  "entidad": "Energía",
+  "caracteristica": "Consumo eléctrico por región",
+  "tipoResultado": "B",
+  "glifo": "bolt",
+  "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 4.5.15 (fuente UTE)",
+  "fuenteUrl": "https://www.ine.gub.uy/",
+  "anio": 2024,
+  "unidad": "GWh",
+  "descripcion": "Consumo de energía eléctrica de clientes de UTE (mercado regulado), por región, 2024, en gigavatios-hora. Copia local en datos-fuente/datos_INE_2025/cap4_sectores_economicos/4.5.15ok.xls.",
+  "categorias": [
+    {
+      "label": "Montevideo",
+      "valor": 3778
+    },
+    {
+      "label": "Resto del País",
+      "valor": 5856
+    }
+  ]
+}

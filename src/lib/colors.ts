@@ -112,8 +112,10 @@ export const TEMA_TEXT_ON_COLOR: Record<Tematica, string> = {
   seguridad: '#0A0A0A',
 };
 
-/** Temáticas disponibles en V1 (clickeables). El resto es V2 (próximamente). */
-export const ACTIVE_TEMAS: readonly Tematica[] = ['educacion', 'trabajo', 'salud'] as const;
+/** Temáticas disponibles (clickeables). Las 5 están activas con datos reales. */
+export const ACTIVE_TEMAS: readonly Tematica[] = [
+  'educacion', 'trabajo', 'salud', 'economia', 'seguridad',
+] as const;
 
 /** Orden de las temáticas para la UI general. */
 export const TEMA_ORDER: readonly Tematica[] = [

@@ -8,6 +8,9 @@
 import { parseDataset, type Dataset } from "@/schemas/base";
 import type { Tematica } from "@/types/sprites";
 
+import economia_consumo_electrico_por_region from "@/data/economia/consumo-electrico-por-region.json";
+import economia_inflacion_anual from "@/data/economia/inflacion-anual.json";
+import economia_ipc_por_division from "@/data/economia/ipc-por-division.json";
 import educacion_aprobacion_media_basica_por_departamento from "@/data/educacion/aprobacion-media-basica-por-departamento.json";
 import educacion_aprobacion_media_superior_por_departamento from "@/data/educacion/aprobacion-media-superior-por-departamento.json";
 import educacion_egresados_terciaria_por_area from "@/data/educacion/egresados-terciaria-por-area.json";
@@ -31,6 +34,9 @@ import salud_medicos_por_departamento from "@/data/salud/medicos-por-departament
 import salud_mortalidad_infantil from "@/data/salud/mortalidad-infantil.json";
 import salud_profesionales_por_profesion from "@/data/salud/profesionales-por-profesion.json";
 import salud_vacunacion from "@/data/salud/vacunacion.json";
+import seguridad_fallecidos_transito_por_departamento from "@/data/seguridad/fallecidos-transito-por-departamento.json";
+import seguridad_procesamientos_por_delito from "@/data/seguridad/procesamientos-por-delito.json";
+import seguridad_siniestros_transito from "@/data/seguridad/siniestros-transito.json";
 import trabajo_actividad_por_departamento from "@/data/trabajo/actividad-por-departamento.json";
 import trabajo_actividad_por_edad from "@/data/trabajo/actividad-por-edad.json";
 import trabajo_actividad_por_nivel_educativo from "@/data/trabajo/actividad-por-nivel-educativo.json";
@@ -61,6 +67,9 @@ import trabajo_subempleo_por_nivel_educativo from "@/data/trabajo/subempleo-por-
 import trabajo_subempleo_por_sexo from "@/data/trabajo/subempleo-por-sexo.json";
 
 const RAW_DATASETS: unknown[] = [
+  economia_consumo_electrico_por_region,
+  economia_inflacion_anual,
+  economia_ipc_por_division,
   educacion_aprobacion_media_basica_por_departamento,
   educacion_aprobacion_media_superior_por_departamento,
   educacion_egresados_terciaria_por_area,
@@ -84,6 +93,9 @@ const RAW_DATASETS: unknown[] = [
   salud_mortalidad_infantil,
   salud_profesionales_por_profesion,
   salud_vacunacion,
+  seguridad_fallecidos_transito_por_departamento,
+  seguridad_procesamientos_por_delito,
+  seguridad_siniestros_transito,
   trabajo_actividad_por_departamento,
   trabajo_actividad_por_edad,
   trabajo_actividad_por_nivel_educativo,
