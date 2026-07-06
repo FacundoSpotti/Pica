@@ -1,0 +1,55 @@
+{
+  "id": "matriculados-terciaria-por-area",
+  "tematica": "educacion",
+  "entidad": "Áreas de conocimiento",
+  "caracteristica": "Matriculados en educación terciaria",
+  "tipoResultado": "B",
+  "personas": true,
+  "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.1.13 (fuente MEC)",
+  "fuenteUrl": "https://www.ine.gub.uy/",
+  "anio": 2024,
+  "unidad": "estudiantes",
+  "descripcion": "Estudiantes matriculados en educación terciaria (universitaria y no universitaria, pública y privada, grado y posgrado) según área de conocimiento UIS, 2024.",
+  "categorias": [
+    {
+      "label": "Administración y derecho",
+      "valor": 79084
+    },
+    {
+      "label": "Salud y bienestar",
+      "valor": 55660
+    },
+    {
+      "label": "Ciencias sociales y comunicación",
+      "valor": 40301
+    },
+    {
+      "label": "Ingeniería y construcción",
+      "valor": 30498
+    },
+    {
+      "label": "Educación",
+      "valor": 30325
+    },
+    {
+      "label": "Artes y humanidades",
+      "valor": 19274
+    },
+    {
+      "label": "Ciencias naturales y matemática",
+      "valor": 12167
+    },
+    {
+      "label": "Servicios",
+      "valor": 12064
+    },
+    {
+      "label": "TIC",
+      "valor": 11255
+    },
+    {
+      "label": "Agro y veterinaria",
+      "valor": 9376
+    }
+  ]
+}

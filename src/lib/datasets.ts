@@ -16,6 +16,7 @@ import educacion_aprobacion_media_superior_por_departamento from "@/data/educaci
 import educacion_egresados_terciaria_por_area from "@/data/educacion/egresados-terciaria-por-area.json";
 import educacion_egreso_media_superior from "@/data/educacion/egreso-media-superior.json";
 import educacion_egreso_por_nivel_socioeconomico from "@/data/educacion/egreso-por-nivel-socioeconomico.json";
+import educacion_matriculados_terciaria_por_area from "@/data/educacion/matriculados-terciaria-por-area.json";
 import educacion_nivel_educativo from "@/data/educacion/nivel-educativo.json";
 import educacion_nivel_por_generacion from "@/data/educacion/nivel-por-generacion.json";
 import educacion_nivel_por_sexo from "@/data/educacion/nivel-por-sexo.json";
@@ -35,6 +36,8 @@ import salud_mortalidad_infantil from "@/data/salud/mortalidad-infantil.json";
 import salud_profesionales_por_profesion from "@/data/salud/profesionales-por-profesion.json";
 import salud_vacunacion from "@/data/salud/vacunacion.json";
 import seguridad_fallecidos_transito_por_departamento from "@/data/seguridad/fallecidos-transito-por-departamento.json";
+import seguridad_femicidios from "@/data/seguridad/femicidios.json";
+import seguridad_hurtos_por_departamento from "@/data/seguridad/hurtos-por-departamento.json";
 import seguridad_procesamientos_por_delito from "@/data/seguridad/procesamientos-por-delito.json";
 import seguridad_siniestros_transito from "@/data/seguridad/siniestros-transito.json";
 import trabajo_actividad_por_departamento from "@/data/trabajo/actividad-por-departamento.json";
@@ -75,6 +78,7 @@ const RAW_DATASETS: unknown[] = [
   educacion_egresados_terciaria_por_area,
   educacion_egreso_media_superior,
   educacion_egreso_por_nivel_socioeconomico,
+  educacion_matriculados_terciaria_por_area,
   educacion_nivel_educativo,
   educacion_nivel_por_generacion,
   educacion_nivel_por_sexo,
@@ -94,6 +98,8 @@ const RAW_DATASETS: unknown[] = [
   salud_profesionales_por_profesion,
   salud_vacunacion,
   seguridad_fallecidos_transito_por_departamento,
+  seguridad_femicidios,
+  seguridad_hurtos_por_departamento,
   seguridad_procesamientos_por_delito,
   seguridad_siniestros_transito,
   trabajo_actividad_por_departamento,

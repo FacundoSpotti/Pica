@@ -1,0 +1,18 @@
+{
+  "id": "femicidios",
+  "tematica": "seguridad",
+  "entidad": "Violencia de género",
+  "caracteristica": "Femicidios",
+  "tipoResultado": "A",
+  "fuente": "Observatorio de Violencia de Género hacia las Mujeres (Inmujeres–MIDES, Ministerio del Interior y Fiscalía General de la Nación) — estudio «Femicidios en Uruguay, 2019–2024»",
+  "fuenteUrl": "https://www.gub.uy/observatorio-violencia-genero",
+  "anio": 2023,
+  "valor": 23,
+  "unidad": "casos",
+  "variacion": {
+    "valor": -5,
+    "periodo": "2022 (28 casos)"
+  },
+  "descripcion": "Femicidios registrados en Uruguay durante 2023, según el Observatorio de Violencia de Género hacia las Mujeres. Un femicidio es el asesinato de una mujer por razones de género.",
+  "contexto": "Casi 7 de cada 10 mujeres asesinadas lo fueron en contextos de violencia basada en género; el grupo más afectado son las mujeres de 18 a 29 años. En promedio, 3 de cada 10 víctimas habían denunciado previamente a su agresor. Si vivís una situación de violencia de género, en Uruguay podés llamar al 0800 4141 o *4141 desde el celular."
+}
