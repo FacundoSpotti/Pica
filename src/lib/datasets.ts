@@ -15,6 +15,7 @@ import educacion_nivel_por_generacion from "@/data/educacion/nivel-por-generacio
 import educacion_nivel_por_sexo from "@/data/educacion/nivel-por-sexo.json";
 import educacion_sin_ciclo_basico_por_departamento from "@/data/educacion/sin-ciclo-basico-por-departamento.json";
 import educacion_terciaria_por_departamento from "@/data/educacion/terciaria-por-departamento.json";
+import salud_camas_por_prestador from "@/data/salud/camas-por-prestador.json";
 import salud_cobertura_por_edad from "@/data/salud/cobertura-por-edad.json";
 import salud_cobertura_salud from "@/data/salud/cobertura-salud.json";
 import salud_mortalidad_infantil from "@/data/salud/mortalidad-infantil.json";
@@ -39,6 +40,8 @@ import trabajo_informalidad_por_nivel_educativo from "@/data/trabajo/informalida
 import trabajo_informalidad_por_sexo from "@/data/trabajo/informalidad-por-sexo.json";
 import trabajo_informalidad_sexo_nivel from "@/data/trabajo/informalidad-sexo-nivel.json";
 import trabajo_ocupados_por_categoria from "@/data/trabajo/ocupados-por-categoria.json";
+import trabajo_ocupados_por_sector from "@/data/trabajo/ocupados-por-sector.json";
+import trabajo_ocupados_por_tipo_ocupacion from "@/data/trabajo/ocupados-por-tipo-ocupacion.json";
 import trabajo_salarios from "@/data/trabajo/salarios.json";
 import trabajo_subempleo_por_categoria from "@/data/trabajo/subempleo-por-categoria.json";
 import trabajo_subempleo_por_departamento from "@/data/trabajo/subempleo-por-departamento.json";
@@ -54,6 +57,7 @@ const RAW_DATASETS: unknown[] = [
   educacion_nivel_por_sexo,
   educacion_sin_ciclo_basico_por_departamento,
   educacion_terciaria_por_departamento,
+  salud_camas_por_prestador,
   salud_cobertura_por_edad,
   salud_cobertura_salud,
   salud_mortalidad_infantil,
@@ -78,6 +82,8 @@ const RAW_DATASETS: unknown[] = [
   trabajo_informalidad_por_sexo,
   trabajo_informalidad_sexo_nivel,
   trabajo_ocupados_por_categoria,
+  trabajo_ocupados_por_sector,
+  trabajo_ocupados_por_tipo_ocupacion,
   trabajo_salarios,
   trabajo_subempleo_por_categoria,
   trabajo_subempleo_por_departamento,
