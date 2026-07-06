@@ -24,6 +24,7 @@ import ThemeOverlay from '@/components/home/ThemeOverlay';
 import PathCalibrator from '@/components/home/PathCalibrator';
 import HitboxCalibrator from '@/components/home/HitboxCalibrator';
 import StickyNotes from '@/components/home/StickyNotes';
+import ArticulosDestacados from '@/components/home/ArticulosDestacados';
 import AmbientWalkers from '@/components/shared/AmbientWalkers';
 import PixelIcon from '@/components/shared/PixelIcon';
 import PicaLogo from '@/components/shared/PicaLogo';
@@ -64,7 +65,10 @@ export default function HomePage() {
   }, []);
 
   return (
-    <main className="relative h-screen w-screen overflow-hidden bg-bg-base">
+    <main className="relative w-screen bg-bg-base">
+      {/* Hero: el landscape ocupa el primer viewport; se scrollea hacia abajo
+          para llegar a los artículos. */}
+      <section className="relative h-screen w-full overflow-hidden">
       {/* Personas grises caminando por el margen oscuro (como en Nosotros) —
           detrás del stage; mantené el click sobre una y te mira */}
       <AmbientWalkers count={8} className="absolute inset-0 h-full w-full" />
@@ -136,6 +140,10 @@ export default function HomePage() {
 
       {/* Barra de temáticas en el borde inferior */}
       <ColorBar />
+      </section>
+
+      {/* Sección de lecturas (placeholder por ahora) */}
+      <ArticulosDestacados />
     </main>
   );
 }
