@@ -69,12 +69,29 @@ export type DatasetEscalar = z.infer<typeof DatasetEscalar>;
 // ── Tipo B — Distribución Categórica ─────────────────────────────────────────
 export const DatasetDistribucion = DatasetBase.extend({
   tipoResultado: z.literal('B'),
+  /**
+   * Cómo representar la distribución cuando NO es de personas (ver
+   * PICA-CATALOGO-VISUALIZACIONES.md). Si es de personas manda el isotype de
+   * sprites y esto se ignora.
+   * · 'barras' (default) — barras horizontales
+   * · 'lista'  — lista rankeada (B2): ordenada desc, rango + barra + valor
+   * · 'grilla' — grilla de íconos (N5): una celda por categoría, con ícono;
+   *              las celdas con `tema` se tintan con el color de esa temática
+   * · 'glifo'  — isotype de dominio (N1): unidades repetidas de un ícono pixel
+   */
+  presentacion: z.enum(['barras', 'lista', 'grilla', 'glifo']).optional(),
+  /** Para 'glifo': nombre del ícono pixel que representa 1 unidad (ej. 'bolt', 'drop'). */
+  glifo: z.string().optional(),
   categorias: z
     .array(
       z.object({
         label: z.string().min(1),
         valor: z.number(),
         color: z.string().optional(),
+        /** Para 'grilla': ícono pixel de la categoría (nombre de PixelIcon). */
+        icono: z.string().optional(),
+        /** Para 'grilla': tinta la celda con el color de esta temática de Pica. */
+        tema: Tematica.optional(),
       }),
     )
     .min(2),

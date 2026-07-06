@@ -37,7 +37,7 @@ export function figureCount(valor: number, per: number): number {
 }
 
 /** Valor "lindo" (1/2/5 × 10^k) más cercano a raw, en escala logarítmica. */
-function niceClosest(raw: number): number {
+export function niceClosest(raw: number): number {
   if (!Number.isFinite(raw) || raw <= 0) return 1;
   const k = Math.floor(Math.log10(raw));
   let best = 1;

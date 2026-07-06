@@ -70,6 +70,13 @@ Estos aparecen en las infografías y **no** tienen equivalente directo en A–E.
 los de mayor valor para la expansión: cubren datos que hoy no sabríamos
 representar sin traicionar el estilo.
 
+> **Estado:** ✅ implementados y enrutados **N1** (`IsotypeGlyphViz`), **N5**
+> (`IconGridViz`) y **B2** (modo `lista` en `DistributionViz`). Se activan por
+> campos opcionales del Tipo B (`glifo`, `presentacion: 'grilla' | 'lista'`,
+> `categorias[].icono`, `categorias[].tema`) — ver `src/schemas/base.ts` y
+> `VizRouter`. Faltan alimentarlos con cuadros reales. N2, N3, N4, N6, N7, N8
+> quedan pendientes.
+
 ### N1 · Isotype de **glifo de dominio** (no-personas contables)
 - **INE:** paraguas por estación (cap. 1), rayos = unidades de energía (cap. 4),
   botellas de leche (cap. 4), surtidores de nafta (cap. 9).

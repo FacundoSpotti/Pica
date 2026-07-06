@@ -101,6 +101,158 @@ const GRIDS: Record<string, string[]> = {
     '................',
     '................',
   ],
+  // Rayo (energía) — glifo de dominio
+  bolt: [
+    '........####....',
+    '.......####.....',
+    '......####......',
+    '.....####.......',
+    '....#########...',
+    '...#########....',
+    '.......####.....',
+    '......####......',
+    '.....####.......',
+    '....####........',
+    '...####.........',
+    '..####..........',
+    '.####...........',
+    '####............',
+    '................',
+    '................',
+  ],
+  // Gota (agua, precipitaciones) — glifo de dominio
+  drop: [
+    '.......##.......',
+    '.......##.......',
+    '......#++#......',
+    '......#++#......',
+    '.....#++++#.....',
+    '.....#++++#.....',
+    '....#++++++#....',
+    '....#++++++#....',
+    '...#++++++++#...',
+    '...#++++++++#...',
+    '...#++++++++#...',
+    '....#++++++#....',
+    '.....#++++#.....',
+    '......####......',
+    '................',
+    '................',
+  ],
+  // Botella (producción, ej. leche) — glifo de dominio
+  bottle: [
+    '.......##.......',
+    '.......##.......',
+    '......#++#......',
+    '......#++#......',
+    '.....##++##.....',
+    '.....#++++#.....',
+    '.....#++++#.....',
+    '.....#++++#.....',
+    '.....#++++#.....',
+    '.....#++++#.....',
+    '.....#++++#.....',
+    '.....#++++#.....',
+    '.....#++++#.....',
+    '.....######.....',
+    '................',
+    '................',
+  ],
+  // Ómnibus (transporte)
+  bus: [
+    '................',
+    '.############...',
+    '.#++++++++++#...',
+    '.#+##+##+##+#...',
+    '.#+##+##+##+#...',
+    '.#++++++++++#...',
+    '.############...',
+    '.#++++++++++#...',
+    '.############...',
+    '..#.#....#.#....',
+    '..###....###....',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+  ],
+  // Corazón con latido (salud)
+  heart: [
+    '................',
+    '..###....###....',
+    '.#+++#..#+++#...',
+    '#+++++##+++++#..',
+    '#+++++++++++++#.',
+    '.#+++++++++++#..',
+    '..#+++++++++#...',
+    '...#+++++++#....',
+    '....#+++++#.....',
+    '.....#+++#......',
+    '......#+#.......',
+    '.......#........',
+    '................',
+    '................',
+    '................',
+    '................',
+  ],
+  // Libro abierto (educación)
+  book: [
+    '................',
+    '..############..',
+    '.#+++++##+++++#.',
+    '.#+++++##+++++#.',
+    '.#+++++##+++++#.',
+    '.#+++++##+++++#.',
+    '.#+++++##+++++#.',
+    '.#+++++##+++++#.',
+    '.#+++++##+++++#.',
+    '.#+++++##+++++#.',
+    '.#+++++##+++++#.',
+    '..############..',
+    '................',
+    '................',
+    '................',
+    '................',
+  ],
+  // Maletín (trabajo, empleo)
+  briefcase: [
+    '................',
+    '.....####.......',
+    '.....#++#.......',
+    '..############..',
+    '.#++++++++++++#.',
+    '.#++++####++++#.',
+    '.#++++#..#++++#.',
+    '.#++++####++++#.',
+    '.#++++++++++++#.',
+    '.#++++++++++++#.',
+    '.#++++++++++++#.',
+    '..############..',
+    '................',
+    '................',
+    '................',
+    '................',
+  ],
+  // Escudo (seguridad)
+  shield: [
+    '................',
+    '...########.....',
+    '..#++++++++#....',
+    '..#++++++++#....',
+    '..#++####++#....',
+    '..#+++##+++#....',
+    '..#++++++++#....',
+    '..#++++++++#....',
+    '...#++++++#.....',
+    '....#++++#......',
+    '.....#++#.......',
+    '......##........',
+    '................',
+    '................',
+    '................',
+    '................',
+  ],
   // Edificio (instituciones)
   building: [
     '.##############.',
@@ -124,6 +276,50 @@ const GRIDS: Record<string, string[]> = {
 
 export type PixelIconName = keyof typeof GRIDS;
 
+/** Alias de dominio → nombre real del glifo, para que los datasets escriban
+ *  nombres legibles ('energia', 'agua') sin conocer el catálogo interno. */
+const ALIASES: Record<string, PixelIconName> = {
+  energia: 'bolt',
+  electricidad: 'bolt',
+  rayo: 'bolt',
+  agua: 'drop',
+  gota: 'drop',
+  lluvia: 'drop',
+  precipitacion: 'drop',
+  leche: 'bottle',
+  botella: 'bottle',
+  produccion: 'bottle',
+  transporte: 'bus',
+  omnibus: 'bus',
+  boleto: 'bus',
+  salud: 'heart',
+  corazon: 'heart',
+  educacion: 'book',
+  libro: 'book',
+  trabajo: 'briefcase',
+  empleo: 'briefcase',
+  maletin: 'briefcase',
+  seguridad: 'shield',
+  escudo: 'shield',
+  dinero: 'coins',
+  ingreso: 'coins',
+  moneda: 'coins',
+  hogar: 'home',
+  vivienda: 'home',
+  casa: 'home',
+  departamento: 'mapPin',
+  institucion: 'building',
+  personas: 'users',
+};
+
+/** Resuelve un nombre libre a un glifo válido (por alias o directo). */
+export function resolvePixelIcon(name: string | undefined, fallback: PixelIconName = 'users'): PixelIconName {
+  if (!name) return fallback;
+  if (name in GRIDS) return name as PixelIconName;
+  const key = name.toLowerCase();
+  return ALIASES[key] ?? (key in GRIDS ? (key as PixelIconName) : fallback);
+}
+
 interface PixelIconProps {
   name: PixelIconName;
   /** tamaño en px (la grilla nativa es 16) */
@@ -134,7 +330,7 @@ interface PixelIconProps {
 }
 
 export default function PixelIcon({ name, size = 24, color, className }: PixelIconProps) {
-  const grid = GRIDS[name]!;
+  const grid = GRIDS[name] ?? GRIDS.users!;
   const fill = color ?? 'currentColor';
   return (
     <svg
