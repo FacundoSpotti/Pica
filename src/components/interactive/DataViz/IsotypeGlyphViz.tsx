@@ -19,18 +19,24 @@ import { DataTable, VizFooter, VizHeader } from './VizShared';
 const GLYPH = 22; // px por glifo
 const TARGET = 90; // glifos totales apuntados (multitud legible, no miles)
 const MAX_PER_CAT = 120; // techo por categoría para no reventar el DOM
+const GRAY = '#4B4B46'; // resto en gris (remanente hasta 100% / contexto)
 
 export default function IsotypeGlyphViz({ data }: { data: DatasetDistribucion }) {
   const shouldReduce = useReducedMotion();
   const color = TEMA_COLOR[data.tematica];
   const glyph = resolvePixelIcon(data.glifo, 'coins');
 
+  // % → cada categoría es un bloque de 100 glifos: el valor en color y el
+  // RESTO en gris (facilita comparar la proporción). Magnitud → 1 glifo = X.
+  const esPorcentaje = data.unidad === '%';
   const sum = data.categorias.reduce((a, c) => a + Math.max(0, c.valor), 0) || 1;
   const per = niceClosest(sum / TARGET);
   const unidad = data.unidad && data.unidad !== '%' ? ` ${data.unidad}` : data.unidad === '%' ? '%' : '';
-  const escala = per >= 1
-    ? `1 glifo = ${per.toLocaleString('es-UY')}${unidad}`
-    : `${Math.round(1 / per)} glifos = 1${unidad}`;
+  const escala = esPorcentaje
+    ? 'cada bloque = 100 glifos · el resto en gris'
+    : per >= 1
+      ? `1 glifo = ${per.toLocaleString('es-UY')}${unidad}`
+      : `${Math.round(1 / per)} glifos = 1${unidad}`;
 
   return (
     <div>
@@ -40,8 +46,12 @@ export default function IsotypeGlyphViz({ data }: { data: DatasetDistribucion })
 
       <ul className="flex max-w-2xl flex-col gap-5">
         {data.categorias.map((cat, ci) => {
-          const count = Math.min(MAX_PER_CAT, cat.valor === 0 ? 0 : Math.max(1, Math.round(cat.valor / per)));
           const c = cat.color ?? color;
+          // % → 100 glifos (coloreados = valor, resto gris). Magnitud → valor/per.
+          const colored = esPorcentaje
+            ? Math.max(0, Math.min(100, Math.round(cat.valor)))
+            : Math.min(MAX_PER_CAT, cat.valor === 0 ? 0 : Math.max(1, Math.round(cat.valor / per)));
+          const totalGlyphs = esPorcentaje ? 100 : colored;
           return (
             <li key={cat.label}>
               <div className="mb-1 flex items-baseline justify-between gap-3">
@@ -52,11 +62,11 @@ export default function IsotypeGlyphViz({ data }: { data: DatasetDistribucion })
                 </span>
                 <span className="font-display text-pica-button font-bold" style={{ color: c }}>
                   {cat.valor.toLocaleString('es-UY')}
-                  {data.unidad === '%' ? '%' : ''}
+                  {esPorcentaje ? '%' : ''}
                 </span>
               </div>
               <div className="flex flex-wrap gap-[3px]" aria-hidden="true">
-                {Array.from({ length: count }).map((_, gi) => (
+                {Array.from({ length: totalGlyphs }).map((_, gi) => (
                   <motion.span
                     key={gi}
                     initial={shouldReduce ? false : { opacity: 0, scale: 0.4 }}
@@ -67,7 +77,7 @@ export default function IsotypeGlyphViz({ data }: { data: DatasetDistribucion })
                     }}
                     style={{ lineHeight: 0 }}
                   >
-                    <PixelIcon name={glyph} size={GLYPH} color={c} />
+                    <PixelIcon name={glyph} size={GLYPH} color={gi < colored ? c : GRAY} />
                   </motion.span>
                 ))}
               </div>

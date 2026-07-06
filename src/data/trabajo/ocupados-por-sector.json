@@ -8,29 +8,92 @@
   "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.4.7 (fuente ECH, CIIU Rev. 4)",
   "fuenteUrl": "https://www.ine.gub.uy/",
   "anio": 2024,
-  "descripcion": "Distribución de las personas ocupadas según el sector de actividad económica en el que trabajan (2024). Porcentaje sobre el total de ocupados. Copia local en datos-fuente/datos_INE_2025/cap3_aspectos_sociales/3.4.7ok.xls.",
+  "descripcion": "Distribución de las personas ocupadas según el sector de actividad económica en el que trabajan (2024). Porcentaje sobre el total de ocupados.",
   "unidad": "%",
   "categorias": [
-    { "label": "Comercio y reparación de vehículos", "valor": 17.4 },
-    { "label": "Industria manufacturera", "valor": 10.3 },
-    { "label": "Servicios sociales y salud humana", "valor": 9.9 },
-    { "label": "Producción agropecuaria, forestación y pesca", "valor": 7.8 },
-    { "label": "Construcción", "valor": 7.3 },
-    { "label": "Administración pública y defensa", "valor": 6.3 },
-    { "label": "Enseñanza", "valor": 6.3 },
-    { "label": "Servicio doméstico en hogares privados", "valor": 5.6 },
-    { "label": "Actividades administrativas y de apoyo", "valor": 5.2 },
-    { "label": "Transporte y almacenamiento", "valor": 4.5 },
-    { "label": "Alojamiento y servicios de comida", "valor": 4.2 },
-    { "label": "Actividades profesionales, científicas y técnicas", "valor": 4.1 },
-    { "label": "Otras actividades de servicios", "valor": 3.2 },
-    { "label": "Información y comunicación", "valor": 2.5 },
-    { "label": "Artes, entretenimiento y recreación", "valor": 1.8 },
-    { "label": "Actividades financieras y de seguros", "valor": 1.7 },
-    { "label": "Actividades inmobiliarias", "valor": 0.7 },
-    { "label": "Suministro de agua", "valor": 0.6 },
-    { "label": "Suministro de electricidad y gas", "valor": 0.5 },
-    { "label": "Explotación de minas y canteras", "valor": 0.1 },
-    { "label": "Organizaciones y órganos extraterritoriales", "valor": 0.1 }
+    {
+      "label": "Comercio y reparación de vehículos",
+      "valor": 17.4
+    },
+    {
+      "label": "Industria manufacturera",
+      "valor": 10.3
+    },
+    {
+      "label": "Servicios sociales y salud humana",
+      "valor": 9.9
+    },
+    {
+      "label": "Producción agropecuaria, forestación y pesca",
+      "valor": 7.8
+    },
+    {
+      "label": "Construcción",
+      "valor": 7.3
+    },
+    {
+      "label": "Administración pública y defensa",
+      "valor": 6.3
+    },
+    {
+      "label": "Enseñanza",
+      "valor": 6.3
+    },
+    {
+      "label": "Servicio doméstico en hogares privados",
+      "valor": 5.6
+    },
+    {
+      "label": "Actividades administrativas y de apoyo",
+      "valor": 5.2
+    },
+    {
+      "label": "Transporte y almacenamiento",
+      "valor": 4.5
+    },
+    {
+      "label": "Alojamiento y servicios de comida",
+      "valor": 4.2
+    },
+    {
+      "label": "Actividades profesionales, científicas y técnicas",
+      "valor": 4.1
+    },
+    {
+      "label": "Otras actividades de servicios",
+      "valor": 3.2
+    },
+    {
+      "label": "Información y comunicación",
+      "valor": 2.5
+    },
+    {
+      "label": "Artes, entretenimiento y recreación",
+      "valor": 1.8
+    },
+    {
+      "label": "Actividades financieras y de seguros",
+      "valor": 1.7
+    },
+    {
+      "label": "Actividades inmobiliarias",
+      "valor": 0.7
+    },
+    {
+      "label": "Suministro de agua",
+      "valor": 0.6
+    },
+    {
+      "label": "Suministro de electricidad y gas",
+      "valor": 0.5
+    },
+    {
+      "label": "Explotación de minas y canteras",
+      "valor": 0.1
+    },
+    {
+      "label": "Organizaciones y órganos extraterritoriales",
+      "valor": 0.1
+    }
   ]
 }

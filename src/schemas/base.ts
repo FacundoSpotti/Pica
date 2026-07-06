@@ -37,6 +37,12 @@ export const DatasetBase = z.object({
   /** ej: '%', 'personas', '$UYU' */
   unidad: z.string().optional(),
   /**
+   * Fuerza la representación con sprites de personas (isotype) aunque la entidad
+   * no se detecte como "personas" por su nombre. NORMA: si el dato es un conteo
+   * de personas, se usan sprites. Ver PICA-CATALOGO-VISUALIZACIONES.md.
+   */
+  personas: z.boolean().optional(),
+  /**
    * Población de referencia para convertir porcentajes/tasas a números
    * absolutos (ej: 8,2% de 1.760.000 activos ≈ 144.000 desocupados).
    * `label` es el sustantivo del RESULTADO ('personas desocupadas').

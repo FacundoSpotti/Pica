@@ -60,6 +60,7 @@ function DeptPanel({
   colorOf,
   unidad,
   per,
+  mode,
   maxW,
   hint,
   compareTo,
@@ -68,15 +69,19 @@ function DeptPanel({
   colorOf: (v: number) => string;
   unidad?: string;
   per: number;
+  /** 'proporcion' = % con resto en gris hasta 100 · 'magnitud' = conteo de personas */
+  mode: 'proporcion' | 'magnitud';
   maxW: number;
   hint?: string;
   compareTo?: Dept | null;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const CAP = CROWD_COLS * CROWD_ROWS; // techo de figuras por panel (200)
 
   const targets = useMemo(() => {
-    const colored = figureCount(dept.valor, per);
-    const total = Math.round(100 / per);
+    const colored = Math.min(CAP, figureCount(dept.valor, per));
+    // Proporción: 100 figuras con el resto en gris. Magnitud: solo las coloreadas.
+    const total = mode === 'proporcion' ? Math.round(100 / per) : colored;
     const out: WalkerTarget[] = [];
     for (let j = 0; j < total; j++) {
       out.push({
@@ -87,11 +92,12 @@ function DeptPanel({
     }
     return out;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dept.id, dept.valor, per]);
+  }, [dept.id, dept.valor, per, mode]);
 
   useSpriteWalkers(canvasRef, targets, { scale: SCALE, layoutKey: `map:${dept.id}` });
 
   const delta = compareTo ? dept.valor - compareTo.valor : null;
+  const deltaSuffix = mode === 'proporcion' ? ' pp' : unidad ? ` ${unidad}` : '';
 
   return (
     <div className="min-w-0" style={{ maxWidth: maxW }}>
@@ -120,7 +126,8 @@ function DeptPanel({
             {delta >= 0 ? '▲' : '▼'}
           </span>{' '}
           {delta >= 0 ? '+' : ''}
-          {delta.toLocaleString('es-UY', { maximumFractionDigits: 1 })} pp vs {compareTo!.nombre}
+          {delta.toLocaleString('es-UY', { maximumFractionDigits: 1 })}
+          {deltaSuffix} vs {compareTo!.nombre}
         </p>
       )}
       <canvas
@@ -160,9 +167,19 @@ export default function MapViz({ data }: { data: DatasetEspacial }) {
   const active = selected ?? topDept;
   const compare = hovered && hovered.id !== active.id ? hovered : null;
 
-  // Escala de la multitud (2 figuras = 1%)
-  const { per } = useMemo(() => seriesScale(100, '%', CROWD_COLS * CROWD_ROWS), []);
+  // Con % → multitud proporcional (100 figuras, resto en gris). Con conteo de
+  // personas (`personas: true`, ej. fallecidos) → multitud por MAGNITUD para
+  // comparar departamentos por cantidad de figuras.
   const proportional = data.unidad === '%';
+  const showCrowd = proportional || data.personas === true;
+  const mode: 'proporcion' | 'magnitud' = proportional ? 'proporcion' : 'magnitud';
+  const { per } = useMemo(
+    () =>
+      proportional
+        ? seriesScale(100, '%', CROWD_COLS * CROWD_ROWS)
+        : seriesScale(maxV, data.unidad, 150),
+    [proportional, maxV, data.unidad],
+  );
 
   // Alto disponible medido → mapa y multitudes entran sin scroll
   const rowRef = useRef<HTMLDivElement>(null);
@@ -201,13 +218,14 @@ export default function MapViz({ data }: { data: DatasetEspacial }) {
         className="grid grid-cols-1 items-center gap-6 md:grid-cols-[1fr_auto_1fr]"
       >
         {/* IZQUIERDA — panel del departamento seleccionado */}
-        {proportional && (
+        {showCrowd && (
           <div className="min-w-0 justify-self-center md:justify-self-end">
             <DeptPanel
               dept={active}
               colorOf={colorOf}
               unidad={data.unidad}
               per={per}
+              mode={mode}
               maxW={fit.panelW}
               hint="(click en el mapa para cambiar)"
             />
@@ -271,12 +289,14 @@ export default function MapViz({ data }: { data: DatasetEspacial }) {
               {maxV.toLocaleString('es-UY')}
               {data.unidad === '%' ? '%' : ''}
             </span>
-            <span className="ml-3 text-text-muted">{perLabel(per, '%')}</span>
+            <span className="ml-3 text-text-muted">
+              {perLabel(per, proportional ? '%' : data.unidad)}
+            </span>
           </div>
         </div>
 
         {/* DERECHA — comparador al hover (placeholder mantiene la composición) */}
-        {proportional && (
+        {showCrowd && (
           <div className="min-w-0 justify-self-center md:justify-self-start">
             {compare ? (
               <DeptPanel
@@ -284,6 +304,7 @@ export default function MapViz({ data }: { data: DatasetEspacial }) {
                 colorOf={colorOf}
                 unidad={data.unidad}
                 per={per}
+                mode={mode}
                 maxW={fit.panelW}
                 compareTo={active}
               />

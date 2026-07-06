@@ -7,7 +7,7 @@
   "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.2.3 (fuente SINADI-AES, MSP)",
   "fuenteUrl": "https://www.gub.uy/instituto-nacional-estadistica/",
   "anio": 2024,
-  "descripcion": "Distribución de la población según su prestador integral de salud. Afiliaciones a prestadores integrales de salud, 2024. Copia local en datos-fuente/salud/3.2.3ok.xls.",
+  "descripcion": "Distribución de la población según su prestador integral de salud. Afiliaciones a prestadores integrales de salud, 2024.",
   "unidad": "%",
   "categorias": [
     {

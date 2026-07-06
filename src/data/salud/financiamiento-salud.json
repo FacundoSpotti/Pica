@@ -8,10 +8,18 @@
   "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.2.8 (fuente MSP — Área Económica de la Salud)",
   "fuenteUrl": "https://www.ine.gub.uy/",
   "anio": 2023,
-  "descripcion": "Composición del financiamiento del gasto total en salud, 2023. El financiamiento público (impuestos, FONASA y contribuciones obligatorias) cubre la mayor parte. Copia local en datos-fuente/datos_INE_2025/cap3_aspectos_sociales/3.2.8ok.xls.",
+  "descripcion": "Composición del financiamiento del gasto total en salud, 2023. El financiamiento público (impuestos, FONASA y contribuciones obligatorias) cubre la mayor parte.",
   "unidad": "%",
   "categorias": [
-    { "label": "Financiamiento público (FONASA, impuestos)", "valor": 70, "icono": "coins" },
-    { "label": "Financiamiento privado (prepago y bolsillo)", "valor": 30, "icono": "home" }
+    {
+      "label": "Financiamiento público (FONASA, impuestos)",
+      "valor": 70,
+      "icono": "coins"
+    },
+    {
+      "label": "Financiamiento privado (prepago y bolsillo)",
+      "valor": 30,
+      "icono": "home"
+    }
   ]
 }

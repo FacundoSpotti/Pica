@@ -7,7 +7,7 @@
   "fuente": "INE — Encuesta Continua de Hogares, enero 2024 (microdatos)",
   "fuenteUrl": "https://www4.ine.gub.uy/Anda5/index.php/catalog/767",
   "anio": 2024,
-  "descripcion": "Distribución de las personas ocupadas según su categoría en la ocupación. Calculado sobre los microdatos de la ECH (enero 2024) con el ponderador de expansión W. Es un mes puntual (no promedio anual). Copia local en datos-fuente/trabajo/ECH_01_24.csv.",
+  "descripcion": "Distribución de las personas ocupadas según su categoría en la ocupación. Calculado sobre los microdatos de la ECH (enero 2024) con el ponderador de expansión W. Es un mes puntual (no promedio anual). csv.",
   "unidad": "%",
   "categorias": [
     {

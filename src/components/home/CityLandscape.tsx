@@ -105,13 +105,15 @@ export default function CityLandscape({ selectedTema, onSelect, children }: City
         const glow = TEMA_COLOR[tema];
         // Dos estados de elevación: hover (leve) y click definitivo (más alto)
         const lift = isSelected ? '-0.9%' : isHovered ? '-0.45%' : '0';
-        // Destello SOSTENIDO en hover (sutil); el pulso periódico va por la clase
+        // Destello SOSTENIDO en hover (sutil); el pulso periódico va por la clase.
+        // El drop-shadow está SIEMPRE presente (mismos radios) y solo varía la
+        // intensidad del color — CSS no interpola desde `filter: none`, así que
+        // mantenerlo permite que la transición de 350ms sea gradual, no un salto.
+        const s = isHovered ? 1 : 0; // fuerza del destello (0→1)
         const filter =
           selectedTema && !isSelected
             ? GRAYSCALE
-            : isHovered
-              ? `drop-shadow(0 0 2px ${glow}) drop-shadow(0 0 7px color-mix(in srgb, ${glow} 40%, transparent))`
-              : 'none';
+            : `drop-shadow(0 0 3px color-mix(in srgb, ${glow} ${s * 100}%, transparent)) drop-shadow(0 0 8px color-mix(in srgb, ${glow} ${s * 40}%, transparent))`;
         return (
           <img
             key={tema}

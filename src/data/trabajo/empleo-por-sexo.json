@@ -7,7 +7,7 @@
   "fuente": "INE — Encuesta Continua de Hogares, enero 2024 (microdatos)",
   "fuenteUrl": "https://www4.ine.gub.uy/Anda5/index.php/catalog/767",
   "anio": 2024,
-  "descripcion": "Ocupados sobre la población en edad de trabajar, según sexo. Calculado sobre los microdatos de la ECH (enero 2024) con el ponderador de expansión W. Es un mes puntual (no promedio anual). Copia local en datos-fuente/trabajo/ECH_01_24.csv.",
+  "descripcion": "Ocupados sobre la población en edad de trabajar, según sexo. Calculado sobre los microdatos de la ECH (enero 2024) con el ponderador de expansión W. Es un mes puntual (no promedio anual). csv.",
   "unidad": "%",
   "categorias": [
     {

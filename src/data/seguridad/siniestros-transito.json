@@ -8,7 +8,7 @@
   "fuenteUrl": "https://www.ine.gub.uy/",
   "anio": 2024,
   "unidad": "siniestros",
-  "descripcion": "Cantidad total de siniestros de tránsito registrados por año en Uruguay. Copia local en datos-fuente/datos_INE_2025/cap3_aspectos_sociales/3.10.2ok.xls.",
+  "descripcion": "Cantidad total de siniestros de tránsito registrados por año en Uruguay.",
   "puntos": [
     {
       "periodo": "2013",

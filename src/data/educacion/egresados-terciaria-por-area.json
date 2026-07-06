@@ -9,7 +9,7 @@
   "fuenteUrl": "https://www.ine.gub.uy/",
   "anio": 2024,
   "unidad": "egresados",
-  "descripcion": "Egresados de educación terciaria (universitaria y no universitaria, pública y privada, grado y posgrado) según área de conocimiento UIS, 2024. Copia local en datos-fuente/datos_INE_2025/cap3_aspectos_sociales/3.1.13ok.xlsx.",
+  "descripcion": "Egresados de educación terciaria (universitaria y no universitaria, pública y privada, grado y posgrado) según área de conocimiento UIS, 2024.",
   "categorias": [
     {
       "label": "Educación",

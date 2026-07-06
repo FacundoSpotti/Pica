@@ -23,7 +23,9 @@ import { isPersonEntity } from '@/lib/isotype';
 import type { Dataset } from '@/types/data';
 
 export default function VizRouter({ dataset }: { dataset: Dataset }) {
-  const persons = isPersonEntity(dataset.entidad);
+  // Persona si la entidad lo indica por su nombre O si el dataset lo declara
+  // explícito (`personas: true`) — norma: conteo de personas ⇒ sprites.
+  const persons = isPersonEntity(dataset.entidad) || dataset.personas === true;
   switch (dataset.tipoResultado) {
     case 'A':
       return <ScalarViz data={dataset} />;

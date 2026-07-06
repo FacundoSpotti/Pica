@@ -7,7 +7,7 @@
   "fuente": "MSP — Estadísticas Vitales 2024, datos preliminares",
   "fuenteUrl": "https://www.gub.uy/ministerio-salud-publica/sites/ministerio-salud-publica/files/documentos/noticias/MSP_PRESENTACION_ESTADISTICAS_VITALES.pdf",
   "anio": 2024,
-  "descripcion": "Defunciones de menores de 1 año por cada 1.000 nacidos vivos, total país. El dato 2024 es preliminar. Datos oficiales del MSP (copia local en datos-fuente/msp-estadisticas-vitales-2024.pdf).",
+  "descripcion": "Defunciones de menores de 1 año por cada 1.000 nacidos vivos, total país. El dato 2024 es preliminar. Datos oficiales del MSP (.",
   "unidad": "por mil nacidos vivos",
   "puntos": [
     {

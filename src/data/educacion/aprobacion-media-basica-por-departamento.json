@@ -8,7 +8,7 @@
   "fuenteUrl": "https://www.ine.gub.uy/",
   "anio": 2024,
   "unidad": "%",
-  "descripcion": "Porcentaje de aprobación en Educación Media Básica pública (modalidad general), por departamento, 2024. Copia local en datos-fuente/datos_INE_2025/cap3_aspectos_sociales/3.1.8ok.xls.",
+  "descripcion": "Porcentaje de aprobación en Educación Media Básica pública (modalidad general), por departamento, 2024.",
   "departamentos": [
     {
       "id": "UY-MO",

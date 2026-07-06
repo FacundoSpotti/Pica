@@ -58,18 +58,21 @@ export default function IsotypeDistributionViz({ data }: { data: DatasetDistribu
   const palette = TEMA_PALETTE[data.tematica];
   const [focus, setFocus] = useState<string | null>(null);
 
-  const { cats, isRate, scaleLabel } = useMemo(() => {
+  const { cats, isRate, scaleLabel, distPer } = useMemo(() => {
     const sum = data.categorias.reduce((a, c) => a + c.valor, 0);
     // Suman ~100 → distribución (partes de un todo); si no → tasas
     const isRate = data.unidad === '%' && Math.abs(sum - 100) > 3;
+    // Escala basada en la SUMA real: sirve tanto para % (sum≈100) como para
+    // conteos absolutos (ej. profesionales de la salud), apuntando a ~800 figuras.
+    const distScale = figureScale(sum, data.unidad);
     const cats: Cat[] = data.categorias.map((c, i) => ({
       label: c.label,
       valor: c.valor,
       color: c.color ?? palette[i % palette.length]!,
       pool: poolFor(data.entidad, data.caracteristica, c.label),
     }));
-    const scaleLabel = isRate ? '1 figura = 1% (resto en gris)' : figureScale(sum, data.unidad).label;
-    return { cats, isRate, scaleLabel };
+    const scaleLabel = isRate ? '1 figura = 1% (resto en gris)' : distScale.label;
+    return { cats, isRate, scaleLabel, distPer: distScale.per };
   }, [data, palette]);
 
   // Posiciones + colores según modo y foco
@@ -100,7 +103,7 @@ export default function IsotypeDistributionViz({ data }: { data: DatasetDistribu
     }
 
     // Distribución: multitud densa, una banda por categoría (column-major)
-    const counts = cats.map((c) => figureCount(c.valor, figureScale(100, '%').per));
+    const counts = cats.map((c) => figureCount(c.valor, distPer));
     const total = counts.reduce((a, n) => a + n, 0);
     const cols = Math.max(1, Math.ceil(total / ROWS));
     const W = MARGIN * 2 + (cols - 1) * PITCH_X + C_W * SCALE;
@@ -119,7 +122,7 @@ export default function IsotypeDistributionViz({ data }: { data: DatasetDistribu
       }
     });
     return { targets, W, H };
-  }, [cats, isRate, focus]);
+  }, [cats, isRate, focus, distPer]);
 
   // layoutKey estable (sin focus): aislar una demografía solo RECOLOREA en
   // caliente (gris/color), sin que las figuras vuelvan a entrar caminando.

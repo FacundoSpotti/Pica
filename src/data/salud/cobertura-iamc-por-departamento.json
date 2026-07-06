@@ -7,7 +7,7 @@
   "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.2.4 (fuente SINADI-AES, MSP)",
   "fuenteUrl": "https://www.ine.gub.uy/",
   "anio": 2024,
-  "descripcion": "Porcentaje de las afiliaciones a prestadores integrales de salud que corresponden a IAMC (mutualistas), por departamento, 2024. Cociente IAMC/Total del cuadro. Copia local en datos-fuente/datos_INE_2025/cap3_aspectos_sociales/3.2.4ok.xls.",
+  "descripcion": "Porcentaje de las afiliaciones a prestadores integrales de salud que corresponden a IAMC (mutualistas), por departamento, 2024. Cociente IAMC/Total del cuadro.",
   "unidad": "%",
   "departamentos": [
     {

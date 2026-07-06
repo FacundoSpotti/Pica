@@ -9,7 +9,7 @@
   "fuenteUrl": "https://www.ine.gub.uy/",
   "anio": 2024,
   "unidad": "%",
-  "descripcion": "Variación anual del IPC en 2024 según división de gasto (Total País). Muestra qué rubros subieron más de precio. Copia local en datos-fuente/datos_INE_2025/cap9_precios/9.1.2ok.xls.",
+  "descripcion": "Variación anual del IPC en 2024 según división de gasto (Total País). Muestra qué rubros subieron más de precio.",
   "categorias": [
     {
       "label": "Alimentos y bebidas",

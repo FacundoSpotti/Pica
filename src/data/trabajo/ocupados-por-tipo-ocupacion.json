@@ -8,18 +8,58 @@
   "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.4.8 (fuente ECH, CIUO 08)",
   "fuenteUrl": "https://www.ine.gub.uy/",
   "anio": 2024,
-  "descripcion": "Distribución de las personas ocupadas según el tipo de ocupación principal (2024). Porcentaje sobre el total de ocupados. Copia local en datos-fuente/datos_INE_2025/cap3_aspectos_sociales/3.4.8ok.xls.",
+  "descripcion": "Distribución de las personas ocupadas según el tipo de ocupación principal (2024). Porcentaje sobre el total de ocupados.",
   "unidad": "%",
   "categorias": [
-    { "label": "Trabajadores de servicios y vendedores", "valor": 22.5, "icono": "users" },
-    { "label": "Ocupaciones elementales", "valor": 17.2, "icono": "briefcase" },
-    { "label": "Oficiales, operarios y artesanos", "valor": 13.7, "icono": "building" },
-    { "label": "Profesionales, científicos e intelectuales", "valor": 13.6, "icono": "book" },
-    { "label": "Personal de apoyo administrativo", "valor": 10.5, "icono": "coins" },
-    { "label": "Técnicos y profesionales de nivel medio", "valor": 7.8, "icono": "building" },
-    { "label": "Operadores de instalaciones y máquinas", "valor": 7.1, "icono": "bus" },
-    { "label": "Trabajadores agropecuarios y pesqueros", "valor": 3.9, "icono": "bottle" },
-    { "label": "Directores y gerentes", "valor": 3.1, "icono": "briefcase" },
-    { "label": "Ocupaciones militares", "valor": 0.6, "icono": "shield" }
+    {
+      "label": "Trabajadores de servicios y vendedores",
+      "valor": 22.5,
+      "icono": "users"
+    },
+    {
+      "label": "Ocupaciones elementales",
+      "valor": 17.2,
+      "icono": "briefcase"
+    },
+    {
+      "label": "Oficiales, operarios y artesanos",
+      "valor": 13.7,
+      "icono": "building"
+    },
+    {
+      "label": "Profesionales, científicos e intelectuales",
+      "valor": 13.6,
+      "icono": "book"
+    },
+    {
+      "label": "Personal de apoyo administrativo",
+      "valor": 10.5,
+      "icono": "coins"
+    },
+    {
+      "label": "Técnicos y profesionales de nivel medio",
+      "valor": 7.8,
+      "icono": "building"
+    },
+    {
+      "label": "Operadores de instalaciones y máquinas",
+      "valor": 7.1,
+      "icono": "bus"
+    },
+    {
+      "label": "Trabajadores agropecuarios y pesqueros",
+      "valor": 3.9,
+      "icono": "bottle"
+    },
+    {
+      "label": "Directores y gerentes",
+      "valor": 3.1,
+      "icono": "briefcase"
+    },
+    {
+      "label": "Ocupaciones militares",
+      "valor": 0.6,
+      "icono": "shield"
+    }
   ]
 }
