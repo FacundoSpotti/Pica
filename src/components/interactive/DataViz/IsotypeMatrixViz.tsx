@@ -100,7 +100,7 @@ export default function IsotypeMatrixViz({ data }: { data: DatasetMatriz }) {
     };
   }, []);
 
-  const { label, hLabels, vLabels, rows, canvasW, rowH, chipsW, slots } = useMemo(() => {
+  const { label, hLabels, vLabels, rows, canvasW, rowH, slots } = useMemo(() => {
     // La dimensión con más categorías va en horizontal
     const filasH = data.filas.length >= data.columnas.length;
     const hLabels = filasH ? data.filas : data.columnas;
@@ -184,7 +184,6 @@ export default function IsotypeMatrixViz({ data }: { data: DatasetMatriz }) {
       rows,
       canvasW,
       rowH,
-      chipsW: Math.round(m.crowdW * view),
       slots,
     };
   }, [data, palette, fit]);
@@ -223,19 +222,24 @@ export default function IsotypeMatrixViz({ data }: { data: DatasetMatriz }) {
           </div>
         ))}
 
-        {/* Chips de la dimensión horizontal, alineados a los slots */}
+        {/* Chips de la dimensión horizontal. Cada chip crece proporcional a su
+            columna (frac) pero NUNCA baja del ancho de su etiqueta (flex-basis
+            auto + whitespace-nowrap) y envuelve si no entra — así los rubros
+            chicos (Militar, Policial…) no se truncan. */}
         <div aria-hidden="true" />
-        <div className="mt-1 flex" style={{ width: chipsW, maxWidth: '100%' }} aria-hidden="true">
+        <div className="mt-1 flex w-full flex-wrap gap-1" aria-hidden="true">
           {slots.map((s) => (
-            <div key={s.label} style={{ width: `${s.frac * 100}%` }}>
-              <span
-                className="inline-block max-w-full truncate px-2 py-1 font-sans text-pica-subtitle"
-                style={{ backgroundColor: s.color, color: textOnColor(s.color) }}
-                title={s.label}
-              >
-                {s.label}
-              </span>
-            </div>
+            <span
+              key={s.label}
+              className="whitespace-nowrap px-2 py-1 text-center font-sans text-pica-subtitle"
+              style={{
+                flex: `${s.frac} 1 auto`,
+                backgroundColor: s.color,
+                color: textOnColor(s.color),
+              }}
+            >
+              {s.label}
+            </span>
           ))}
         </div>
       </div>
