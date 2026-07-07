@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { VT323, Handjet } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/next';
 import { assetUrl, LOGOS } from '@/lib/assets';
 import './globals.css';
 
@@ -59,7 +60,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es" className={`${vt323.variable} ${handjet.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        {/* Vercel Web Analytics — pageviews y visitantes (privacy-friendly) */}
+        <Analytics />
+      </body>
     </html>
   );
 }
