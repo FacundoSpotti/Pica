@@ -28,7 +28,16 @@ import ArticulosDestacados from '@/components/home/ArticulosDestacados';
 import AmbientWalkers from '@/components/shared/AmbientWalkers';
 import PixelIcon from '@/components/shared/PixelIcon';
 import PicaLogo from '@/components/shared/PicaLogo';
-import { assetUrl, LANDSCAPE_SIZE, LOGOS } from '@/lib/assets';
+import {
+  assetUrl,
+  BUILDING_HITBOX_POLYGONS,
+  LANDSCAPE_SIZE,
+  LOGOS,
+  polygonCentroid,
+  THEME_STATIC,
+} from '@/lib/assets';
+import { TEMA_COLOR, TEMA_LABEL, TEMA_ORDER } from '@/lib/colors';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import type { Tematica } from '@/types/sprites';
 
 const ASPECT = LANDSCAPE_SIZE.width / LANDSCAPE_SIZE.height;
@@ -44,6 +53,9 @@ interface Selection {
 export default function HomePage() {
   const [selected, setSelected] = useState<Selection | null>(null);
   const [overlayOpen, setOverlayOpen] = useState(false);
+  // Mobile: el overlay se monta a nivel de pantalla (fixed) y no dentro del
+  // stage (que lo recorta); además aparecen los botones de temáticas.
+  const isMobile = useIsMobile();
 
   const handleSelect = (tema: Tematica, center: { x: number; y: number }) => {
     setSelected((prev) => {
@@ -74,9 +86,11 @@ export default function HomePage() {
       <AmbientWalkers count={8} className="absolute inset-0 h-full w-full" />
 
       {/* Stage: landscape CONTENIDO (no full-bleed), centrado con margen oscuro.
-          Borde blanco fino con brillo suave (detalle, no protagonista). */}
+          Borde blanco fino con brillo suave (detalle, no protagonista).
+          MOBILE: el mapa va ARRIBA (flujo normal bajo el header) y debajo se
+          muestran los botones de temáticas — el mapa sigue siendo clickeable. */}
       <div
-        className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl"
+        className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl max-md:static max-md:mx-auto max-md:mt-24 max-md:translate-x-0 max-md:translate-y-0"
         style={{
           width: `min(90vw, calc((100vh - 170px) * ${ASPECT}))`,
           height: `min(100vh - 170px, calc(90vw / ${ASPECT}))`,
@@ -92,9 +106,10 @@ export default function HomePage() {
           />
         </CityLandscape>
 
-        {/* Overlay de temática — aparece al completarse la convergencia */}
+        {/* Overlay de temática — aparece al completarse la convergencia.
+            En mobile NO va acá (el stage lo recorta): se monta fullscreen abajo. */}
         <AnimatePresence>
-          {overlayOpen && selected && (
+          {!isMobile && overlayOpen && selected && (
             <ThemeOverlay tema={selected.tema} onClose={handleClose} />
           )}
         </AnimatePresence>
@@ -110,6 +125,50 @@ export default function HomePage() {
           </>
         )}
       </div>
+
+      {/* MOBILE — botones de temáticas debajo del mapa: mismo flujo que el
+          click en el edificio (los puntos convergen igual), sin tener que
+          apretar el edificio chiquito. */}
+      <div className="relative z-10 mt-5 grid grid-cols-3 gap-2 px-5 md:hidden">
+        {TEMA_ORDER.map((t) => {
+          const isSel = selected?.tema === t;
+          return (
+            <button
+              key={t}
+              type="button"
+              onClick={() => handleSelect(t, polygonCentroid(BUILDING_HITBOX_POLYGONS[t]))}
+              aria-pressed={isSel}
+              aria-label={`Explorar temática ${TEMA_LABEL[t]}`}
+              className="flex min-h-[44px] flex-col items-center gap-1 rounded-md border-2 px-2 py-2"
+              style={{
+                borderColor: TEMA_COLOR[t],
+                background: isSel ? `${TEMA_COLOR[t]}26` : 'transparent',
+              }}
+            >
+              <img
+                src={assetUrl(THEME_STATIC[t])}
+                alt=""
+                className="h-10 w-auto"
+                style={{ imageRendering: 'pixelated' }}
+              />
+              <span
+                className="font-display text-[13px] font-bold uppercase leading-none"
+                style={{ color: TEMA_COLOR[t], letterSpacing: '0.08em' }}
+              >
+                {TEMA_LABEL[t]}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* MOBILE — overlay de temática a PANTALLA COMPLETA (no dentro del mapa,
+          que lo recortaba y tapaba la animación). */}
+      <AnimatePresence>
+        {isMobile && overlayOpen && selected && (
+          <ThemeOverlay tema={selected.tema} onClose={handleClose} fullscreen />
+        )}
+      </AnimatePresence>
 
       {/* Notas "pegadas" alrededor del mapa — misma geometría que el stage pero
           SIN overflow-hidden, así los papeles asoman sobre el margen oscuro.

@@ -30,12 +30,14 @@ import type { Tematica } from '@/types/sprites';
 interface ThemeOverlayProps {
   tema: Tematica;
   onClose: () => void;
+  /** Mobile: cubre TODA la pantalla (fixed) en formato vertical, no el mapa. */
+  fullscreen?: boolean;
 }
 
 /** Easing de la entrada: desaceleración suave (easeOutQuint aprox.). */
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
-export default function ThemeOverlay({ tema, onClose }: ThemeOverlayProps) {
+export default function ThemeOverlay({ tema, onClose, fullscreen = false }: ThemeOverlayProps) {
   const router = useRouter();
   const shouldReduce = useReducedMotion();
   const exploreRef = useRef<HTMLButtonElement>(null);
@@ -73,14 +75,18 @@ export default function ThemeOverlay({ tema, onClose }: ThemeOverlayProps) {
       aria-modal="true"
       aria-labelledby="theme-overlay-title"
       aria-describedby="theme-overlay-desc"
-      className="absolute inset-0 z-30 flex items-center justify-center overflow-hidden"
-      style={{ background: 'rgba(8, 8, 8, 0.85)' }}
+      className={
+        fullscreen
+          ? 'fixed inset-0 z-50 flex items-center justify-center overflow-y-auto'
+          : 'absolute inset-0 z-30 flex items-center justify-center overflow-hidden'
+      }
+      style={{ background: fullscreen ? 'rgba(8, 8, 8, 0.96)' : 'rgba(8, 8, 8, 0.85)' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: shouldReduce ? 0 : 0.35 }}
     >
-      <div className="flex flex-col items-center gap-10 px-8 md:flex-row md:gap-16">
+      <div className="flex flex-col items-center gap-6 px-8 py-8 md:flex-row md:gap-16">
         {/* IZQUIERDA — personaje 360° + título debajo */}
         <div className="flex flex-col items-center gap-4">
           {/* Marco neon con el color de la temática (ref. de Figma) */}

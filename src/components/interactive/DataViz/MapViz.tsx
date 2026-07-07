@@ -302,9 +302,11 @@ export default function MapViz({ data }: { data: DatasetEspacial }) {
           </div>
         </div>
 
-        {/* DERECHA — comparador al hover (placeholder mantiene la composición) */}
+        {/* DERECHA — comparador al hover (placeholder mantiene la composición).
+            En MOBILE no existe el hover → se quita la comparación: solo se ve
+            el departamento seleccionado. */}
         {showCrowd && (
-          <div className="min-w-0 justify-self-center md:justify-self-start">
+          <div className="min-w-0 justify-self-center max-md:hidden md:justify-self-start">
             {compare ? (
               <DeptPanel
                 dept={compare}

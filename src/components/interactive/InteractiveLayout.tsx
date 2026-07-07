@@ -156,23 +156,24 @@ export default function InteractiveLayout() {
       <div className="min-h-0 flex-1">
         {/* Estado 1 — sin temática: selector */}
         {!tema && (
-          <div className="flex h-full flex-col items-center justify-center gap-10 px-8">
-            <h1 className="font-display text-pica-heading-2 font-bold text-text-primary">
+          /* MOBILE: tarjetas compactas en columna — las 5 entran SIN scroll. */
+          <div className="flex h-full flex-col items-center justify-center gap-10 px-8 max-md:gap-5">
+            <h1 className="font-display text-pica-heading-2 font-bold text-text-primary max-md:text-3xl">
               ¿Qué querés explorar?
             </h1>
-            <div className="flex flex-wrap justify-center gap-6">
+            <div className="flex flex-wrap justify-center gap-6 max-md:w-full max-md:max-w-xs max-md:flex-col max-md:gap-2">
               {ACTIVE_TEMAS.map((t) => (
                 <button
                   key={t}
                   type="button"
                   onClick={() => setParams({ tema: t })}
-                  className="flex w-44 flex-col items-center gap-3 rounded-lg border-2 px-6 py-6 transition-transform hover:scale-105"
+                  className="flex w-44 flex-col items-center gap-3 rounded-lg border-2 px-6 py-6 transition-transform hover:scale-105 max-md:w-full max-md:flex-row max-md:justify-start max-md:gap-4 max-md:px-4 max-md:py-2"
                   style={{ borderColor: TEMA_COLOR[t] }}
                 >
                   <img
                     src={assetUrl(THEME_STATIC[t])}
                     alt=""
-                    className="h-24 w-auto"
+                    className="h-24 w-auto max-md:h-10"
                     style={{ imageRendering: 'pixelated' }}
                   />
                   <span
