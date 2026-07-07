@@ -77,7 +77,9 @@ export default function HomePage() {
   }, []);
 
   return (
-    <main className="relative w-screen bg-bg-base">
+    // w-full (no w-screen): con la página scrolleando vertical, w-screen incluye
+    // el ancho de la barra de scroll y genera un desborde lateral.
+    <main className="relative w-full overflow-x-hidden bg-bg-base">
       {/* Hero: el landscape ocupa el primer viewport; se scrollea hacia abajo
           para llegar a los artículos. En mobile el hero crece (mapa + botones
           + notas) y deja de recortar. */}
