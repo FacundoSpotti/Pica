@@ -8,6 +8,7 @@
 //   dentro de <details> (regla de pica-accessibility)
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { useEffect, useRef, useState } from 'react';
 import type { Dataset } from '@/types/data';
 
 export function VizHeader({
@@ -19,6 +20,26 @@ export function VizHeader({
   compact?: boolean;
   center?: boolean;
 }) {
+  // "ver más": si la descripción quedó recortada por el clamp, un toggle la
+  // expande completa. El overflow se detecta midiendo el párrafo.
+  const pRef = useRef<HTMLParagraphElement>(null);
+  const [expanded, setExpanded] = useState(false);
+  const [clamped, setClamped] = useState(false);
+  useEffect(() => {
+    setExpanded(false);
+    const check = () => {
+      const el = pRef.current;
+      if (el) setClamped(el.scrollHeight > el.clientHeight + 2);
+    };
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, [dataset.id, dataset.descripcion]);
+
+  const clampClasses = expanded
+    ? ''
+    : ` short:line-clamp-1${compact ? ' line-clamp-2' : ''}`;
+
   return (
     // short: (desktop bajo, ej. 1024×600) comprime el encabezado para que la
     // visualización entre sin scroll ni corte.
@@ -30,11 +51,21 @@ export function VizHeader({
         {dataset.caracteristica}
       </h2>
       <p
-        className={`mt-2 max-w-xl font-sans text-pica-subtitle text-text-secondary short:mt-0 short:line-clamp-1${compact ? ' line-clamp-2' : ''}${center ? ' mx-auto' : ''}`}
-        title={dataset.descripcion}
+        ref={pRef}
+        className={`mt-2 max-w-xl font-sans text-pica-subtitle text-text-secondary short:mt-0${clampClasses}${center ? ' mx-auto' : ''}`}
       >
         {dataset.descripcion}
       </p>
+      {(clamped || expanded) && (
+        <button
+          type="button"
+          aria-expanded={expanded}
+          onClick={() => setExpanded((e) => !e)}
+          className="mt-0.5 font-sans text-pica-subtitle text-text-muted underline underline-offset-2 hover:text-text-secondary"
+        >
+          {expanded ? 'ver menos' : 'ver más'}
+        </button>
+      )}
     </header>
   );
 }

@@ -143,9 +143,11 @@ export default function IsotypeMatrixViz({ data }: { data: DatasetMatriz }) {
     // que la fila no supere el alto disponible (rowBudget).
     const canvasW = Math.max(m.crowdW + MARGIN * 2, Math.ceil((fit.cw * rowH) / rowBudget));
 
-    // Posiciones: multitudes alineadas a la izquierda (junto a las etiquetas)
+    // Posiciones: la multitud va CENTRADA en el canvas (como en la serie) —
+    // si el canvas queda más ancho que la multitud, no se pega a un borde.
+    const offX = Math.max(0, Math.floor((canvasW - m.crowdW) / 2 - MARGIN));
     const slotX: number[] = [];
-    let acc = MARGIN;
+    let acc = MARGIN + offX;
     m.slotW.forEach((w) => {
       slotX.push(acc);
       acc += w + SLOT_GAP;

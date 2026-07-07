@@ -603,10 +603,35 @@ export async function renderStory(
     ctx.textAlign = 'left';
     const crowdY = yy + 40;
     const crowdAreaH = footerTop - crowdY - 10;
-    const { s, cols } = planScale(plan.figs.length, areaW, crowdAreaH);
-    const rows = Math.ceil(plan.figs.length / cols);
-    const crowdH = rows * (C_H + GAP) * s;
-    drawFlow(ctx, sheets, plan.figs, areaX, crowdY + Math.max(0, (crowdAreaH - crowdH) / 2), cols, s);
+    // REGLA: nada de espacio vacío — con pocas figuras (ej. 23) la escala sube
+    // hasta que la multitud LLENA el bloque bajo el número, centrada.
+    const n = plan.figs.length;
+    let s = 1;
+    let usedCols = n;
+    for (let t = 18; t >= 1; t--) {
+      const px = (C_W + GAP) * t;
+      const py = (C_H + GAP) * t;
+      const c = Math.max(1, Math.floor(areaW / px));
+      const r = Math.ceil(n / c);
+      if (r * py <= crowdAreaH) {
+        s = t;
+        usedCols = Math.min(c, Math.ceil(n / r));
+        break;
+      }
+    }
+    const pxA = (C_W + GAP) * s;
+    const rowsA = Math.ceil(n / usedCols);
+    const blockW = usedCols * pxA - GAP * s;
+    const crowdH = rowsA * (C_H + GAP) * s;
+    drawFlow(
+      ctx,
+      sheets,
+      plan.figs,
+      areaX + Math.max(0, (areaW - blockW) / 2),
+      crowdY + Math.max(0, (crowdAreaH - crowdH) / 2),
+      usedCols,
+      s,
+    );
   } else if (plan.figs) {
     const { s, cols } = planScale(plan.figs.length, areaW, areaH);
     const rows = Math.ceil(plan.figs.length / cols);
