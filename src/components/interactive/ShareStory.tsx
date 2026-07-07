@@ -22,19 +22,29 @@ interface ShareStoryProps {
 export default function ShareStory({ dataset }: ShareStoryProps) {
   const [open, setOpen] = useState(false);
   const [url, setUrl] = useState<string | null>(null);
+  const [blob, setBlob] = useState<Blob | null>(null);
   const [busy, setBusy] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const generate = async () => {
     setOpen(true);
     setBusy(true);
-    setUrl(null);
+    setUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
+    setBlob(null);
     // esperar un frame para que el canvas oculto exista en el DOM
     await new Promise((r) => requestAnimationFrame(r));
     const story = canvasRef.current;
     if (!story) return;
     await renderStory(story, dataset);
-    setUrl(story.toDataURL('image/png'));
+    // Blob + object URL (los data URLs fallan al descargar en iOS/Android)
+    const b = await new Promise<Blob | null>((res) => story.toBlob(res, 'image/png'));
+    if (b) {
+      setBlob(b);
+      setUrl(URL.createObjectURL(b));
+    }
     setBusy(false);
   };
 
@@ -43,26 +53,32 @@ export default function ShareStory({ dataset }: ShareStoryProps) {
     const a = document.createElement('a');
     a.href = url;
     a.download = `pica-${dataset.id}.png`;
+    document.body.appendChild(a);
     a.click();
+    a.remove();
   };
 
+  // ¿La Web Share API puede compartir este archivo? (requiere HTTPS/localhost)
+  const canNativeShare = (): boolean => {
+    if (!blob || typeof navigator === 'undefined') return false;
+    const nav = navigator as Navigator & { canShare?: (d: unknown) => boolean };
+    const file = new File([blob], `pica-${dataset.id}.png`, { type: 'image/png' });
+    return typeof nav.share === 'function' && nav.canShare?.({ files: [file] }) === true;
+  };
+
+  // IMPORTANTE: navigator.share debe correr DENTRO del gesto del click (sin
+  // await previo que consuma la activación) — por eso el blob se genera antes.
   const share = () => {
-    const story = canvasRef.current;
-    if (!story) return;
-    story.toBlob(async (blob) => {
-      if (!blob) return;
+    if (!blob) return;
+    if (canNativeShare()) {
       const file = new File([blob], `pica-${dataset.id}.png`, { type: 'image/png' });
-      const nav = navigator as Navigator & { canShare?: (d: unknown) => boolean };
-      if (nav.canShare?.({ files: [file] })) {
-        try {
-          await navigator.share({ files: [file], title: 'Pica', text: '#Uruguay' });
-        } catch {
-          /* cancelado */
-        }
-      } else {
-        download();
-      }
-    }, 'image/png');
+      navigator.share({ files: [file], title: 'Pica', text: '#Uruguay' }).catch(() => {
+        /* cancelado por el usuario */
+      });
+    } else {
+      // Sin Web Share (desktop o contexto no seguro): descargar
+      download();
+    }
   };
 
   return (
@@ -126,6 +142,12 @@ export default function ShareStory({ dataset }: ShareStoryProps) {
                 Cerrar
               </button>
             </div>
+            {url && !canNativeShare() && (
+              <p className="max-w-xs text-center font-sans text-pica-subtitle text-text-muted">
+                Este navegador no permite compartir directo: se descarga la imagen
+                y la compartís desde tu galería.
+              </p>
+            )}
           </div>
         </div>
       )}

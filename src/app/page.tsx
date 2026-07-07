@@ -86,12 +86,27 @@ export default function HomePage() {
           detrás del stage; mantené el click sobre una y te mira */}
       <AmbientWalkers count={8} className="absolute inset-0 h-full w-full" />
 
+      {/* Navegación — logo a la izquierda + link a Nosotros. En mobile va en
+          FLUJO, por fuera y arriba del mapa (no montado sobre él). */}
+      <header className="relative z-30 flex items-center justify-between p-6 md:absolute md:inset-x-0 md:top-0">
+        <Link href="/" aria-label="Pica — inicio">
+          <PicaLogo className="h-12 w-auto text-text-primary" />
+        </Link>
+        <Link
+          href="/nosotros"
+          className="flex items-center gap-2 font-display text-pica-button text-text-primary underline-offset-4 hover:underline"
+        >
+          <PixelIcon name="users" size={20} />
+          Nosotros
+        </Link>
+      </header>
+
       {/* Stage: landscape CONTENIDO (no full-bleed), centrado con margen oscuro.
           Borde blanco fino con brillo suave (detalle, no protagonista).
           MOBILE: el mapa va ARRIBA (flujo normal bajo el header) y debajo se
           muestran los botones de temáticas — el mapa sigue siendo clickeable. */}
       <div
-        className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl max-md:static max-md:mx-auto max-md:mt-24 max-md:translate-x-0 max-md:translate-y-0"
+        className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl max-md:static max-md:mx-auto max-md:mt-1 max-md:translate-x-0 max-md:translate-y-0"
         style={{
           width: `min(90vw, calc((100vh - 170px) * ${ASPECT}))`,
           height: `min(100vh - 170px, calc(90vw / ${ASPECT}))`,
@@ -131,7 +146,10 @@ export default function HomePage() {
           click en el edificio (los puntos convergen igual), sin tener que
           apretar el edificio chiquito. Formato de FILAS (como el selector
           del explorador): ícono + nombre, una temática por fila. */}
-      <div className="relative z-10 mx-auto mt-5 flex w-full max-w-xs flex-col gap-2 px-1 md:hidden">
+      <div
+        className="relative z-10 mx-auto mt-5 flex flex-col gap-2 md:hidden"
+        style={{ width: `min(90vw, calc((100vh - 170px) * ${ASPECT}))` }}
+      >
         {TEMA_ORDER.map((t) => {
           const isSel = selected?.tema === t;
           return (
@@ -166,7 +184,10 @@ export default function HomePage() {
 
       {/* MOBILE — notas adaptadas: en flujo debajo de los botones (no sobre el
           mapa, que lo taparían). */}
-      <div className="relative z-10 mt-6 grid grid-cols-2 items-start gap-4 px-6 md:hidden">
+      <div
+        className="relative z-10 mx-auto mt-6 grid grid-cols-2 items-start gap-4 md:hidden"
+        style={{ width: `min(90vw, calc((100vh - 170px) * ${ASPECT}))` }}
+      >
         <StickyNotes flow />
       </div>
 
@@ -191,20 +212,6 @@ export default function HomePage() {
       >
         <StickyNotes />
       </div>
-
-      {/* Navegación — logo a la izquierda + link a Nosotros */}
-      <header className="absolute inset-x-0 top-0 z-30 flex items-center justify-between p-6">
-        <Link href="/" aria-label="Pica — inicio">
-          <PicaLogo className="h-12 w-auto text-text-primary" />
-        </Link>
-        <Link
-          href="/nosotros"
-          className="flex items-center gap-2 font-display text-pica-button text-text-primary underline-offset-4 hover:underline"
-        >
-          <PixelIcon name="users" size={20} />
-          Nosotros
-        </Link>
-      </header>
 
       {/* Barra de temáticas en el borde inferior */}
       <ColorBar />
