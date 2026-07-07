@@ -280,16 +280,45 @@ function drawDeco(ctx: CanvasRenderingContext2D, tema: Tematica) {
   for (const [cx, cy] of cells) ctx.fillRect(x0 + cx * (s + gap), y0 + cy * (s + gap), s, s);
 }
 
-/** Pie: logotipo real + dominio + hashtag. */
+/**
+ * Recorta una imagen a su contenido real (bbox por alfa). El SVG del logo es un
+ * lienzo 1000×1000 con el dibujo en una franja del centro — dibujado directo a
+ * 64px queda invisible; recortado al contenido se ve al tamaño esperado.
+ */
+function contentBox(img: HTMLImageElement): { sx: number; sy: number; sw: number; sh: number } {
+  const R = 400; // resolución de análisis
+  const off = document.createElement('canvas');
+  off.width = R;
+  off.height = R;
+  const octx = off.getContext('2d')!;
+  octx.drawImage(img, 0, 0, R, R);
+  const data = octx.getImageData(0, 0, R, R).data;
+  let minX = R, minY = R, maxX = 0, maxY = 0;
+  for (let py = 0; py < R; py++)
+    for (let px = 0; px < R; px++)
+      if (data[(py * R + px) * 4 + 3]! > 16) {
+        if (px < minX) minX = px;
+        if (px > maxX) maxX = px;
+        if (py < minY) minY = py;
+        if (py > maxY) maxY = py;
+      }
+  if (maxX <= minX || maxY <= minY) return { sx: 0, sy: 0, sw: img.width, sh: img.height };
+  const kx = img.width / R;
+  const ky = img.height / R;
+  return { sx: minX * kx, sy: minY * ky, sw: (maxX - minX + 1) * kx, sh: (maxY - minY + 1) * ky };
+}
+
+/** Pie: logotipo real (recortado a contenido) + dominio + hashtag. */
 async function drawFooter(ctx: CanvasRenderingContext2D, sans: string, display: string) {
   const y = STORY_H - 110;
   try {
     const logo = await loadSprite(assetUrl(LOGOS.original.light));
     if (!logo.width || !logo.height) throw new Error('logo sin dimensiones');
-    const h = 64;
-    const w = (logo.width / logo.height) * h;
+    const { sx, sy, sw, sh } = contentBox(logo);
+    const h = 72;
+    const w = (sw / sh) * h;
     ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(logo, PAD, y - h / 2 - 4, w, h);
+    ctx.drawImage(logo, sx, sy, sw, sh, PAD, y - h / 2 - 4, w, h);
     ctx.fillStyle = '#EBEBEB';
     ctx.font = `28px ${sans}`;
     ctx.textBaseline = 'middle';
@@ -370,13 +399,24 @@ export async function renderStory(
 
   drawDeco(ctx, tema);
 
-  // Etiqueta de temática + titular de campaña
+  // Etiqueta de temática + titular de campaña.
+  // El titular deja libre la COLUMNA de la decoración (esquina sup. derecha):
+  // nunca se tocan, sin importar el patrón de la temática.
+  const DECO_COL = 4 * (34 + 6) + 40; // ancho de la grilla de cuadrados + aire
   ctx.fillStyle = color;
   ctx.font = `700 40px ${display}`;
   ctx.fillText(TEMA_LABEL[tema].toUpperCase(), PAD, PAD + 40);
   ctx.fillStyle = '#EBEBEB';
   ctx.font = `700 62px ${display}`;
-  let y = wrapText(ctx, (opts.headline ?? CAMPAIGN_HEADLINE).toUpperCase(), PAD, PAD + 130, STORY_W - PAD * 2, 68, 4);
+  let y = wrapText(
+    ctx,
+    (opts.headline ?? CAMPAIGN_HEADLINE).toUpperCase(),
+    PAD,
+    PAD + 130,
+    STORY_W - PAD * 2 - DECO_COL,
+    68,
+    4,
+  );
 
   // Bloque del dato
   y += 36;
@@ -427,14 +467,15 @@ export async function renderStory(
     y = drawLegend(ctx, items, PAD, y, STORY_W - PAD * 2, sans) + 14;
   }
 
-  // Nota de escala
+  // Nota de escala — con aire respecto de los chips de la leyenda
   if (plan.scaleNote) {
+    y += 22;
     ctx.fillStyle = MUTED;
     ctx.font = `26px ${sans}`;
     ctx.textAlign = 'right';
     ctx.fillText(plan.scaleNote, STORY_W - PAD, y + 8);
     ctx.textAlign = 'left';
-    y += 30;
+    y += 34;
   }
 
   // Área de multitud: de y al pie — la multitud LLENA este bloque
