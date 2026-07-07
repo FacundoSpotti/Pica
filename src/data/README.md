@@ -2,7 +2,7 @@
 
 ## Estado de los datasets
 
-Los archivos descargados de las fuentes están en `datos-fuente/` (raíz del repo),
+Los archivos descargados de las fuentes están en `anexos/datos-fuente/`,
 con su manifiesto. Cada dataset lleva `fuente` y `fuenteUrl` exactas.
 
 | Dataset | Tipo | Estado |
@@ -32,7 +32,7 @@ Todo dataset ⚠️ lo declara también en su campo `descripcion`.
 1. Crear el JSON siguiendo el schema de `src/schemas/base.ts`
    (id kebab-case, departamentos ISO 3166-2 `UY-XX`, años numéricos,
    porcentajes 0-100, siempre `fuente` + `fuenteUrl`).
-2. Guardar el archivo fuente original en `datos-fuente/` y sumarlo al manifiesto.
+2. Guardar el archivo fuente original en `anexos/datos-fuente/` y sumarlo al manifiesto.
 3. Importarlo y sumarlo a `RAW_DATASETS` en `src/lib/datasets.ts`.
 4. Verificar con `pnpm validate-data`.
 

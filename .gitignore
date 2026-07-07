@@ -134,3 +134,6 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Herramientas anexas — dependencias locales
+anexos/pica-sync/node_modules/
