@@ -8,13 +8,21 @@
 // en filas horizontales y las filas se apilan hasta ocupar el espacio.
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { geoMercator, geoPath, interpolateRgb, scaleLinear } from 'd3';
 import { SPRITE_CONFIGS, LOGOS, assetUrl } from '@/lib/assets';
-import { TEMA_COLOR, TEMA_LABEL, TEMA_PALETTE, textOnColor } from '@/lib/colors';
+import { TEMA_COLOR, TEMA_LABEL, TEMA_PALETTE, TEMA_SCALE, textOnColor } from '@/lib/colors';
 import { figureCount, figureScale, matrixScale, niceClosest, perLabel } from '@/lib/isotype';
 import { loadSprite, tintSprite } from '@/lib/spriteManager';
 import { hardenAlpha } from '@/hooks/useSpriteWalkers';
 import type { Tematica } from '@/types/sprites';
-import type { Dataset, DatasetDistribucion, DatasetEscalar, DatasetMatriz, DatasetSerie } from '@/types/data';
+import type {
+  Dataset,
+  DatasetDistribucion,
+  DatasetEscalar,
+  DatasetEspacial,
+  DatasetMatriz,
+  DatasetSerie,
+} from '@/types/data';
 
 export const STORY_W = 1080;
 export const STORY_H = 1920;
@@ -371,6 +379,89 @@ function drawLegend(
 
 const fmt = (n: number) => n.toLocaleString('es-UY');
 
+/**
+ * Tipo E — mapa coroplético de Uruguay dibujado en el canvas (d3-geo con
+ * context) + leyenda de gradiente + ranking (top y bottom 3 departamentos).
+ */
+async function drawMapE(
+  ctx: CanvasRenderingContext2D,
+  d: DatasetEspacial,
+  areaX: number,
+  y: number,
+  areaW: number,
+  areaH: number,
+  sans: string,
+  display: string,
+): Promise<void> {
+  const res = await fetch('/geo/uruguay-departamentos.json');
+  const geo = (await res.json()) as {
+    features: Array<{ properties?: { HASC_1?: string }; [k: string]: unknown }>;
+  };
+  const [lo, hi] = TEMA_SCALE[d.tematica];
+  const vals = d.departamentos.map((x) => x.valor);
+  const minV = Math.min(...vals);
+  const maxV = Math.max(...vals);
+  const t = scaleLinear().domain([minV, maxV]).range([0, 1]).clamp(true);
+  const colorOf = (v: number) => interpolateRgb(lo, hi)(t(v));
+  const byId = new Map(d.departamentos.map((x) => [x.id as string, x]));
+
+  // Mapa arriba (deja ~300px para leyenda + ranking), misma proyección que MapViz
+  const mapH = Math.max(300, Math.min(areaH - 320, areaW * (520 / 480)));
+  const mapW = mapH * (480 / 520);
+  const proj = geoMercator()
+    .center([-55.8, -32.6])
+    .scale(4200 * (mapW / 480))
+    .translate([areaX + areaW / 2, y + mapH / 2]);
+  const path = geoPath(proj, ctx);
+  for (const f of geo.features) {
+    const iso = (f.properties?.HASC_1 ?? '').replace('.', '-');
+    const dept = byId.get(iso);
+    ctx.beginPath();
+    path(f as unknown as Parameters<typeof path>[0]);
+    ctx.fillStyle = dept ? colorOf(dept.valor) : '#26262A';
+    ctx.fill();
+    ctx.strokeStyle = '#0A0A0A';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+
+  // Leyenda de bloques (min → max)
+  const pctE = d.unidad === '%' ? '%' : '';
+  let ly = y + mapH + 30;
+  const blocks = 7;
+  const bw = 28;
+  const lx0 = areaX + areaW / 2 - (blocks * bw) / 2;
+  for (let i = 0; i < blocks; i++) {
+    ctx.fillStyle = interpolateRgb(lo, hi)(i / (blocks - 1));
+    ctx.fillRect(lx0 + i * bw, ly, bw, 16);
+  }
+  ctx.fillStyle = MUTED;
+  ctx.font = `26px ${sans}`;
+  ctx.textAlign = 'right';
+  ctx.fillText(fmt(minV), lx0 - 12, ly + 14);
+  ctx.textAlign = 'left';
+  ctx.fillText(`${fmt(maxV)}${pctE}`, lx0 + blocks * bw + 12, ly + 14);
+
+  // Ranking: los 3 más altos y los 3 más bajos
+  ly += 56;
+  const sorted = [...d.departamentos].sort((a, b) => b.valor - a.valor);
+  const rows = [...sorted.slice(0, 3), ...sorted.slice(-3)];
+  rows.forEach((dep, i) => {
+    const ry = ly + i * 42;
+    if (ry > y + areaH - 6) return;
+    ctx.fillStyle = colorOf(dep.valor);
+    ctx.fillRect(areaX, ry - 20, 22, 22);
+    ctx.fillStyle = '#EBEBEB';
+    ctx.font = `28px ${sans}`;
+    ctx.fillText(dep.nombre, areaX + 36, ry);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = colorOf(dep.valor);
+    ctx.font = `700 30px ${display}`;
+    ctx.fillText(`${fmt(dep.valor)}${pctE}`, areaX + areaW, ry);
+    ctx.textAlign = 'left';
+  });
+}
+
 // ── Render principal ─────────────────────────────────────────────────────────
 
 export interface StoryOpts {
@@ -485,6 +576,13 @@ export async function renderStory(
   const areaW = STORY_W - PAD * 2;
   const areaH = footerTop - y - 10;
 
+  // Tipo E — mapa coroplético (sin multitud de sprites)
+  if (dataset.tipoResultado === 'E') {
+    await drawMapE(ctx, dataset, areaX, y + 6, areaW, areaH, sans, display);
+    await drawFooter(ctx, sans, display);
+    return;
+  }
+
   // Precarga de sheets
   const pairs = new Set<string>();
   const collect = (figs: Fig[], base: number) =>
@@ -531,51 +629,52 @@ export async function renderStory(
       by = drawFlow(ctx, sheets, b.figs, areaX, by, cols, chosen, i * 100000) + bandGap;
     });
   } else if (plan.gridC) {
-    // Grilla de períodos (como el prototipo): columnas-año con % debajo
+    // Grilla de períodos: las celdas REPARTEN el ancho completo (de margen a
+    // margen) — cada celda tiene su carril fijo, así los números y años nunca
+    // se superponen ni se apelmazan al centro.
     const cells = plan.gridC.cells;
     const nRows = cells.length > 9 ? 2 : 1;
     const nCols = Math.ceil(cells.length / nRows);
     const maxCount = Math.max(...cells.map((c) => c.count));
-    const FIG_COLS = 4;
-    const labelH = 70;
+    const labelH = 76;
+    const cellW = Math.floor(areaW / nCols);
     let s = 1;
+    let figCols = Math.max(2, Math.floor((cellW - 10) / (C_W + GAP)));
     for (let t = 5; t >= 1; t--) {
       const px = (C_W + GAP) * t;
       const py = (C_H + GAP) * t;
-      const cellW = FIG_COLS * px + px; // + separación
-      const cellH = Math.ceil(maxCount / FIG_COLS) * py + labelH;
-      if (nCols * cellW - px <= areaW && nRows * cellH + (nRows - 1) * 16 <= areaH) {
+      const fc = Math.max(2, Math.floor((cellW - 10) / px));
+      const cellH = Math.ceil(maxCount / fc) * py + labelH;
+      if (nRows * cellH + (nRows - 1) * 18 <= areaH) {
         s = t;
+        figCols = fc;
         break;
       }
     }
     const px = (C_W + GAP) * s;
     const py = (C_H + GAP) * s;
-    const cellW = FIG_COLS * px + px;
-    const cellH = Math.ceil(maxCount / FIG_COLS) * py + labelH;
-    const gridW = nCols * cellW - px;
-    const x0 = areaX + Math.max(0, (areaW - gridW) / 2);
+    const cellH = Math.ceil(maxCount / figCols) * py + labelH;
     cells.forEach((cell, i) => {
-      const gx = x0 + (i % nCols) * cellW;
-      const gy = y + 6 + Math.floor(i / nCols) * (cellH + 16);
+      const gx = areaX + (i % nCols) * cellW;
+      const gy = y + 6 + Math.floor(i / nCols) * (cellH + 18);
       for (let j = 0; j < cell.count; j++) {
         drawFig(
           ctx,
           sheets,
           { color: cell.color, pool: plan.gridC!.pool },
           i * 1000 + j,
-          gx + (j % FIG_COLS) * px,
-          gy + Math.floor(j / FIG_COLS) * py,
+          gx + (j % figCols) * px,
+          gy + Math.floor(j / figCols) * py,
           s,
         );
       }
-      const ly = gy + Math.ceil(maxCount / FIG_COLS) * py;
+      const ly = gy + Math.ceil(maxCount / figCols) * py;
       ctx.fillStyle = MUTED;
-      ctx.font = `24px ${sans}`;
-      ctx.fillText(cell.periodo, gx, ly + 28);
+      ctx.font = `26px ${sans}`;
+      ctx.fillText(cell.periodo, gx, ly + 30);
       ctx.fillStyle = cell.color;
-      ctx.font = `700 30px ${display}`;
-      ctx.fillText(`${fmt(cell.valor)}${plan.gridC!.pct ? '%' : ''}`, gx, ly + 62);
+      ctx.font = `700 32px ${display}`;
+      ctx.fillText(`${fmt(cell.valor)}${plan.gridC!.pct ? '%' : ''}`, gx, ly + 66);
     });
   }
 

@@ -73,12 +73,12 @@ export default function InteractiveLayout() {
       {/* Nav superior: al elegir temática el logo viaja al CENTRO (animación
           de layout con spring, ver pica-ui) y "Nosotros" desaparece — dentro
           de los datos no importa nada más que los datos. */}
-      <header className="z-10 grid grid-cols-3 items-center p-6 short:py-2">
+      <header className="z-10 grid grid-cols-3 items-center p-6 short:py-2 max-md:flex max-md:flex-wrap max-md:items-center max-md:gap-y-1 max-md:p-4">
         {/* Breadcrumb (izquierda) cuando hay temática */}
         {tema && (
           <nav
             aria-label="Ubicación"
-            className="flex min-w-0 items-center gap-2 justify-self-start font-sans text-pica-paragraph"
+            className="flex min-w-0 items-center gap-2 justify-self-start font-sans text-pica-paragraph max-md:order-3 max-md:basis-full"
             style={{ gridColumn: 1, gridRow: 1 }}
           >
             <button
@@ -157,7 +157,7 @@ export default function InteractiveLayout() {
         {/* Estado 1 — sin temática: selector */}
         {!tema && (
           /* MOBILE: tarjetas compactas en columna — las 5 entran SIN scroll. */
-          <div className="flex h-full flex-col items-center justify-center gap-10 px-8 max-md:gap-5 short:gap-4">
+          <div className="flex h-full flex-col items-center justify-center gap-10 px-8 max-md:justify-start max-md:gap-5 max-md:overflow-y-auto max-md:py-4 short:gap-4">
             <h1 className="font-display text-pica-heading-2 font-bold text-text-primary max-md:text-3xl">
               ¿Qué querés explorar?
             </h1>

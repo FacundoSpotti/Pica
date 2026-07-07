@@ -89,7 +89,7 @@ export default function IsotypeMatrixViz({ data }: { data: DatasetMatriz }) {
       const rect = el.getBoundingClientRect();
       setFit({
         cw: Math.max(360, el.clientWidth - 112 /* columna de etiquetas (7rem) */),
-        ah: Math.max(170, window.innerHeight - rect.top - 150),
+        ah: Math.max(170, window.innerHeight - rect.top - 175),
       });
     };
     update();

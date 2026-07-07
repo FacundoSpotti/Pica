@@ -52,7 +52,7 @@ export default function EntityGrid({ tema, entidades, onSelect }: EntityGridProp
         variants={container}
         initial="hidden"
         animate="show"
-        className="mx-auto grid w-full max-w-6xl flex-1 content-center grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-5 max-md:content-start short:gap-3"
+        className="mx-auto grid w-full max-w-6xl flex-1 content-center grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-5 max-md:grid-cols-2 max-md:content-start max-md:gap-3 short:gap-3"
       >
         {entidades.map((entidad) => {
           const count = getCaracteristicas(tema, entidad).length;
@@ -63,7 +63,7 @@ export default function EntityGrid({ tema, entidades, onSelect }: EntityGridProp
                 onClick={() => onSelect(entidad)}
                 whileHover={shouldReduce ? undefined : { y: -6 }}
                 aria-label={`Explorar ${entidad}`}
-                className="group flex h-full w-full flex-col items-center gap-4 rounded-lg border-2 bg-white/[0.03] px-6 py-8 text-center transition-shadow short:gap-2 short:py-4"
+                className="group flex h-full w-full flex-col items-center gap-4 rounded-lg border-2 bg-white/[0.03] px-6 py-8 text-center transition-shadow max-md:gap-2 max-md:px-2 max-md:py-4 short:gap-2 short:py-4"
                 style={{ borderColor: `${color}55` }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.borderColor = color;
@@ -75,7 +75,7 @@ export default function EntityGrid({ tema, entidades, onSelect }: EntityGridProp
                 }}
               >
                 <EntityIcon entidad={entidad} color={color} size={72} />
-                <span className="font-display text-pica-title font-bold leading-none text-text-primary">
+                <span className="break-words font-display text-pica-title font-bold leading-none text-text-primary max-md:text-[22px] max-md:leading-6">
                   {entidad}
                 </span>
                 <span

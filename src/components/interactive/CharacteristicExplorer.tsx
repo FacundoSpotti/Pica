@@ -36,8 +36,10 @@ export default function CharacteristicExplorer({
   const shouldReduce = useReducedMotion();
   const activeIndex = Math.max(0, datasets.findIndex((d) => d.id === activeId));
   const active = datasets[activeIndex];
-  // MVP de compartir: solo estadísticas de personas (isotype)
-  const shareable = active ? isPersonEntity(active.entidad) || active.personas === true : false;
+  // Compartir: estadísticas de personas (isotype) y mapas (E)
+  const shareable = active
+    ? isPersonEntity(active.entidad) || active.personas === true || active.tipoResultado === 'E'
+    : false;
 
   // ←/→ cambian de característica; Escape vuelve a la lista de entidades
   useEffect(() => {

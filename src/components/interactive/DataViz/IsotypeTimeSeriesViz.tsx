@@ -17,6 +17,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { TEMA_COLOR, TEMA_PALETTE, textOnColor } from '@/lib/colors';
 import { figureCount, perLabel, seriesScale } from '@/lib/isotype';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { useSpriteWalkers, type WalkerTarget } from '@/hooks/useSpriteWalkers';
 import type { DatasetSerie } from '@/types/data';
 import { DataTable, VizFooter, VizHeader } from './VizShared';
@@ -64,6 +65,40 @@ function roundNice(n: number): number {
   return Math.round(n);
 }
 
+/**
+ * MOBILE · vista TODOS: banda horizontal de figuras de UN período (una fila
+ * por año, apiladas en vertical — en pantallas angostas las barras verticales
+ * superponían las etiquetas).
+ */
+function MiniBand({ count, color, layoutKey }: { count: number; color: string; layoutKey: string }) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  const rows = 2;
+  const cols = Math.max(1, Math.ceil(count / rows));
+  const W = MARGIN * 2 + (cols - 1) * PITCH_X + C_W * SCALE;
+  const H = MARGIN * 2 + (rows - 1) * PITCH_Y + C_H * SCALE;
+  const targets = useMemo(() => {
+    const out: WalkerTarget[] = [];
+    for (let j = 0; j < count; j++) {
+      out.push({
+        x: MARGIN + Math.floor(j / rows) * PITCH_X - C_MIN_X * SCALE,
+        y: MARGIN + (j % rows) * PITCH_Y - C_MIN_Y * SCALE,
+        color,
+      });
+    }
+    return out;
+  }, [count, color]);
+  useSpriteWalkers(ref, targets, { scale: SCALE, layoutKey });
+  return (
+    <canvas
+      ref={ref}
+      width={W}
+      height={H}
+      aria-hidden="true"
+      style={{ imageRendering: 'pixelated', width: 'auto', height: 'auto', maxWidth: '100%' }}
+    />
+  );
+}
+
 export default function IsotypeTimeSeriesViz({ data }: { data: DatasetSerie }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -85,7 +120,7 @@ export default function IsotypeTimeSeriesViz({ data }: { data: DatasetSerie }) {
       const rect = el.getBoundingClientRect();
       setFit({
         cw: Math.max(360, el.clientWidth),
-        ah: Math.max(170, window.innerHeight - rect.top - 150),
+        ah: Math.max(170, window.innerHeight - rect.top - 175),
       });
     };
     update();
@@ -229,10 +264,21 @@ export default function IsotypeTimeSeriesViz({ data }: { data: DatasetSerie }) {
   }, [sel, all, single, singleLayout, proportional, color]);
 
   const isAll = sel === 'all';
+  const isMobile = useIsMobile();
+  // MOBILE + TODOS: se usa la lista vertical de MiniBand (el canvas grande no
+  // se monta y no debe animar targets).
+  const mobileAllView = isMobile && isAll;
   const canvasW = isAll ? all.canvasW : singleLayout.canvasW;
   const canvasH = isAll ? all.canvasH : singleLayout.canvasH;
 
-  useSpriteWalkers(canvasRef, targets, {
+  // Escala propia de la lista mobile (~36 figuras el año más alto)
+  const mobileAll = useMemo(() => {
+    const maxValor = Math.max(...data.puntos.map((p) => p.valor));
+    const { per, label } = seriesScale(maxValor, data.unidad, 36);
+    return { counts: data.puntos.map((p) => figureCount(p.valor, per)), label };
+  }, [data]);
+
+  useSpriteWalkers(canvasRef, mobileAllView ? [] : targets, {
     scale: SCALE,
     layoutKey: `${data.id}:${sel}:${canvasW}x${canvasH}`,
   });
@@ -350,19 +396,45 @@ export default function IsotypeTimeSeriesViz({ data }: { data: DatasetSerie }) {
 
           {/* Canvas full-bleed: cubre el área — las figuras entran desde los bordes */}
           <div role="img" aria-label={ariaLabel}>
-            <canvas
-              ref={canvasRef}
-              width={canvasW}
-              height={canvasH}
-              aria-hidden="true"
-              className="w-full"
-              style={{
-                imageRendering: 'pixelated',
-                borderBottom: isAll ? '2px solid rgba(235,235,235,0.25)' : 'none',
-              }}
-            />
+            {/* MOBILE · TODOS: lista vertical (año + valor + banda de figuras) */}
+            {mobileAllView ? (
+              <div className="flex flex-col gap-2">
+                {data.puntos.map((p, i) => {
+                  const c = palette[i % palette.length]!;
+                  return (
+                    <div key={p.periodo}>
+                      <p className="flex items-baseline gap-2 font-sans text-pica-subtitle text-text-muted">
+                        {p.periodo}
+                        <span className="font-display text-[18px] font-bold" style={{ color: c }}>
+                          {p.valor.toLocaleString('es-UY')}
+                          {data.unidad === '%' ? '%' : ''}
+                        </span>
+                      </p>
+                      <MiniBand
+                        count={mobileAll.counts[i]!}
+                        color={c}
+                        layoutKey={`${data.id}:m:${p.periodo}`}
+                      />
+                    </div>
+                  );
+                })}
+                <p className="font-sans text-pica-subtitle text-text-secondary">{mobileAll.label}</p>
+              </div>
+            ) : (
+              <canvas
+                ref={canvasRef}
+                width={canvasW}
+                height={canvasH}
+                aria-hidden="true"
+                className="w-full"
+                style={{
+                  imageRendering: 'pixelated',
+                  borderBottom: isAll ? '2px solid rgba(235,235,235,0.25)' : 'none',
+                }}
+              />
+            )}
             {/* Etiquetas de las barras en la vista TODOS (alineadas al bloque) */}
-            {isAll && (
+            {isAll && !mobileAllView && (
               <div
                 className="mx-auto mt-1 flex"
                 style={{ width: all.crowdViewW, maxWidth: '100%' }}

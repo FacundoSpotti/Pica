@@ -185,7 +185,7 @@ export default function IsotypeDistributionViz({ data }: { data: DatasetDistribu
             height: 'auto',
             maxWidth: '100%',
             // En pantallas bajas la multitud se ACHICA en vez de recortarse
-            maxHeight: 'max(220px, calc(100vh - 430px))',
+            maxHeight: 'max(220px, calc(100vh - 500px))',
           }}
         />
       </div>

@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss';
+import plugin from 'tailwindcss/plugin';
 // El sistema de colores completo (64 vars) vive en config/tailwind.colors.ts
 import { picaColors } from './config/tailwind.colors';
 
@@ -9,11 +10,6 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      screens: {
-        // Desktop con POCA ALTURA (ej. 1024×600, netbooks/proyectores):
-        // comprime el chrome vertical para que todo entre sin scroll ni corte.
-        short: { raw: '(min-width: 768px) and (max-height: 700px)' },
-      },
       colors: {
         // Paletas de datos — solo para visualizaciones y acentos temáticos
         pica: picaColors,
@@ -49,7 +45,15 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    // `short:` — desktop con POCA ALTURA (ej. 1024×600): comprime el chrome
+    // vertical. Se define como VARIANTE (no como screen raw) porque un screen
+    // `raw` rompe el ordenamiento de las variantes max-* (max-md dejaba de
+    // generarse y moría todo el layout mobile).
+    plugin(({ addVariant }) => {
+      addVariant('short', '@media (min-width: 768px) and (max-height: 700px)');
+    }),
+  ],
 };
 
 export default config;

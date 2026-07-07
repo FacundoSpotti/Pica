@@ -72,6 +72,9 @@ export function DataTable({ caption, head, rows }: DataTableProps) {
       <summary className="cursor-pointer font-sans text-pica-subtitle text-text-secondary underline-offset-2 hover:underline">
         Ver datos en tabla
       </summary>
+      {/* La tabla scrollea INTERNAMENTE (max-h): al abrirla no corre el layout
+          ni se corta contra el borde de la pantalla. */}
+      <div className="max-h-[38vh] overflow-y-auto">
       <table className="mt-2 w-full max-w-md border-collapse font-sans text-pica-subtitle">
         <caption className="sr-only">{caption}</caption>
         <thead>
@@ -99,6 +102,7 @@ export function DataTable({ caption, head, rows }: DataTableProps) {
           ))}
         </tbody>
       </table>
+      </div>
     </details>
   );
 }
