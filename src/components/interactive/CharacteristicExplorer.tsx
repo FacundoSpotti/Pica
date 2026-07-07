@@ -7,10 +7,12 @@
 // Escape desbloquea la entidad. Transiciones ≤300ms (pica-interactive).
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import VizRouter from './DataViz/VizRouter';
+import ShareStory from './ShareStory';
 import { TEMA_COLOR } from '@/lib/colors';
+import { isPersonEntity } from '@/lib/isotype';
 import type { Dataset } from '@/types/data';
 import type { Tematica } from '@/types/sprites';
 
@@ -34,6 +36,9 @@ export default function CharacteristicExplorer({
   const shouldReduce = useReducedMotion();
   const activeIndex = Math.max(0, datasets.findIndex((d) => d.id === activeId));
   const active = datasets[activeIndex];
+  const vizRef = useRef<HTMLDivElement>(null);
+  // MVP de compartir: solo estadísticas de personas (isotype con canvas)
+  const shareable = active ? isPersonEntity(active.entidad) || active.personas === true : false;
 
   // ←/→ cambian de característica; Escape vuelve a la lista de entidades
   useEffect(() => {
@@ -80,12 +85,20 @@ export default function CharacteristicExplorer({
         })}
       </div>
 
+      {/* Barra: compartir (solo estadísticas de personas en el MVP) */}
+      {active && shareable && (
+        <div className="mt-3 flex justify-end">
+          <ShareStory dataset={active} vizRef={vizRef} />
+        </div>
+      )}
+
       {/* Visualización activa — encabezado anclado arriba (nunca se corta el
           título) + viz centrada debajo, sin scroll. */}
-      <div className="mt-6 flex min-h-0 flex-1 items-start justify-center overflow-hidden">
+      <div className="mt-3 flex min-h-0 flex-1 items-start justify-center overflow-hidden">
         <AnimatePresence mode="wait">
           {active && (
             <motion.div
+              ref={vizRef}
               key={active.id}
               initial={{ opacity: 0, y: shouldReduce ? 0 : 20 }}
               animate={{ opacity: 1, y: 0 }}
