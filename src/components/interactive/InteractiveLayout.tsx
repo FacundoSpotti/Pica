@@ -119,7 +119,7 @@ export default function InteractiveLayout() {
                   ? { duration: 0 }
                   : { type: 'spring', stiffness: 110, damping: 20 } // vuelo pausado
               }
-              className={centered ? 'justify-self-center' : 'justify-self-start'}
+              className={centered ? 'justify-self-center max-md:mx-auto' : 'justify-self-start'}
               style={{ gridColumn: centered ? 2 : 1, gridRow: 1 }}
             >
               <Link href="/" aria-label="Pica — inicio">
@@ -144,7 +144,7 @@ export default function InteractiveLayout() {
         {!tema && (
           <Link
             href="/nosotros"
-            className="flex items-center gap-2 justify-self-end font-display text-pica-button text-text-primary underline-offset-4 hover:underline"
+            className="flex items-center gap-2 justify-self-end font-display text-pica-button text-text-primary underline-offset-4 hover:underline max-md:ml-auto"
             style={{ gridColumn: 3, gridRow: 1 }}
           >
             <PixelIcon name="users" size={20} />

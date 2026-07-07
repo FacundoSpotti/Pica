@@ -231,7 +231,7 @@ export default function NosotrosPage() {
                   draggingRef.current = false;
                 }, 0);
               }}
-              className={`${card.cell} pointer-events-auto cursor-grab active:cursor-grabbing`}
+              className={`${card.cell} pointer-events-auto cursor-grab active:cursor-grabbing max-md:self-center`}
               style={{ zIndex: isOpen ? 30 : 10, ...(open && !isOpen ? DIM_STYLE : UNDIM_STYLE) }}
             >
               {/* Capa 2: FLOTACIÓN — deriva suave, desfasada por card */}

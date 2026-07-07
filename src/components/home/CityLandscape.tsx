@@ -45,7 +45,10 @@ interface CityLandscapeProps {
   children?: React.ReactNode;
 }
 
-const layerClass = 'pointer-events-none absolute inset-0 h-full w-full object-fill';
+// rounded-2xl en cada capa: en mobile el stage es overflow-visible (para que el
+// cartel del edificio no se corte) y el redondeo lo aportan las imágenes.
+const layerClass =
+  'pointer-events-none absolute inset-0 h-full w-full rounded-2xl object-fill';
 const pixelated = { imageRendering: 'pixelated' as const };
 const GRAYSCALE = 'grayscale(100%) brightness(0.5)';
 

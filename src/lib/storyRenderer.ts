@@ -524,20 +524,6 @@ export async function renderStory(
   y = wrapText(ctx, dataset.descripcion, PAD, y, STORY_W - PAD * 2, 36, 4);
   y += 20;
 
-  // Tipo A: el número protagonista antes de la multitud
-  if (dataset.tipoResultado === 'A') {
-    ctx.fillStyle = color;
-    ctx.font = `900 150px ${display}`;
-    const numTxt = `${fmt(dataset.valor)}${dataset.unidad === '%' ? '%' : ''}`;
-    ctx.fillText(numTxt, PAD, y + 130);
-    if (dataset.unidad && dataset.unidad !== '%') {
-      ctx.fillStyle = MUTED;
-      ctx.font = `30px ${sans}`;
-      ctx.fillText(dataset.unidad, PAD + ctx.measureText(numTxt).width + 160, y + 122);
-    }
-    y += 170;
-  }
-
   // Plan de multitud según tipo
   let plan: CrowdPlan = {};
   if (dataset.tipoResultado === 'B') plan = planB(dataset, palette);
@@ -596,7 +582,32 @@ export async function renderStory(
   }
   const sheets = await loadSheets(pairs);
 
-  if (plan.figs) {
+  if (dataset.tipoResultado === 'A' && plan.figs) {
+    // Tipo A (ej. femicidios): número GRANDE centrado, la unidad centrada
+    // justo debajo, y la multitud completando el resto del espacio.
+    ctx.textAlign = 'center';
+    ctx.fillStyle = color;
+    ctx.font = `900 210px ${display}`;
+    ctx.fillText(
+      `${fmt(dataset.valor)}${dataset.unidad === '%' ? '%' : ''}`,
+      areaX + areaW / 2,
+      y + 190,
+    );
+    let yy = y + 190;
+    if (dataset.unidad && dataset.unidad !== '%') {
+      ctx.fillStyle = MUTED;
+      ctx.font = `36px ${sans}`;
+      ctx.fillText(dataset.unidad, areaX + areaW / 2, yy + 52);
+      yy += 52;
+    }
+    ctx.textAlign = 'left';
+    const crowdY = yy + 40;
+    const crowdAreaH = footerTop - crowdY - 10;
+    const { s, cols } = planScale(plan.figs.length, areaW, crowdAreaH);
+    const rows = Math.ceil(plan.figs.length / cols);
+    const crowdH = rows * (C_H + GAP) * s;
+    drawFlow(ctx, sheets, plan.figs, areaX, crowdY + Math.max(0, (crowdAreaH - crowdH) / 2), cols, s);
+  } else if (plan.figs) {
     const { s, cols } = planScale(plan.figs.length, areaW, areaH);
     const rows = Math.ceil(plan.figs.length / cols);
     const crowdH = rows * (C_H + GAP) * s;
@@ -633,24 +644,30 @@ export async function renderStory(
     // margen) — cada celda tiene su carril fijo, así los números y años nunca
     // se superponen ni se apelmazan al centro.
     const cells = plan.gridC.cells;
-    const nRows = cells.length > 9 ? 2 : 1;
-    const nCols = Math.ceil(cells.length / nRows);
     const maxCount = Math.max(...cells.map((c) => c.count));
     const labelH = 76;
-    const cellW = Math.floor(areaW / nCols);
-    let s = 1;
-    let figCols = Math.max(2, Math.floor((cellW - 10) / (C_W + GAP)));
-    for (let t = 5; t >= 1; t--) {
-      const px = (C_W + GAP) * t;
-      const py = (C_H + GAP) * t;
-      const fc = Math.max(2, Math.floor((cellW - 10) / px));
-      const cellH = Math.ceil(maxCount / fc) * py + labelH;
-      if (nRows * cellH + (nRows - 1) * 18 <= areaH) {
-        s = t;
-        figCols = fc;
-        break;
+    // Buscar la combinación filas×escala que MÁS LLENA el bloque (regla de
+    // composición: ocupar el espacio vacío — ej. 18 años → 4×5, no 2×9).
+    let best = { r: 1, s: 1, fc: 2, cellW: Math.floor(areaW), fill: 0 };
+    for (let r = 1; r <= 6; r++) {
+      const cols = Math.ceil(cells.length / r);
+      const cw = Math.floor(areaW / cols);
+      for (let t = 6; t >= 1; t--) {
+        const px = (C_W + GAP) * t;
+        const py = (C_H + GAP) * t;
+        const fc = Math.floor((cw - 10) / px);
+        if (fc < 2) continue;
+        const ch = Math.ceil(maxCount / fc) * py + labelH;
+        const gridH = r * ch + (r - 1) * 18;
+        if (gridH <= areaH) {
+          const fill = gridH / areaH;
+          if (fill > best.fill) best = { r, s: t, fc, cellW: cw, fill };
+          break; // con este r, t mayor ya encontrado
+        }
       }
     }
+    const { r: nRows, s, fc: figCols, cellW } = best;
+    const nCols = Math.ceil(cells.length / nRows);
     const px = (C_W + GAP) * s;
     const py = (C_H + GAP) * s;
     const cellH = Math.ceil(maxCount / figCols) * py + labelH;

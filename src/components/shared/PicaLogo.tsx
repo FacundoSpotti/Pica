@@ -15,6 +15,9 @@ export default function PicaLogo({ className }: { className?: string }) {
       fill="currentColor"
       className={className}
       aria-hidden="true"
+      // crispEdges: sin costuras de antialiasing entre rects vecinos cuando el
+      // tamaño no es múltiplo exacto (en h-12 aparecían líneas entre píxeles).
+      shapeRendering="crispEdges"
       style={{ imageRendering: 'pixelated' }}
     >
       <rect x={30} y={63} width={9} height={6} />

@@ -108,7 +108,7 @@ export default function HomePage() {
           MOBILE: el mapa va ARRIBA (flujo normal bajo el header) y debajo se
           muestran los botones de temáticas — el mapa sigue siendo clickeable. */}
       <div
-        className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl max-md:static max-md:mx-auto max-md:mt-1 max-md:translate-x-0 max-md:translate-y-0"
+        className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl max-md:static max-md:mx-auto max-md:mt-1 max-md:translate-x-0 max-md:translate-y-0 max-md:overflow-visible"
         style={{
           width: `min(90vw, calc((100vh - 170px) * ${ASPECT}))`,
           height: `min(100vh - 170px, calc(90vw / ${ASPECT}))`,
