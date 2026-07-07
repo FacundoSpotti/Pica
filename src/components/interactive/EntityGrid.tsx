@@ -33,7 +33,9 @@ export default function EntityGrid({ tema, entidades, onSelect }: EntityGridProp
   };
 
   return (
-    <div className="flex h-full flex-col px-6 pb-10 pt-4 md:px-12">
+    // En mobile las tarjetas van a 1 columna (más alto que el viewport) →
+    // scroll vertical; en desktop entra todo y queda centrado.
+    <div className="flex h-full flex-col px-6 pb-10 pt-4 max-md:overflow-y-auto md:px-12">
       <header className="mb-8 text-center">
         <p
           className="font-display text-pica-subtitle font-bold uppercase"
@@ -50,7 +52,7 @@ export default function EntityGrid({ tema, entidades, onSelect }: EntityGridProp
         variants={container}
         initial="hidden"
         animate="show"
-        className="mx-auto grid w-full max-w-6xl flex-1 content-center grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-5"
+        className="mx-auto grid w-full max-w-6xl flex-1 content-center grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-5 max-md:content-start"
       >
         {entidades.map((entidad) => {
           const count = getCaracteristicas(tema, entidad).length;

@@ -210,7 +210,7 @@ export default function IsotypeMatrixViz({ data }: { data: DatasetMatriz }) {
               aria-pressed={isFocused}
               aria-label={`Aislar ${l}`}
               onClick={() => setFocus((f) => (f === l ? null : l))}
-              className="whitespace-nowrap px-2 py-1 font-sans text-pica-subtitle transition-opacity"
+              className="whitespace-nowrap px-2 py-1 font-sans text-pica-subtitle transition-opacity max-md:py-2"
               style={{
                 backgroundColor: c,
                 color: textOnColor(c),
@@ -230,8 +230,8 @@ export default function IsotypeMatrixViz({ data }: { data: DatasetMatriz }) {
         ref={gridRef}
         role="img"
         aria-label={ariaLabel}
-        className="grid gap-y-1"
-        style={{ gridTemplateColumns: '7rem 1fr' }}
+        className="grid w-full gap-y-1"
+        style={{ gridTemplateColumns: 'minmax(4rem, 7rem) 1fr' }}
       >
         {rows.map(({ vLabel, targets }) => (
           <div key={vLabel} className="contents">

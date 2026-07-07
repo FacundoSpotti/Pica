@@ -78,7 +78,7 @@ export default function InteractiveLayout() {
         {tema && (
           <nav
             aria-label="Ubicación"
-            className="flex items-center gap-2 justify-self-start font-sans text-pica-paragraph"
+            className="flex min-w-0 items-center gap-2 justify-self-start font-sans text-pica-paragraph"
             style={{ gridColumn: 1, gridRow: 1 }}
           >
             <button
@@ -96,7 +96,7 @@ export default function InteractiveLayout() {
                   type="button"
                   onClick={() => setParams({ tema })}
                   aria-label="Volver a la lista de entidades"
-                  className="text-text-secondary underline-offset-4 hover:underline"
+                  className="truncate text-text-secondary underline-offset-4 hover:underline max-md:max-w-[38vw]"
                 >
                   {entidad}
                 </button>

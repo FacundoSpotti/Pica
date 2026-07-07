@@ -113,9 +113,10 @@ export default function HomePage() {
 
       {/* Notas "pegadas" alrededor del mapa — misma geometría que el stage pero
           SIN overflow-hidden, así los papeles asoman sobre el margen oscuro.
-          pointer-events-none: los clicks pasan a los edificios. */}
+          pointer-events-none: los clicks pasan a los edificios.
+          En mobile se ocultan (decorativas, saturan la pantalla chica). */}
       <div
-        className="pointer-events-none absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2"
+        className="pointer-events-none absolute left-1/2 top-1/2 z-20 hidden -translate-x-1/2 -translate-y-1/2 md:block"
         style={{
           width: `min(90vw, calc((100vh - 170px) * ${ASPECT}))`,
           height: `min(100vh - 170px, calc(90vw / ${ASPECT}))`,

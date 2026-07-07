@@ -61,7 +61,7 @@ export default function CharacteristicExplorer({
       <div
         role="tablist"
         aria-label="Características disponibles"
-        className="-mx-6 flex gap-8 overflow-x-auto border-b border-white/15 px-6 md:-mx-12 md:px-12"
+        className="-mx-6 flex gap-5 overflow-x-auto border-b border-white/15 px-6 md:-mx-12 md:gap-8 md:px-12"
       >
         {datasets.map((d) => {
           const isActive = d.id === activeId;
@@ -72,7 +72,7 @@ export default function CharacteristicExplorer({
               role="tab"
               aria-selected={isActive}
               onClick={() => onChangeCaracteristica(d.id)}
-              className="-mb-px shrink-0 whitespace-nowrap border-b-2 px-1 pb-3 pt-1 font-display text-pica-button font-bold transition-colors"
+              className="-mb-px shrink-0 whitespace-nowrap border-b-2 px-1 pb-3 pt-1 font-display text-pica-button font-bold transition-colors max-md:py-3"
               style={{
                 borderColor: isActive ? color : 'transparent',
                 color: isActive ? color : '#A0A09A',
@@ -92,8 +92,9 @@ export default function CharacteristicExplorer({
       )}
 
       {/* Visualización activa — encabezado anclado arriba (nunca se corta el
-          título) + viz centrada debajo, sin scroll. */}
-      <div className="mt-3 flex min-h-0 flex-1 items-start justify-center overflow-hidden">
+          título) + viz centrada debajo, sin scroll en desktop. En MOBILE el
+          contenido suele ser más alto que el viewport → scroll vertical. */}
+      <div className="mt-3 flex min-h-0 flex-1 items-start justify-center overflow-hidden max-md:overflow-y-auto">
         <AnimatePresence mode="wait">
           {active && (
             <motion.div

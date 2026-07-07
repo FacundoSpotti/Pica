@@ -150,7 +150,7 @@ export default function IsotypeDistributionViz({ data }: { data: DatasetDistribu
               aria-pressed={isFocused}
               aria-label={`Aislar ${item.label}`}
               onClick={() => setFocus((f) => (f === item.label ? null : item.label))}
-              className="flex items-center gap-2 px-2 py-1 font-sans text-pica-subtitle transition-opacity"
+              className="flex items-center gap-2 px-2 py-1 font-sans text-pica-subtitle transition-opacity max-md:py-2"
               style={{
                 backgroundColor: item.color,
                 color: textOnColor(item.color),
