@@ -137,3 +137,7 @@ dist
 
 # Herramientas anexas — dependencias locales
 anexos/pica-sync/node_modules/
+
+# Archivos de diseño pesados — nunca al repo (límite GitHub 100MB)
+anexos/**/*.psd
+*.psd
