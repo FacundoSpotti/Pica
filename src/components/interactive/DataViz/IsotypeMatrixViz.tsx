@@ -89,7 +89,7 @@ export default function IsotypeMatrixViz({ data }: { data: DatasetMatriz }) {
       const rect = el.getBoundingClientRect();
       setFit({
         cw: Math.max(360, el.clientWidth - 112 /* columna de etiquetas (7rem) */),
-        ah: Math.max(240, window.innerHeight - rect.top - 150),
+        ah: Math.max(170, window.innerHeight - rect.top - 150),
       });
     };
     update();
@@ -114,7 +114,7 @@ export default function IsotypeMatrixViz({ data }: { data: DatasetMatriz }) {
     let per = matrixScale(sum, data.unidad).per;
     const rowH = MARGIN * 2 + (CELL_ROWS - 1) * PITCH_Y + C_H * SCALE;
     // Alto disponible por fila (reservando la leyenda y separación entre filas)
-    const rowBudget = Math.max(90, (fit.ah - 48) / vLabels.length - 4);
+    const rowBudget = Math.max(56, (fit.ah - 48) / vLabels.length - 4);
 
     const compute = (p: number) => {
       const counts = vLabels.map((_, v) => hLabels.map((_, h) => figureCount(valueAt(v, h), p)));

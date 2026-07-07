@@ -178,8 +178,15 @@ export default function IsotypeDistributionViz({ data }: { data: DatasetDistribu
           width={W}
           height={H}
           aria-hidden="true"
-          className="w-full"
-          style={{ imageRendering: 'pixelated', maxWidth: W }}
+          className="mx-auto"
+          style={{
+            imageRendering: 'pixelated',
+            width: 'auto',
+            height: 'auto',
+            maxWidth: '100%',
+            // En pantallas bajas la multitud se ACHICA en vez de recortarse
+            maxHeight: 'max(220px, calc(100vh - 430px))',
+          }}
         />
       </div>
 

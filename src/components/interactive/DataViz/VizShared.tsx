@@ -20,16 +20,18 @@ export function VizHeader({
   center?: boolean;
 }) {
   return (
-    <header className={`${compact ? 'mb-3' : 'mb-6'}${center ? ' text-center' : ''}`}>
-      <p className="font-sans text-pica-subtitle uppercase tracking-widest text-text-muted">
+    // short: (desktop bajo, ej. 1024×600) comprime el encabezado para que la
+    // visualización entre sin scroll ni corte.
+    <header className={`${compact ? 'mb-3' : 'mb-6'} short:mb-1${center ? ' text-center' : ''}`}>
+      <p className="font-sans text-pica-subtitle uppercase tracking-widest text-text-muted short:hidden">
         {dataset.entidad} · {dataset.anio}
       </p>
-      <h2 className="font-display text-pica-title font-bold text-text-primary">
+      <h2 className="font-display text-pica-title font-bold text-text-primary short:text-2xl short:leading-7">
         {dataset.caracteristica}
       </h2>
       <p
-        className={`mt-2 max-w-xl font-sans text-pica-subtitle text-text-secondary${compact ? ' line-clamp-2' : ''}${center ? ' mx-auto' : ''}`}
-        title={compact ? dataset.descripcion : undefined}
+        className={`mt-2 max-w-xl font-sans text-pica-subtitle text-text-secondary short:mt-0 short:line-clamp-1${compact ? ' line-clamp-2' : ''}${center ? ' mx-auto' : ''}`}
+        title={dataset.descripcion}
       >
         {dataset.descripcion}
       </p>

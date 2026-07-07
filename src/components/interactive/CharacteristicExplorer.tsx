@@ -55,7 +55,7 @@ export default function CharacteristicExplorer({
   }, [activeIndex, datasets, onChangeCaracteristica, onUnlockEntidad]);
 
   return (
-    <div className="flex h-full flex-col px-6 pb-8 pt-2 md:px-12">
+    <div className="flex h-full flex-col px-6 pb-8 pt-2 short:pb-3 short:pt-0 md:px-12">
       {/* Fila de características como pestañas, con una línea de margen a margen
           (full-bleed) que deja claro que se puede cambiar entre categorías. */}
       <div
@@ -72,7 +72,7 @@ export default function CharacteristicExplorer({
               role="tab"
               aria-selected={isActive}
               onClick={() => onChangeCaracteristica(d.id)}
-              className="-mb-px shrink-0 whitespace-nowrap border-b-2 px-1 pb-3 pt-1 font-display text-pica-button font-bold transition-colors max-md:py-3"
+              className="-mb-px shrink-0 whitespace-nowrap border-b-2 px-1 pb-3 pt-1 font-display text-pica-button font-bold transition-colors max-md:py-3 short:pb-2 short:pt-0"
               style={{
                 borderColor: isActive ? color : 'transparent',
                 color: isActive ? color : '#A0A09A',
@@ -86,7 +86,7 @@ export default function CharacteristicExplorer({
 
       {/* Barra: compartir (solo estadísticas de personas en el MVP) */}
       {active && shareable && (
-        <div className="mt-3 flex justify-end">
+        <div className="mt-3 flex justify-end short:mt-1">
           <ShareStory dataset={active} />
         </div>
       )}
@@ -94,7 +94,7 @@ export default function CharacteristicExplorer({
       {/* Visualización activa — encabezado anclado arriba (nunca se corta el
           título) + viz centrada debajo, sin scroll en desktop. En MOBILE el
           contenido suele ser más alto que el viewport → scroll vertical. */}
-      <div className="mt-3 flex min-h-0 flex-1 items-start justify-center overflow-hidden max-md:overflow-y-auto">
+      <div className="mt-3 flex min-h-0 flex-1 items-start justify-center overflow-hidden max-md:overflow-y-auto short:mt-1">
         <AnimatePresence mode="wait">
           {active && (
             <motion.div

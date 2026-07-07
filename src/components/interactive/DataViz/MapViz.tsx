@@ -195,7 +195,7 @@ export default function MapViz({ data }: { data: DatasetEspacial }) {
     if (!el) return;
     const update = () => {
       const rect = el.getBoundingClientRect();
-      const avail = Math.max(240, window.innerHeight - rect.top - 190);
+      const avail = Math.max(200, window.innerHeight - rect.top - 190);
       setFit({
         mapW: Math.round(Math.min(430, ((avail - 30) * 480) / 520)),
         // panel: nombre+número+delta ≈ 130px; el resto para la multitud

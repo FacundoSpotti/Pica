@@ -9,6 +9,11 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      screens: {
+        // Desktop con POCA ALTURA (ej. 1024×600, netbooks/proyectores):
+        // comprime el chrome vertical para que todo entre sin scroll ni corte.
+        short: { raw: '(min-width: 768px) and (max-height: 700px)' },
+      },
       colors: {
         // Paletas de datos — solo para visualizaciones y acentos temáticos
         pica: picaColors,

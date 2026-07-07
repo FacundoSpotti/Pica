@@ -270,7 +270,7 @@ export default function NosotrosPage() {
                         transition={{ duration: shouldReduce ? 0 : 0.3, ease: [0.22, 1, 0.36, 1] }}
                         className="overflow-hidden"
                       >
-                        <div className="px-5 pb-5">
+                        <div className="px-5 pb-5 short:max-h-[45vh] short:overflow-y-auto">
                           {card.form ? (
                             <div className="mt-3">
                               <FeedbackForm color={card.color} />

@@ -73,7 +73,7 @@ export default function InteractiveLayout() {
       {/* Nav superior: al elegir temática el logo viaja al CENTRO (animación
           de layout con spring, ver pica-ui) y "Nosotros" desaparece — dentro
           de los datos no importa nada más que los datos. */}
-      <header className="z-10 grid grid-cols-3 items-center p-6">
+      <header className="z-10 grid grid-cols-3 items-center p-6 short:py-2">
         {/* Breadcrumb (izquierda) cuando hay temática */}
         {tema && (
           <nav
@@ -157,7 +157,7 @@ export default function InteractiveLayout() {
         {/* Estado 1 — sin temática: selector */}
         {!tema && (
           /* MOBILE: tarjetas compactas en columna — las 5 entran SIN scroll. */
-          <div className="flex h-full flex-col items-center justify-center gap-10 px-8 max-md:gap-5">
+          <div className="flex h-full flex-col items-center justify-center gap-10 px-8 max-md:gap-5 short:gap-4">
             <h1 className="font-display text-pica-heading-2 font-bold text-text-primary max-md:text-3xl">
               ¿Qué querés explorar?
             </h1>
@@ -167,13 +167,13 @@ export default function InteractiveLayout() {
                   key={t}
                   type="button"
                   onClick={() => setParams({ tema: t })}
-                  className="flex w-44 flex-col items-center gap-3 rounded-lg border-2 px-6 py-6 transition-transform hover:scale-105 max-md:w-full max-md:flex-row max-md:justify-start max-md:gap-4 max-md:px-4 max-md:py-2"
+                  className="flex w-44 flex-col items-center gap-3 rounded-lg border-2 px-6 py-6 transition-transform hover:scale-105 short:py-3 max-md:w-full max-md:flex-row max-md:justify-start max-md:gap-4 max-md:px-4 max-md:py-2"
                   style={{ borderColor: TEMA_COLOR[t] }}
                 >
                   <img
                     src={assetUrl(THEME_STATIC[t])}
                     alt=""
-                    className="h-24 w-auto max-md:h-10"
+                    className="h-24 w-auto max-md:h-10 short:h-14"
                     style={{ imageRendering: 'pixelated' }}
                   />
                   <span

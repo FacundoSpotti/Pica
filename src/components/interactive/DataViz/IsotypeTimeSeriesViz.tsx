@@ -85,7 +85,7 @@ export default function IsotypeTimeSeriesViz({ data }: { data: DatasetSerie }) {
       const rect = el.getBoundingClientRect();
       setFit({
         cw: Math.max(360, el.clientWidth),
-        ah: Math.max(240, window.innerHeight - rect.top - 150),
+        ah: Math.max(170, window.innerHeight - rect.top - 150),
       });
     };
     update();

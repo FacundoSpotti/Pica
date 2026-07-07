@@ -35,8 +35,8 @@ export default function EntityGrid({ tema, entidades, onSelect }: EntityGridProp
   return (
     // En mobile las tarjetas van a 1 columna (más alto que el viewport) →
     // scroll vertical; en desktop entra todo y queda centrado.
-    <div className="flex h-full flex-col px-6 pb-10 pt-4 max-md:overflow-y-auto md:px-12">
-      <header className="mb-8 text-center">
+    <div className="flex h-full flex-col px-6 pb-10 pt-4 max-md:overflow-y-auto short:pb-4 short:pt-1 md:px-12">
+      <header className="mb-8 text-center short:mb-3">
         <p
           className="font-display text-pica-subtitle font-bold uppercase"
           style={{ color, letterSpacing: '0.12em' }}
@@ -52,7 +52,7 @@ export default function EntityGrid({ tema, entidades, onSelect }: EntityGridProp
         variants={container}
         initial="hidden"
         animate="show"
-        className="mx-auto grid w-full max-w-6xl flex-1 content-center grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-5 max-md:content-start"
+        className="mx-auto grid w-full max-w-6xl flex-1 content-center grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-5 max-md:content-start short:gap-3"
       >
         {entidades.map((entidad) => {
           const count = getCaracteristicas(tema, entidad).length;
@@ -63,7 +63,7 @@ export default function EntityGrid({ tema, entidades, onSelect }: EntityGridProp
                 onClick={() => onSelect(entidad)}
                 whileHover={shouldReduce ? undefined : { y: -6 }}
                 aria-label={`Explorar ${entidad}`}
-                className="group flex h-full w-full flex-col items-center gap-4 rounded-lg border-2 bg-white/[0.03] px-6 py-8 text-center transition-shadow"
+                className="group flex h-full w-full flex-col items-center gap-4 rounded-lg border-2 bg-white/[0.03] px-6 py-8 text-center transition-shadow short:gap-2 short:py-4"
                 style={{ borderColor: `${color}55` }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.borderColor = color;
