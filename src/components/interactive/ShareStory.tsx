@@ -11,16 +11,15 @@
 // API → Instagram/etc. en móvil). MVP: estadísticas de personas (isotype).
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useRef, useState, type RefObject } from 'react';
+import { useRef, useState } from 'react';
 import { renderStory } from '@/lib/storyRenderer';
 import type { Dataset } from '@/types/data';
 
 interface ShareStoryProps {
   dataset: Dataset;
-  vizRef: RefObject<HTMLElement | null>;
 }
 
-export default function ShareStory({ dataset, vizRef }: ShareStoryProps) {
+export default function ShareStory({ dataset }: ShareStoryProps) {
   const [open, setOpen] = useState(false);
   const [url, setUrl] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -32,12 +31,9 @@ export default function ShareStory({ dataset, vizRef }: ShareStoryProps) {
     setUrl(null);
     // esperar un frame para que el canvas oculto exista en el DOM
     await new Promise((r) => requestAnimationFrame(r));
-    const canvases = vizRef.current
-      ? Array.from(vizRef.current.querySelectorAll('canvas'))
-      : [];
     const story = canvasRef.current;
     if (!story) return;
-    await renderStory(story, dataset, canvases);
+    await renderStory(story, dataset);
     setUrl(story.toDataURL('image/png'));
     setBusy(false);
   };

@@ -7,7 +7,7 @@
 // Escape desbloquea la entidad. Transiciones ≤300ms (pica-interactive).
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import VizRouter from './DataViz/VizRouter';
 import ShareStory from './ShareStory';
@@ -36,8 +36,7 @@ export default function CharacteristicExplorer({
   const shouldReduce = useReducedMotion();
   const activeIndex = Math.max(0, datasets.findIndex((d) => d.id === activeId));
   const active = datasets[activeIndex];
-  const vizRef = useRef<HTMLDivElement>(null);
-  // MVP de compartir: solo estadísticas de personas (isotype con canvas)
+  // MVP de compartir: solo estadísticas de personas (isotype)
   const shareable = active ? isPersonEntity(active.entidad) || active.personas === true : false;
 
   // ←/→ cambian de característica; Escape vuelve a la lista de entidades
@@ -88,7 +87,7 @@ export default function CharacteristicExplorer({
       {/* Barra: compartir (solo estadísticas de personas en el MVP) */}
       {active && shareable && (
         <div className="mt-3 flex justify-end">
-          <ShareStory dataset={active} vizRef={vizRef} />
+          <ShareStory dataset={active} />
         </div>
       )}
 
@@ -98,7 +97,6 @@ export default function CharacteristicExplorer({
         <AnimatePresence mode="wait">
           {active && (
             <motion.div
-              ref={vizRef}
               key={active.id}
               initial={{ opacity: 0, y: shouldReduce ? 0 : 20 }}
               animate={{ opacity: 1, y: 0 }}

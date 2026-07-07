@@ -1,33 +1,226 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // PICA — Story renderer (TAREA 6, "Wrapped")
 // Dibuja una historia 1080×1920 (Instagram Stories) para una estadística:
-// branding de campaña + bloque del dato + la visualización + pie. Todo en un
-// canvas para conservar el pixel-art crujiente. La multitud (isotype) se compone
-// tomando el/los <canvas> de la viz ya renderizada en pantalla.
+// branding de campaña + bloque del dato + la multitud + pie. Todo en un canvas
+// para conservar el pixel-art crujiente.
+// La multitud se REDIBUJA desde los datos con layouts verticales que llenan el
+// bloque (no se copia el canvas apaisado de pantalla): las personas se agrupan
+// en filas horizontales y las filas se apilan hasta ocupar el espacio.
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { SPRITE_CONFIGS, LOGOS, assetUrl } from '@/lib/assets';
 import { TEMA_COLOR, TEMA_LABEL, TEMA_PALETTE, textOnColor } from '@/lib/colors';
-import type { Dataset } from '@/types/data';
+import { figureCount, figureScale, matrixScale, niceClosest, perLabel } from '@/lib/isotype';
+import { loadSprite, tintSprite } from '@/lib/spriteManager';
+import { hardenAlpha } from '@/hooks/useSpriteWalkers';
+import type { Tematica } from '@/types/sprites';
+import type { Dataset, DatasetDistribucion, DatasetEscalar, DatasetMatriz, DatasetSerie } from '@/types/data';
 
 export const STORY_W = 1080;
 export const STORY_H = 1920;
 
-// Titular de campaña (placeholder — Facundo pasa el texto final).
-export const CAMPAIGN_HEADLINE =
-  'Este año no solo compartís tu Wrapped, también compartí el nuestro.';
+/** Titular de campaña (definido por Facundo). */
+export const CAMPAIGN_HEADLINE = '¿Y si también compartís nuestro wrapped?';
 
 const BG = '#0A0A0A';
 const PAD = 72;
 const MUTED = '#A0A09A';
+const GRAY = '#4B4B46';
 
-/** Familia real de una fuente cargada por next/font (desde su CSS var). */
+// Geometría del sprite (frame 17×43, contenido 9×17 en offset 4,13)
+const C_MIN_X = 4;
+const C_MIN_Y = 13;
+const C_W = 9;
+const C_H = 17;
+const GAP = 1;
+
+type Pool = 'm' | 'w' | 'child' | 'any';
+const MODELS: Record<Pool, string[]> = {
+  m: ['m-01', 'm-02', 'm-03', 'm-04', 'm-05', 'm-06', 'm-07', 'm-08'],
+  w: ['w-01', 'w-02', 'w-03', 'w-04', 'w-05', 'w-06', 'w-07', 'w-08'],
+  child: ['cm-01', 'cm-02', 'cm-03', 'cm-04', 'cw-01', 'cw-02', 'cw-03', 'cw-04'],
+  any: [
+    'm-01', 'm-02', 'm-03', 'm-04', 'm-05', 'm-06', 'm-07', 'm-08',
+    'w-01', 'w-02', 'w-03', 'w-04', 'w-05', 'w-06', 'w-07', 'w-08',
+  ],
+};
+
+/** Pool según de quién habla la categoría/el dato (igual criterio que la app). */
+function poolFor(entidad: string, caracteristica: string, label: string): Pool {
+  if (/niñ|infant|menor/i.test(`${entidad} ${caracteristica}`)) return 'child';
+  if (/mujer|femenin|femicid/i.test(label) || /mujer|femicid/i.test(caracteristica)) return 'w';
+  if (/var[oó]n|hombre|masculin/i.test(label)) return 'm';
+  return 'any';
+}
+
+/** Modelo determinista (misma figura en cada regeneración). */
+function pickModel(pool: Pool, i: number): string {
+  const list = MODELS[pool];
+  return list[((i * 2654435761) >>> 0) % list.length]!;
+}
+
+type Sheet = HTMLCanvasElement | OffscreenCanvas;
+/** Precarga y tinta los sheets necesarios; clave `${model}|${color}`. */
+async function loadSheets(pairs: Set<string>): Promise<Map<string, Sheet>> {
+  const map = new Map<string, Sheet>();
+  await Promise.all(
+    [...pairs].map(async (key) => {
+      const [model, color] = key.split('|') as [string, string];
+      const cfg = SPRITE_CONFIGS.find((c) => c.id === model) ?? SPRITE_CONFIGS[0]!;
+      const img = await loadSprite(cfg.src);
+      map.set(key, hardenAlpha(tintSprite(img, color)));
+    }),
+  );
+  return map;
+}
+
+interface Fig {
+  color: string;
+  pool: Pool;
+}
+
+/** Dibuja una figura (idle frontal, frame 0) recortada a su contenido. */
+function drawFig(
+  ctx: CanvasRenderingContext2D,
+  sheets: Map<string, Sheet>,
+  fig: Fig,
+  i: number,
+  x: number,
+  y: number,
+  s: number,
+) {
+  const sheet = sheets.get(`${pickModel(fig.pool, i)}|${fig.color}`);
+  if (!sheet) return;
+  ctx.drawImage(sheet, C_MIN_X, C_MIN_Y, C_W, C_H, x, y, C_W * s, C_H * s);
+}
+
+/** Mayor escala de sprite con la que `total` figuras entran en w×h. */
+function planScale(total: number, w: number, h: number, extraPx = 0): { s: number; cols: number } {
+  for (let s = 7; s >= 1; s--) {
+    const cols = Math.max(1, Math.floor(w / ((C_W + GAP) * s)));
+    const rows = Math.ceil(total / cols);
+    if (rows * (C_H + GAP) * s + extraPx <= h || s === 1) return { s, cols };
+  }
+  return { s: 1, cols: Math.max(1, Math.floor(w / (C_W + GAP))) };
+}
+
+/** Vuelca figuras fila por fila (agrupadas en horizontal); devuelve la Y final. */
+function drawFlow(
+  ctx: CanvasRenderingContext2D,
+  sheets: Map<string, Sheet>,
+  figs: Fig[],
+  x: number,
+  y: number,
+  cols: number,
+  s: number,
+  startIdx = 0,
+): number {
+  const px = (C_W + GAP) * s;
+  const py = (C_H + GAP) * s;
+  figs.forEach((f, j) => {
+    drawFig(ctx, sheets, f, startIdx + j, x + (j % cols) * px, y + Math.floor(j / cols) * py, s);
+  });
+  return y + Math.ceil(figs.length / cols) * py;
+}
+
+// ── Layouts de multitud por tipo ─────────────────────────────────────────────
+
+interface CrowdPlan {
+  figs?: Fig[]; // flujo simple
+  bands?: Array<{ title?: string; figs: Fig[] }>; // bandas apiladas
+  gridC?: {
+    cells: Array<{ periodo: string; valor: number; color: string; count: number }>;
+    pool: Pool;
+    pct: boolean;
+  };
+  scaleNote?: string;
+}
+
+function planB(d: DatasetDistribucion, palette: string[]): CrowdPlan {
+  const sum = d.categorias.reduce((a, c) => a + c.valor, 0);
+  const isRate = d.unidad === '%' && Math.abs(sum - 100) > 3;
+  const colorOf = (i: number) => d.categorias[i]!.color ?? palette[i % palette.length]!;
+  if (isRate) {
+    // Tasas: una banda de 100 por categoría (valor en color, resto gris)
+    return {
+      bands: d.categorias.map((c, i) => {
+        const colored = Math.max(0, Math.min(100, Math.round(c.valor)));
+        const pool = poolFor(d.entidad, d.caracteristica, c.label);
+        const figs: Fig[] = Array.from({ length: 100 }, (_, j) => ({
+          color: j < colored ? colorOf(i) : GRAY,
+          pool,
+        }));
+        return { figs };
+      }),
+      scaleNote: '1 figura = 1% (resto en gris)',
+    };
+  }
+  const { per, label } = figureScale(sum, d.unidad);
+  const figs: Fig[] = [];
+  d.categorias.forEach((c, i) => {
+    const pool = poolFor(d.entidad, d.caracteristica, c.label);
+    for (let j = 0; j < figureCount(c.valor, per); j++) figs.push({ color: colorOf(i), pool });
+  });
+  return { figs, scaleNote: label };
+}
+
+function planD(d: DatasetMatriz, palette: string[]): CrowdPlan {
+  const filasH = d.filas.length >= d.columnas.length;
+  const hLabels = filasH ? d.filas : d.columnas;
+  const vLabels = filasH ? d.columnas : d.filas;
+  const valueAt = (v: number, h: number) => (filasH ? d.valores[h]![v]! : d.valores[v]![h]!);
+  const sum = d.valores.flat().reduce((a, n) => a + n, 0);
+  const { per, label } = matrixScale(sum, d.unidad);
+  return {
+    bands: vLabels.map((vLabel, v) => {
+      const figs: Fig[] = [];
+      hLabels.forEach((hl, h) => {
+        const pool = poolFor(d.entidad, d.caracteristica, hl);
+        for (let j = 0; j < figureCount(valueAt(v, h), per); j++)
+          figs.push({ color: palette[h % palette.length]!, pool });
+      });
+      return { title: vLabel, figs };
+    }),
+    scaleNote: label,
+  };
+}
+
+function planC(d: DatasetSerie, palette: string[]): CrowdPlan {
+  const pool = poolFor(d.entidad, d.caracteristica, '');
+  return {
+    gridC: {
+      pool,
+      pct: d.unidad === '%',
+      cells: d.puntos.map((p, i) => ({
+        periodo: p.periodo,
+        valor: p.valor,
+        color: palette[i % palette.length]!,
+        count: Math.max(1, Math.round(p.valor)),
+      })),
+    },
+    scaleNote: d.unidad === '%' ? '1 figura = 1%' : `1 figura = 1 ${d.unidad ?? ''}`.trim(),
+  };
+}
+
+function planA(d: DatasetEscalar, color: string): CrowdPlan {
+  const pool = poolFor(d.entidad, d.caracteristica, d.caracteristica);
+  let per = 1;
+  if (d.valor > 400) per = niceClosest(d.valor / 300);
+  const count = Math.max(1, Math.round(d.valor / per));
+  return {
+    figs: Array.from({ length: count }, () => ({ color, pool })),
+    scaleNote: per > 1 ? perLabel(per, d.unidad) : undefined,
+  };
+}
+
+// ── Piezas de la plantilla ───────────────────────────────────────────────────
+
 function fontFamily(varName: string): string {
   if (typeof window === 'undefined') return 'monospace';
   const v = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
   return v || 'monospace';
 }
 
-/** Dibuja texto con wrapping; devuelve la Y siguiente. */
 function wrapText(
   ctx: CanvasRenderingContext2D,
   text: string,
@@ -47,7 +240,6 @@ function wrapText(
       line = words[i]!;
       y += lineH;
       if (++lines >= maxLines - 1) {
-        // última línea: recorta con …
         let last = line;
         while (ctx.measureText(`${last}…`).width > maxW && last.length) last = last.slice(0, -1);
         ctx.fillText(`${last}…`, x, y);
@@ -64,73 +256,62 @@ function wrapText(
   return y;
 }
 
-/** Grilla de cuadrados pixel (decoración) en la esquina superior derecha. */
-function drawDeco(ctx: CanvasRenderingContext2D, color: string) {
+/** Decoración pixel de la esquina superior derecha — patrón según temática. */
+const DECO_PATTERNS: Record<Tematica, Array<[number, number]>> = {
+  // Escalera (el patrón del prototipo)
+  educacion: [[0, 0], [1, 0], [2, 0], [3, 0], [1, 1], [2, 1], [3, 1], [3, 2], [3, 3]],
+  // Bloque diagonal descendente
+  trabajo: [[3, 0], [2, 0], [3, 1], [1, 1], [2, 1], [0, 2], [1, 2], [3, 3]],
+  // Cruz/plus desplazada
+  salud: [[2, 0], [1, 1], [2, 1], [3, 1], [2, 2], [2, 3], [0, 3]],
+  // Columnas descendentes (barras)
+  economia: [[0, 0], [1, 0], [2, 0], [3, 0], [1, 1], [3, 1], [3, 2], [1, 2], [3, 3], [1, 3]],
+  // Dispersión (puntos de vigilancia)
+  seguridad: [[0, 0], [2, 0], [3, 0], [3, 1], [1, 2], [3, 3], [2, 2], [0, 3]],
+};
+
+function drawDeco(ctx: CanvasRenderingContext2D, tema: Tematica) {
   const s = 34;
   const gap = 6;
-  const cells: Array<[number, number]> = [
-    [0, 0], [1, 0], [2, 0], [3, 0],
-    [1, 1], [2, 1], [3, 1],
-    [3, 2], [3, 3],
-  ];
+  const cells = DECO_PATTERNS[tema];
   const x0 = STORY_W - PAD - 4 * (s + gap) + gap;
   const y0 = PAD;
-  ctx.fillStyle = color;
+  ctx.fillStyle = TEMA_COLOR[tema];
   for (const [cx, cy] of cells) ctx.fillRect(x0 + cx * (s + gap), y0 + cy * (s + gap), s, s);
 }
 
-/** Pie: logo PICA + dominio + hashtag. */
-function drawFooter(ctx: CanvasRenderingContext2D, sans: string, display: string) {
+/** Pie: logotipo real + dominio + hashtag. */
+async function drawFooter(ctx: CanvasRenderingContext2D, sans: string, display: string) {
   const y = STORY_H - 110;
-  // Logo PICA (recuadro)
-  ctx.strokeStyle = '#EBEBEB';
-  ctx.lineWidth = 4;
-  ctx.strokeRect(PAD, y - 20, 96, 56);
+  try {
+    const logo = await loadSprite(assetUrl(LOGOS.original.light));
+    if (!logo.width || !logo.height) throw new Error('logo sin dimensiones');
+    const h = 64;
+    const w = (logo.width / logo.height) * h;
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(logo, PAD, y - h / 2 - 4, w, h);
+    ctx.fillStyle = '#EBEBEB';
+    ctx.font = `28px ${sans}`;
+    ctx.textBaseline = 'middle';
+    ctx.fillText('PICA.COM.UY', PAD + w + 28, y + 4);
+  } catch {
+    // Fallback: texto plano si el SVG no carga
+    ctx.fillStyle = '#EBEBEB';
+    ctx.font = `700 40px ${display}`;
+    ctx.textBaseline = 'middle';
+    ctx.fillText('PICA · PICA.COM.UY', PAD, y + 4);
+  }
   ctx.fillStyle = '#EBEBEB';
-  ctx.font = `700 30px ${display}`;
-  ctx.textBaseline = 'middle';
-  ctx.fillText('PICA', PAD + 16, y + 9);
-  ctx.font = `28px ${sans}`;
-  ctx.fillText('PICA.COM.UY', PAD + 128, y + 9);
-  // Hashtag a la derecha
   ctx.textAlign = 'right';
   ctx.font = `700 40px ${display}`;
-  ctx.fillText('#URUGUAY', STORY_W - PAD, y + 9);
+  ctx.fillText('#URUGUAY', STORY_W - PAD, y + 4);
   ctx.textAlign = 'left';
   ctx.textBaseline = 'alphabetic';
 }
 
-/** Compone los canvas de la viz (multitud) escalados dentro del área dada. */
-function drawVizCanvases(
-  ctx: CanvasRenderingContext2D,
-  canvases: HTMLCanvasElement[],
-  x: number,
-  y: number,
-  maxW: number,
-  maxH: number,
-) {
-  const usable = canvases.filter((c) => c.width > 0 && c.height > 0);
-  if (!usable.length) return;
-  const GAP = 14;
-  // Escala común para que el más ancho entre en maxW y el total en maxH
-  const totalHAt1 = usable.reduce((a, c) => a + c.height, 0) + GAP * (usable.length - 1);
-  const maxWidth = Math.max(...usable.map((c) => c.width));
-  const scale = Math.min(maxW / maxWidth, maxH / totalHAt1);
-  let cy = y;
-  ctx.imageSmoothingEnabled = false;
-  for (const c of usable) {
-    const w = c.width * scale;
-    const h = c.height * scale;
-    ctx.drawImage(c, x + (maxW - w) / 2, cy, w, h);
-    cy += h + GAP * scale;
-  }
-}
-
-/** Leyenda simple (chips de color) desde los datos, para B y D. */
 function drawLegend(
   ctx: CanvasRenderingContext2D,
-  labels: string[],
-  colors: string[],
+  items: Array<{ label: string; color: string }>,
   x: number,
   y: number,
   maxW: number,
@@ -142,90 +323,219 @@ function drawLegend(
   const padX = 12;
   let cx = x;
   let cy = y;
-  for (let i = 0; i < labels.length; i++) {
-    const label = labels[i]!;
-    const w = ctx.measureText(label).width + padX * 2;
+  for (const it of items) {
+    const w = ctx.measureText(it.label).width + padX * 2;
     if (cx + w > x + maxW) {
       cx = x;
       cy += h + 10;
     }
-    ctx.fillStyle = colors[i % colors.length]!;
+    ctx.fillStyle = it.color;
     ctx.fillRect(cx, cy, w, h);
-    ctx.fillStyle = textOnColor(colors[i % colors.length]!);
-    ctx.fillText(label, cx + padX, cy + h / 2 + 1);
+    ctx.fillStyle = textOnColor(it.color);
+    ctx.fillText(it.label, cx + padX, cy + h / 2 + 1);
     cx += w + 10;
   }
   ctx.textBaseline = 'alphabetic';
   return cy + h;
 }
 
+const fmt = (n: number) => n.toLocaleString('es-UY');
+
+// ── Render principal ─────────────────────────────────────────────────────────
+
 export interface StoryOpts {
   headline?: string;
 }
 
-/**
- * Dibuja la historia completa en `story`. `vizCanvases` son los <canvas> de la
- * viz ya montada en pantalla (la multitud). Espera a que fuentes estén listas.
- */
 export async function renderStory(
   story: HTMLCanvasElement,
   dataset: Dataset,
-  vizCanvases: HTMLCanvasElement[],
   opts: StoryOpts = {},
 ): Promise<void> {
   story.width = STORY_W;
   story.height = STORY_H;
   const ctx = story.getContext('2d')!;
-  const color = TEMA_COLOR[dataset.tematica];
+  const tema = dataset.tematica;
+  const color = TEMA_COLOR[tema];
+  const palette = TEMA_PALETTE[tema];
   const sans = fontFamily('--font-vt323');
   const display = fontFamily('--font-handjet');
   if (typeof document !== 'undefined' && document.fonts?.ready) await document.fonts.ready;
 
-  // Fondo
+  ctx.imageSmoothingEnabled = false;
   ctx.fillStyle = BG;
   ctx.fillRect(0, 0, STORY_W, STORY_H);
   ctx.textAlign = 'left';
   ctx.textBaseline = 'alphabetic';
 
-  drawDeco(ctx, color);
+  drawDeco(ctx, tema);
 
-  // Etiqueta de temática
+  // Etiqueta de temática + titular de campaña
   ctx.fillStyle = color;
   ctx.font = `700 40px ${display}`;
-  ctx.fillText(TEMA_LABEL[dataset.tematica].toUpperCase(), PAD, PAD + 40);
-
-  // Titular de campaña
+  ctx.fillText(TEMA_LABEL[tema].toUpperCase(), PAD, PAD + 40);
   ctx.fillStyle = '#EBEBEB';
   ctx.font = `700 62px ${display}`;
-  let y = wrapText(ctx, (opts.headline ?? CAMPAIGN_HEADLINE).toUpperCase(), PAD, PAD + 130, STORY_W - PAD * 2, 68, 5);
+  let y = wrapText(ctx, (opts.headline ?? CAMPAIGN_HEADLINE).toUpperCase(), PAD, PAD + 130, STORY_W - PAD * 2, 68, 4);
 
   // Bloque del dato
-  y += 40;
+  y += 36;
   ctx.fillStyle = '#EBEBEB';
   ctx.font = `700 46px ${display}`;
   y = wrapText(ctx, dataset.caracteristica, PAD, y, STORY_W - PAD * 2, 52, 3);
   ctx.fillStyle = MUTED;
   ctx.font = `28px ${sans}`;
-  ctx.fillText(`${dataset.entidad} · ${dataset.anio}`, PAD, y + 8);
-  y += 44;
+  ctx.fillText(`${dataset.entidad} · ${dataset.anio}`, PAD, y + 6);
+  y += 42;
   ctx.fillStyle = '#C8C8C2';
   ctx.font = `28px ${sans}`;
   y = wrapText(ctx, dataset.descripcion, PAD, y, STORY_W - PAD * 2, 36, 4);
+  y += 20;
 
-  // Leyenda (B/D) desde los datos
-  y += 24;
-  const palette = TEMA_PALETTE[dataset.tematica];
-  if (dataset.tipoResultado === 'B') {
-    const cols = dataset.categorias.map((c, i) => c.color ?? palette[i % palette.length]!);
-    y = drawLegend(ctx, dataset.categorias.map((c) => c.label), cols, PAD, y, STORY_W - PAD * 2, sans) + 8;
-  } else if (dataset.tipoResultado === 'D') {
-    const cols = dataset.columnas.map((_, i) => palette[i % palette.length]!);
-    y = drawLegend(ctx, dataset.columnas, cols, PAD, y, STORY_W - PAD * 2, sans) + 8;
+  // Tipo A: el número protagonista antes de la multitud
+  if (dataset.tipoResultado === 'A') {
+    ctx.fillStyle = color;
+    ctx.font = `900 150px ${display}`;
+    const numTxt = `${fmt(dataset.valor)}${dataset.unidad === '%' ? '%' : ''}`;
+    ctx.fillText(numTxt, PAD, y + 130);
+    if (dataset.unidad && dataset.unidad !== '%') {
+      ctx.fillStyle = MUTED;
+      ctx.font = `30px ${sans}`;
+      ctx.fillText(dataset.unidad, PAD + ctx.measureText(numTxt).width + 160, y + 122);
+    }
+    y += 170;
   }
 
-  // Visualización (multitud tomada de pantalla)
-  const footerTop = STORY_H - 170;
-  drawVizCanvases(ctx, vizCanvases, PAD, y + 10, STORY_W - PAD * 2, footerTop - y - 20);
+  // Plan de multitud según tipo
+  let plan: CrowdPlan = {};
+  if (dataset.tipoResultado === 'B') plan = planB(dataset, palette);
+  else if (dataset.tipoResultado === 'D') plan = planD(dataset, palette);
+  else if (dataset.tipoResultado === 'C') plan = planC(dataset, palette);
+  else if (dataset.tipoResultado === 'A') plan = planA(dataset, color);
 
-  drawFooter(ctx, sans, display);
+  // Leyenda (B distribución/tasa y D) con valores
+  if (dataset.tipoResultado === 'B') {
+    const items = dataset.categorias.map((c, i) => ({
+      label: `${fmt(c.valor)}${dataset.unidad === '%' ? '%' : ''} ${c.label}`,
+      color: c.color ?? palette[i % palette.length]!,
+    }));
+    y = drawLegend(ctx, items, PAD, y, STORY_W - PAD * 2, sans) + 14;
+  } else if (dataset.tipoResultado === 'D') {
+    const filasH = dataset.filas.length >= dataset.columnas.length;
+    const hLabels = filasH ? dataset.filas : dataset.columnas;
+    const items = hLabels.map((l, i) => ({ label: l, color: palette[i % palette.length]! }));
+    y = drawLegend(ctx, items, PAD, y, STORY_W - PAD * 2, sans) + 14;
+  }
+
+  // Nota de escala
+  if (plan.scaleNote) {
+    ctx.fillStyle = MUTED;
+    ctx.font = `26px ${sans}`;
+    ctx.textAlign = 'right';
+    ctx.fillText(plan.scaleNote, STORY_W - PAD, y + 8);
+    ctx.textAlign = 'left';
+    y += 30;
+  }
+
+  // Área de multitud: de y al pie — la multitud LLENA este bloque
+  const footerTop = STORY_H - 180;
+  const areaX = PAD;
+  const areaW = STORY_W - PAD * 2;
+  const areaH = footerTop - y - 10;
+
+  // Precarga de sheets
+  const pairs = new Set<string>();
+  const collect = (figs: Fig[], base: number) =>
+    figs.forEach((f, j) => pairs.add(`${pickModel(f.pool, base + j)}|${f.color}`));
+  if (plan.figs) collect(plan.figs, 0);
+  plan.bands?.forEach((b, i) => collect(b.figs, i * 100000));
+  if (plan.gridC) {
+    plan.gridC.cells.forEach((c, i) => {
+      for (let j = 0; j < c.count; j++) pairs.add(`${pickModel(plan.gridC!.pool, i * 1000 + j)}|${c.color}`);
+    });
+  }
+  const sheets = await loadSheets(pairs);
+
+  if (plan.figs) {
+    const { s, cols } = planScale(plan.figs.length, areaW, areaH);
+    const rows = Math.ceil(plan.figs.length / cols);
+    const crowdH = rows * (C_H + GAP) * s;
+    drawFlow(ctx, sheets, plan.figs, areaX, y + Math.max(0, (areaH - crowdH) / 2), cols, s);
+  } else if (plan.bands) {
+    // Bandas apiladas verticalmente, escala común, con título opcional
+    const titleH = plan.bands.some((b) => b.title) ? 40 : 0;
+    const bandGap = 26;
+    let chosen = 1;
+    for (let s = 6; s >= 1; s--) {
+      const cols = Math.max(1, Math.floor(areaW / ((C_W + GAP) * s)));
+      const h = plan.bands.reduce(
+        (a, b) => a + titleH + Math.ceil(b.figs.length / cols) * (C_H + GAP) * s,
+        bandGap * (plan.bands.length - 1),
+      );
+      if (h <= areaH || s === 1) {
+        chosen = s;
+        break;
+      }
+    }
+    const cols = Math.max(1, Math.floor(areaW / ((C_W + GAP) * chosen)));
+    let by = y + 6;
+    plan.bands.forEach((b, i) => {
+      if (b.title) {
+        ctx.fillStyle = MUTED;
+        ctx.font = `28px ${sans}`;
+        ctx.fillText(b.title, areaX, by + 26);
+        by += titleH;
+      }
+      by = drawFlow(ctx, sheets, b.figs, areaX, by, cols, chosen, i * 100000) + bandGap;
+    });
+  } else if (plan.gridC) {
+    // Grilla de períodos (como el prototipo): columnas-año con % debajo
+    const cells = plan.gridC.cells;
+    const nRows = cells.length > 9 ? 2 : 1;
+    const nCols = Math.ceil(cells.length / nRows);
+    const maxCount = Math.max(...cells.map((c) => c.count));
+    const FIG_COLS = 4;
+    const labelH = 70;
+    let s = 1;
+    for (let t = 5; t >= 1; t--) {
+      const px = (C_W + GAP) * t;
+      const py = (C_H + GAP) * t;
+      const cellW = FIG_COLS * px + px; // + separación
+      const cellH = Math.ceil(maxCount / FIG_COLS) * py + labelH;
+      if (nCols * cellW - px <= areaW && nRows * cellH + (nRows - 1) * 16 <= areaH) {
+        s = t;
+        break;
+      }
+    }
+    const px = (C_W + GAP) * s;
+    const py = (C_H + GAP) * s;
+    const cellW = FIG_COLS * px + px;
+    const cellH = Math.ceil(maxCount / FIG_COLS) * py + labelH;
+    const gridW = nCols * cellW - px;
+    const x0 = areaX + Math.max(0, (areaW - gridW) / 2);
+    cells.forEach((cell, i) => {
+      const gx = x0 + (i % nCols) * cellW;
+      const gy = y + 6 + Math.floor(i / nCols) * (cellH + 16);
+      for (let j = 0; j < cell.count; j++) {
+        drawFig(
+          ctx,
+          sheets,
+          { color: cell.color, pool: plan.gridC!.pool },
+          i * 1000 + j,
+          gx + (j % FIG_COLS) * px,
+          gy + Math.floor(j / FIG_COLS) * py,
+          s,
+        );
+      }
+      const ly = gy + Math.ceil(maxCount / FIG_COLS) * py;
+      ctx.fillStyle = MUTED;
+      ctx.font = `24px ${sans}`;
+      ctx.fillText(cell.periodo, gx, ly + 28);
+      ctx.fillStyle = cell.color;
+      ctx.font = `700 30px ${display}`;
+      ctx.fillText(`${fmt(cell.valor)}${plan.gridC!.pct ? '%' : ''}`, gx, ly + 62);
+    });
+  }
+
+  await drawFooter(ctx, sans, display);
 }
