@@ -132,7 +132,19 @@ export default function CityLandscape({ selectedTema, onSelect, children }: City
         );
       })}
 
-      {/* 3b. Microvida: ventanas encendiéndose y apagándose en los edificios */}
+      {/* 3b. Palacio de nuevo, ENCIMA de las capas de temáticas: el destello
+          (drop-shadow) de un edificio vecino en hover "sangraba" sobre el
+          Palacio (decorativo). Esta copia lo tapa — verificado que el arte del
+          Palacio no se superpone con ninguna temática (∩ ≈ 0 px). */}
+      <img
+        src={assetUrl(LANDSCAPE_PALACIO)}
+        alt=""
+        aria-hidden="true"
+        className={layerClass}
+        style={{ ...pixelated, filter: selectedTema ? GRAYSCALE : 'none' }}
+      />
+
+      {/* 3c. Microvida: ventanas encendiéndose y apagándose en los edificios */}
       <WindowTwinkles selectedTema={selectedTema} />
 
       {/* 4a. Debug de paths — líneas rojas sobre las calles */}

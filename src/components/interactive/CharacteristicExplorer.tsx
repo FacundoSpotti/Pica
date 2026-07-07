@@ -61,7 +61,7 @@ export default function CharacteristicExplorer({
       <div
         role="tablist"
         aria-label="Características disponibles"
-        className="-mx-6 flex gap-5 overflow-x-auto border-b border-white/15 px-6 md:-mx-12 md:gap-8 md:px-12"
+        className="-mx-6 flex gap-5 overflow-x-auto overflow-y-hidden border-b border-white/15 px-6 md:-mx-12 md:gap-8 md:px-12"
       >
         {datasets.map((d) => {
           const isActive = d.id === activeId;
