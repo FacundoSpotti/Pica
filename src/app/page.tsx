@@ -79,8 +79,9 @@ export default function HomePage() {
   return (
     <main className="relative w-screen bg-bg-base">
       {/* Hero: el landscape ocupa el primer viewport; se scrollea hacia abajo
-          para llegar a los artículos. */}
-      <section className="relative h-screen w-full overflow-hidden">
+          para llegar a los artículos. En mobile el hero crece (mapa + botones
+          + notas) y deja de recortar. */}
+      <section className="relative h-screen w-full overflow-hidden max-md:h-auto max-md:min-h-screen max-md:overflow-visible max-md:pb-10">
       {/* Personas grises caminando por el margen oscuro (como en Nosotros) —
           detrás del stage; mantené el click sobre una y te mira */}
       <AmbientWalkers count={8} className="absolute inset-0 h-full w-full" />
@@ -128,8 +129,9 @@ export default function HomePage() {
 
       {/* MOBILE — botones de temáticas debajo del mapa: mismo flujo que el
           click en el edificio (los puntos convergen igual), sin tener que
-          apretar el edificio chiquito. */}
-      <div className="relative z-10 mt-5 grid grid-cols-3 gap-2 px-5 md:hidden">
+          apretar el edificio chiquito. Formato de FILAS (como el selector
+          del explorador): ícono + nombre, una temática por fila. */}
+      <div className="relative z-10 mx-auto mt-5 flex w-full max-w-xs flex-col gap-2 px-1 md:hidden">
         {TEMA_ORDER.map((t) => {
           const isSel = selected?.tema === t;
           return (
@@ -139,7 +141,7 @@ export default function HomePage() {
               onClick={() => handleSelect(t, polygonCentroid(BUILDING_HITBOX_POLYGONS[t]))}
               aria-pressed={isSel}
               aria-label={`Explorar temática ${TEMA_LABEL[t]}`}
-              className="flex min-h-[44px] flex-col items-center gap-1 rounded-md border-2 px-2 py-2"
+              className="flex min-h-[48px] w-full items-center justify-start gap-4 rounded-lg border-2 px-4 py-2"
               style={{
                 borderColor: TEMA_COLOR[t],
                 background: isSel ? `${TEMA_COLOR[t]}26` : 'transparent',
@@ -152,14 +154,20 @@ export default function HomePage() {
                 style={{ imageRendering: 'pixelated' }}
               />
               <span
-                className="font-display text-[13px] font-bold uppercase leading-none"
-                style={{ color: TEMA_COLOR[t], letterSpacing: '0.08em' }}
+                className="font-display text-pica-button font-bold uppercase"
+                style={{ color: TEMA_COLOR[t], letterSpacing: '0.12em' }}
               >
                 {TEMA_LABEL[t]}
               </span>
             </button>
           );
         })}
+      </div>
+
+      {/* MOBILE — notas adaptadas: en flujo debajo de los botones (no sobre el
+          mapa, que lo taparían). */}
+      <div className="relative z-10 mt-6 grid grid-cols-2 items-start gap-4 px-6 md:hidden">
+        <StickyNotes flow />
       </div>
 
       {/* MOBILE — overlay de temática a PANTALLA COMPLETA (no dentro del mapa,

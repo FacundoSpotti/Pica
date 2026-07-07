@@ -19,17 +19,20 @@ function Note({
   className,
   rotate,
   delay,
+  flow = false,
   children,
 }: {
   className: string;
   rotate: number;
   delay: number;
+  /** En flujo (mobile): ocupa su celda en vez de posicionarse sobre el mapa. */
+  flow?: boolean;
   children: React.ReactNode;
 }) {
   const shouldReduce = useReducedMotion();
   return (
     <motion.div
-      className={`absolute w-48 border-2 border-white/25 bg-[#141412] px-3 pb-3 pt-4 shadow-[4px_6px_0_rgba(0,0,0,0.45)] ${className}`}
+      className={`${flow ? 'relative w-full' : `absolute w-48 ${className}`} border-2 border-white/25 bg-[#141412] px-3 pb-3 pt-4 shadow-[4px_6px_0_rgba(0,0,0,0.45)]`}
       style={{ rotate }}
       initial={{ opacity: 0, y: shouldReduce ? 0 : 14 }}
       animate={{ opacity: 1, y: 0 }}
@@ -45,14 +48,14 @@ function Note({
   );
 }
 
-export default function StickyNotes() {
+export default function StickyNotes({ flow = false }: { flow?: boolean }) {
   const shouldReduce = useReducedMotion();
   const population = useCountUp(TOTAL_POPULATION, shouldReduce ?? false, 2200);
 
   return (
     <>
       {/* Población — arriba a la izquierda, contando al entrar */}
-      <Note className="-left-7 -top-5" rotate={-3} delay={0.15}>
+      <Note className="-left-7 -top-5" rotate={-3} delay={0.15} flow={flow}>
         <p className="font-sans text-pica-subtitle uppercase tracking-widest text-text-muted">
           Población
         </p>
@@ -68,7 +71,7 @@ export default function StickyNotes() {
       </Note>
 
       {/* Qué es Pica — arriba a la derecha */}
-      <Note className="-right-7 -top-5" rotate={2.5} delay={0.3}>
+      <Note className="-right-7 -top-5" rotate={2.5} delay={0.3} flow={flow}>
         <p className="font-sans text-pica-subtitle uppercase tracking-widest text-text-muted">
           leeme.txt
         </p>
@@ -80,7 +83,7 @@ export default function StickyNotes() {
       </Note>
 
       {/* Fuentes — abajo a la izquierda */}
-      <Note className="-bottom-6 -left-9" rotate={2} delay={0.45}>
+      <Note className="-bottom-6 -left-9" rotate={2} delay={0.45} flow={flow}>
         <p className="font-sans text-pica-subtitle uppercase tracking-widest text-text-muted">
           Fuentes
         </p>
@@ -90,7 +93,7 @@ export default function StickyNotes() {
       </Note>
 
       {/* Versión — abajo a la derecha, chiquita */}
-      <Note className="-bottom-5 -right-5 !w-32" rotate={-2} delay={0.6}>
+      <Note className="-bottom-5 -right-5 !w-32" rotate={-2} delay={0.6} flow={flow}>
         <p className="font-sans text-pica-subtitle leading-tight text-text-muted">
           pica v0.1
           <br />
