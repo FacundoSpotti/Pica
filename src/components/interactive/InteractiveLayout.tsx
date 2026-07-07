@@ -17,7 +17,7 @@ import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, useReducedMotion } from 'framer-motion';
-import EntityScroller from './EntityScroller';
+import EntityGrid from './EntityGrid';
 import CharacteristicExplorer from './CharacteristicExplorer';
 import PixelIcon from '@/components/shared/PixelIcon';
 import PicaLogo from '@/components/shared/PicaLogo';
@@ -190,7 +190,7 @@ export default function InteractiveLayout() {
 
         {/* Estado 2 — temática elegida: scroll vertical de entidades */}
         {tema && !entidad && (
-          <EntityScroller
+          <EntityGrid
             tema={tema}
             entidades={entidades}
             onSelect={(e) => setParams({ tema, entidad: slugify(e) })}
