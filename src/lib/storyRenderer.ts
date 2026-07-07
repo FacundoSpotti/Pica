@@ -312,7 +312,8 @@ function contentBox(img: HTMLImageElement): { sx: number; sy: number; sw: number
 async function drawFooter(ctx: CanvasRenderingContext2D, sans: string, display: string) {
   const y = STORY_H - 110;
   try {
-    const logo = await loadSprite(assetUrl(LOGOS.original.light));
+    // Imagotipo del nav de la web (variante navbar, versión para fondo oscuro)
+    const logo = await loadSprite(assetUrl(LOGOS.navbar.light));
     if (!logo.width || !logo.height) throw new Error('logo sin dimensiones');
     const { sx, sy, sw, sh } = contentBox(logo);
     const h = 72;
@@ -407,14 +408,14 @@ export async function renderStory(
   ctx.font = `700 40px ${display}`;
   ctx.fillText(TEMA_LABEL[tema].toUpperCase(), PAD, PAD + 40);
   ctx.fillStyle = '#EBEBEB';
-  ctx.font = `700 62px ${display}`;
+  ctx.font = `700 66px ${display}`;
   let y = wrapText(
     ctx,
     (opts.headline ?? CAMPAIGN_HEADLINE).toUpperCase(),
     PAD,
-    PAD + 130,
+    PAD + 132,
     STORY_W - PAD * 2 - DECO_COL,
-    68,
+    72,
     4,
   );
 
