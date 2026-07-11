@@ -106,7 +106,11 @@ export default function IsotypeDistributionViz({ data }: { data: DatasetDistribu
         ? MARGIN * 2 + cats.length * groupH + (cats.length - 1) * GROUP_GAP
         : MARGIN * 2 + groupH;
       cats.forEach((cat, g) => {
-        const colored = Math.max(0, Math.min(total, Math.round((cat.valor * total) / 100)));
+        // mínimo 1 figura si el valor no es cero — ninguna categoría queda sin representación
+        const colored = Math.min(
+          total,
+          Math.max(cat.valor > 0 ? 1 : 0, Math.round((cat.valor * total) / 100)),
+        );
         const gx = isMobile ? MARGIN : MARGIN + g * (groupW + GROUP_GAP);
         const gy = isMobile ? MARGIN + g * (groupH + GROUP_GAP) : MARGIN;
         const dim = focus !== null && cat.label !== focus;
@@ -145,9 +149,10 @@ export default function IsotypeDistributionViz({ data }: { data: DatasetDistribu
     return { targets, W, H };
   }, [cats, isRate, focus, distPer, isMobile]);
 
-  // layoutKey estable (sin focus): aislar una demografía solo RECOLOREA en
-  // caliente (gris/color), sin que las figuras vuelvan a entrar caminando.
-  useSpriteWalkers(canvasRef, targets, { scale: SCALE, layoutKey: data.id });
+  // layoutKey SIN focus (aislar solo recolorea en caliente) pero CON las
+  // dimensiones: si cambia la densidad (mobile/desktop) el enjambre se
+  // reconstruye — con key estable quedaban walkers viejos fuera del canvas.
+  useSpriteWalkers(canvasRef, targets, { scale: SCALE, layoutKey: `${data.id}:${W}x${H}` });
 
   const ariaLabel = `${data.caracteristica}: ${data.categorias
     .map((c) => `${c.label} ${c.valor}${data.unidad ?? ''}`)
@@ -199,14 +204,14 @@ export default function IsotypeDistributionViz({ data }: { data: DatasetDistribu
           width={W}
           height={H}
           aria-hidden="true"
-          className="mx-auto"
+          // Tope de altura SOLO desktop (pantallas bajas): en mobile el visor
+          // scrollea y el tope solo achicaba la multitud sin necesidad.
+          className="mx-auto md:[max-height:max(220px,calc(100vh-500px))]"
           style={{
             imageRendering: 'pixelated',
             width: 'auto',
             height: 'auto',
             maxWidth: '100%',
-            // En pantallas bajas la multitud se ACHICA en vez de recortarse
-            maxHeight: 'max(220px, calc(100vh - 500px))',
           }}
         />
       </div>

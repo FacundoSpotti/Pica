@@ -102,7 +102,8 @@ function DeptPanel({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dept.id, dept.valor, per, mode, base]);
 
-  useSpriteWalkers(canvasRef, targets, { scale: SCALE, layoutKey: `map:${dept.id}` });
+  // layoutKey con panelW: si cambia la densidad (mobile), el enjambre se reconstruye
+  useSpriteWalkers(canvasRef, targets, { scale: SCALE, layoutKey: `map:${dept.id}:${panelW}` });
 
   const delta = compareTo ? dept.valor - compareTo.valor : null;
   const deltaSuffix = mode === 'proporcion' ? ' pp' : unidad ? ` ${unidad}` : '';
