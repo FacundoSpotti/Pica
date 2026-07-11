@@ -16,7 +16,8 @@
 
 import { useMemo, useRef, useState } from 'react';
 import { TEMA_PALETTE, textOnColor } from '@/lib/colors';
-import { figureCount, figureScale } from '@/lib/isotype';
+import { figureCount, figureScale, niceClosest, perLabel } from '@/lib/isotype';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { useSpriteWalkers, type SpritePool, type WalkerTarget } from '@/hooks/useSpriteWalkers';
 import type { DatasetDistribucion } from '@/types/data';
 import { DataTable, VizFooter, VizHeader } from './VizShared';
@@ -57,43 +58,63 @@ export default function IsotypeDistributionViz({ data }: { data: DatasetDistribu
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const palette = TEMA_PALETTE[data.tematica];
   const [focus, setFocus] = useState<string | null>(null);
+  // Mobile: MENOS figuras (se ven más grandes y pesa menos en el teléfono).
+  const isMobile = useIsMobile();
 
   const { cats, isRate, scaleLabel, distPer } = useMemo(() => {
     const sum = data.categorias.reduce((a, c) => a + c.valor, 0);
     // Suman ~100 → distribución (partes de un todo); si no → tasas
     const isRate = data.unidad === '%' && Math.abs(sum - 100) > 3;
     // Escala basada en la SUMA real: sirve tanto para % (sum≈100) como para
-    // conteos absolutos (ej. profesionales de la salud), apuntando a ~800 figuras.
-    const distScale = figureScale(sum, data.unidad);
+    // conteos absolutos (ej. profesionales de la salud). Desktop apunta a ~800
+    // figuras; MOBILE a ~220 (más grandes, más livianas).
+    const distScale = isMobile
+      ? (() => {
+          const per = niceClosest(sum / 220);
+          return { per, label: perLabel(per, data.unidad) };
+        })()
+      : figureScale(sum, data.unidad);
     const cats: Cat[] = data.categorias.map((c, i) => ({
       label: c.label,
       valor: c.valor,
       color: c.color ?? palette[i % palette.length]!,
       pool: poolFor(data.entidad, data.caracteristica, c.label),
     }));
-    const scaleLabel = isRate ? '1 figura = 1% (resto en gris)' : distScale.label;
+    const scaleLabel = isRate
+      ? `1 figura = ${isMobile ? 2 : 1}% (resto en gris)`
+      : distScale.label;
     return { cats, isRate, scaleLabel, distPer: distScale.per };
-  }, [data, palette]);
+  }, [data, palette, isMobile]);
 
   // Posiciones + colores según modo y foco
   const { targets, W, H } = useMemo(() => {
     const targets: WalkerTarget[] = [];
 
     if (isRate) {
-      // Small-multiples: cada categoría un grupo de 100 (tasa + gris)
-      const groupCols = Math.ceil(100 / RATE_ROWS);
+      // Small-multiples: cada categoría un grupo de 100 figuras (tasa + gris).
+      // MOBILE: grupos de 50 (1 figura = 2%) APILADOS en vertical — figuras más
+      // grandes y menos sprites para el teléfono.
+      const total = isMobile ? 50 : 100;
+      const rows = isMobile ? 5 : RATE_ROWS;
+      const groupCols = Math.ceil(total / rows);
       const groupW = (groupCols - 1) * PITCH_X + C_W * SCALE;
-      const W = MARGIN * 2 + cats.length * groupW + (cats.length - 1) * GROUP_GAP;
-      const H = MARGIN * 2 + (RATE_ROWS - 1) * PITCH_Y + C_H * SCALE;
+      const groupH = (rows - 1) * PITCH_Y + C_H * SCALE;
+      const W = isMobile
+        ? MARGIN * 2 + groupW
+        : MARGIN * 2 + cats.length * groupW + (cats.length - 1) * GROUP_GAP;
+      const H = isMobile
+        ? MARGIN * 2 + cats.length * groupH + (cats.length - 1) * GROUP_GAP
+        : MARGIN * 2 + groupH;
       cats.forEach((cat, g) => {
-        const colored = Math.max(0, Math.min(100, Math.round(cat.valor)));
-        const gx = MARGIN + g * (groupW + GROUP_GAP);
+        const colored = Math.max(0, Math.min(total, Math.round((cat.valor * total) / 100)));
+        const gx = isMobile ? MARGIN : MARGIN + g * (groupW + GROUP_GAP);
+        const gy = isMobile ? MARGIN + g * (groupH + GROUP_GAP) : MARGIN;
         const dim = focus !== null && cat.label !== focus;
-        for (let j = 0; j < 100; j++) {
+        for (let j = 0; j < total; j++) {
           const isColored = j < colored;
           targets.push({
-            x: gx + Math.floor(j / RATE_ROWS) * PITCH_X - C_MIN_X * SCALE,
-            y: MARGIN + (j % RATE_ROWS) * PITCH_Y - C_MIN_Y * SCALE,
+            x: gx + Math.floor(j / rows) * PITCH_X - C_MIN_X * SCALE,
+            y: gy + (j % rows) * PITCH_Y - C_MIN_Y * SCALE,
             color: dim ? GRAY : isColored ? cat.color : GRAY,
             pool: cat.pool,
           });
@@ -122,7 +143,7 @@ export default function IsotypeDistributionViz({ data }: { data: DatasetDistribu
       }
     });
     return { targets, W, H };
-  }, [cats, isRate, focus, distPer]);
+  }, [cats, isRate, focus, distPer, isMobile]);
 
   // layoutKey estable (sin focus): aislar una demografía solo RECOLOREA en
   // caliente (gris/color), sin que las figuras vuelvan a entrar caminando.
@@ -130,7 +151,7 @@ export default function IsotypeDistributionViz({ data }: { data: DatasetDistribu
 
   const ariaLabel = `${data.caracteristica}: ${data.categorias
     .map((c) => `${c.label} ${c.valor}${data.unidad ?? ''}`)
-    .join(', ')}. ${isRate ? 'Cada grupo son 100 personas; en color la proporción, en gris el resto. ' : ''}`;
+    .join(', ')}. ${isRate ? `Cada grupo son ${isMobile ? 50 : 100} personas; en color la proporción, en gris el resto. ` : ''}`;
 
   return (
     <div className="flex flex-col items-center">

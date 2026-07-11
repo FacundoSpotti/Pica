@@ -121,6 +121,18 @@ export const BUILDING_HITBOX_POLYGONS: Record<Tematica, Polygon> = {
 };
 
 /**
+ * Hitbox del Palacio Legislativo (edificio central, "dato al azar").
+ * APROXIMADA: bbox del alfa del PNG de la capa, con 15% de margen hacia
+ * adentro (el alfa incluye sombras). Recalibrable con la herramienta H.
+ */
+export const PALACIO_HITBOX_POLYGON: Polygon = [
+  [0.398, 0.32],
+  [0.62, 0.32],
+  [0.62, 0.605],
+  [0.398, 0.605],
+];
+
+/**
  * Orden de apilado (z) de las capas de edificios, de abajo hacia arriba.
  * Trabajo (Intendencia) va ÚLTIMO porque su antena pasa por encima del
  * edificio de Salud — si se renderiza debajo, la antena queda cortada.

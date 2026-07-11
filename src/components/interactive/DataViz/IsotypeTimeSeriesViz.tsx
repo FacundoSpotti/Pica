@@ -106,6 +106,8 @@ export default function IsotypeTimeSeriesViz({ data }: { data: DatasetSerie }) {
   const color = TEMA_COLOR[data.tematica];
   const palette = TEMA_PALETTE[data.tematica];
   const [sel, setSel] = useState<ViewSel>(data.puntos.length - 1);
+  // Mobile: menos figuras (más grandes y livianas para el teléfono)
+  const isMobile = useIsMobile();
 
   // Unidades proporcionales → se puede mostrar el total poblacional
   const proportional = data.unidad === '%' || Boolean(data.unidad?.startsWith('por mil'));
@@ -137,16 +139,16 @@ export default function IsotypeTimeSeriesViz({ data }: { data: DatasetSerie }) {
   const single = useMemo(() => {
     if (proportional) {
       // Población completa ~1.000 figuras; el valor es la porción coloreada
-      const { per } = seriesScale(totalUnits, data.unidad, 900);
+      const { per } = seriesScale(totalUnits, data.unidad, isMobile ? 300 : 900);
       const totalFigs = Math.round(totalUnits / per);
       const counts = data.puntos.map((p) => figureCount(p.valor, per));
       return { per, label: perLabel(per, data.unidad), totalFigs, counts };
     }
     const maxValor = Math.max(...data.puntos.map((p) => p.valor));
-    const { per, label } = seriesScale(maxValor, data.unidad, 500);
+    const { per, label } = seriesScale(maxValor, data.unidad, isMobile ? 220 : 500);
     const counts = data.puntos.map((p) => figureCount(p.valor, per));
     return { per, label, totalFigs: Math.max(...counts), counts };
-  }, [data, proportional, totalUnits]);
+  }, [data, proportional, totalUnits, isMobile]);
 
   const budgetSingle = Math.max(180, fit.ah - 64);
   const budgetAll = Math.max(160, fit.ah - 64 - 48);
@@ -264,7 +266,6 @@ export default function IsotypeTimeSeriesViz({ data }: { data: DatasetSerie }) {
   }, [sel, all, single, singleLayout, proportional, color]);
 
   const isAll = sel === 'all';
-  const isMobile = useIsMobile();
   // MOBILE + TODOS: se usa la lista vertical de MiniBand (el canvas grande no
   // se monta y no debe animar targets).
   const mobileAllView = isMobile && isAll;

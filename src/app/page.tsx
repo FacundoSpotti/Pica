@@ -17,10 +17,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { AnimatePresence } from 'framer-motion';
-import CityLandscape from '@/components/home/CityLandscape';
+import CityLandscape, { type Seleccionable } from '@/components/home/CityLandscape';
 import HomeCanvas from '@/components/home/HomeCanvas';
 import ColorBar from '@/components/home/ColorBar';
 import ThemeOverlay from '@/components/home/ThemeOverlay';
+import RandomOverlay from '@/components/home/RandomOverlay';
 import PathCalibrator from '@/components/home/PathCalibrator';
 import HitboxCalibrator from '@/components/home/HitboxCalibrator';
 import StickyNotes from '@/components/home/StickyNotes';
@@ -32,6 +33,7 @@ import {
   assetUrl,
   BUILDING_HITBOX_POLYGONS,
   LANDSCAPE_SIZE,
+  PALACIO_HITBOX_POLYGON,
   LOGOS,
   polygonCentroid,
   THEME_STATIC,
@@ -46,7 +48,7 @@ const ASPECT = LANDSCAPE_SIZE.width / LANDSCAPE_SIZE.height;
 const CALIBRATORS_ON = process.env.NEXT_PUBLIC_CALIBRATORS === 'on';
 
 interface Selection {
-  tema: Tematica;
+  tema: Seleccionable; // una temática o 'palacio' (dato al azar)
   center: { x: number; y: number };
 }
 
@@ -57,7 +59,7 @@ export default function HomePage() {
   // stage (que lo recorta); además aparecen los botones de temáticas.
   const isMobile = useIsMobile();
 
-  const handleSelect = (tema: Tematica, center: { x: number; y: number }) => {
+  const handleSelect = (tema: Seleccionable, center: { x: number; y: number }) => {
     setSelected((prev) => {
       if (prev?.tema === tema) {
         // Click en el mismo edificio → deseleccionar
@@ -95,7 +97,7 @@ export default function HomePage() {
       <section className="relative h-screen w-full overflow-hidden max-md:h-auto max-md:min-h-screen max-md:overflow-visible max-md:pb-10">
       {/* Personas grises caminando por el margen oscuro (como en Nosotros) —
           detrás del stage; mantené el click sobre una y te mira */}
-      <AmbientWalkers count={8} className="absolute inset-0 h-full w-full" />
+      <AmbientWalkers count={isMobile ? 5 : 8} className="absolute inset-0 h-full w-full" />
 
       {/* Navegación — logo a la izquierda + link a Nosotros. En mobile va en
           FLUJO, por fuera y arriba del mapa (no montado sobre él). */}
@@ -137,7 +139,11 @@ export default function HomePage() {
             En mobile NO va acá (el stage lo recorta): se monta fullscreen abajo. */}
         <AnimatePresence>
           {!isMobile && overlayOpen && selected && (
-            <ThemeOverlay tema={selected.tema} onClose={handleClose} />
+            selected.tema === 'palacio' ? (
+              <RandomOverlay onClose={handleClose} />
+            ) : (
+              <ThemeOverlay tema={selected.tema} onClose={handleClose} />
+            )
           )}
         </AnimatePresence>
 
@@ -193,6 +199,28 @@ export default function HomePage() {
             </button>
           );
         })}
+        {/* Palacio: estadística al azar — mismo flujo (los puntos convergen) */}
+        <button
+          type="button"
+          onClick={() => handleSelect('palacio', polygonCentroid(PALACIO_HITBOX_POLYGON))}
+          aria-pressed={selected?.tema === 'palacio'}
+          aria-label="Explorar una estadística al azar (Palacio Legislativo)"
+          className="flex min-h-[48px] w-full items-center justify-start gap-4 rounded-lg border-2 px-4 py-2"
+          style={{
+            borderColor: 'rgba(235,235,235,0.5)',
+            background: selected?.tema === 'palacio' ? 'rgba(235,235,235,0.12)' : 'transparent',
+          }}
+        >
+          <span className="flex w-12 shrink-0 justify-center">
+            <PixelIcon name="ticket" size={28} color="#EBEBEB" />
+          </span>
+          <span
+            className="font-display text-pica-button font-bold uppercase text-text-primary"
+            style={{ letterSpacing: '0.12em' }}
+          >
+            Dato al azar
+          </span>
+        </button>
       </div>
 
       {/* MOBILE — notas adaptadas: en flujo debajo de los botones (no sobre el
@@ -208,7 +236,11 @@ export default function HomePage() {
           que lo recortaba y tapaba la animación). */}
       <AnimatePresence>
         {isMobile && overlayOpen && selected && (
-          <ThemeOverlay tema={selected.tema} onClose={handleClose} fullscreen />
+          selected.tema === 'palacio' ? (
+            <RandomOverlay onClose={handleClose} fullscreen />
+          ) : (
+            <ThemeOverlay tema={selected.tema} onClose={handleClose} fullscreen />
+          )
         )}
       </AnimatePresence>
 

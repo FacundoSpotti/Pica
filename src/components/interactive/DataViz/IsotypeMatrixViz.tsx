@@ -17,7 +17,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { interpolateRgb } from 'd3';
 import { TEMA_PALETTE, textOnColor } from '@/lib/colors';
-import { figureCount, matrixScale, perLabel } from '@/lib/isotype';
+import { figureCount, matrixScale, niceClosest, perLabel } from '@/lib/isotype';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { useSpriteWalkers, type WalkerTarget } from '@/hooks/useSpriteWalkers';
 import type { DatasetMatriz } from '@/types/data';
 import { DataTable, VizFooter, VizHeader } from './VizShared';
@@ -79,6 +80,8 @@ export default function IsotypeMatrixViz({ data }: { data: DatasetMatriz }) {
   const gridRef = useRef<HTMLDivElement>(null);
   // Categoría aislada al clickear su chip (el resto de la multitud va a gris)
   const [focus, setFocus] = useState<string | null>(null);
+  // Mobile: menos figuras (más grandes y livianas para el teléfono)
+  const isMobile = useIsMobile();
 
   // Espacio disponible medido (columna de contenido, sin la de etiquetas)
   const [fit, setFit] = useState({ cw: 1000, ah: 420 });
@@ -111,7 +114,7 @@ export default function IsotypeMatrixViz({ data }: { data: DatasetMatriz }) {
       filasH ? data.valores[h]![v]! : data.valores[v]![h]!;
 
     const sum = data.valores.flat().reduce((a, n) => a + n, 0);
-    let per = matrixScale(sum, data.unidad).per;
+    let per = isMobile ? niceClosest(sum / 240) : matrixScale(sum, data.unidad).per;
     const rowH = MARGIN * 2 + (CELL_ROWS - 1) * PITCH_Y + C_H * SCALE;
     // Alto disponible por fila (reservando la leyenda y separación entre filas)
     const rowBudget = Math.max(56, (fit.ah - 48) / vLabels.length - 4);
@@ -131,7 +134,7 @@ export default function IsotypeMatrixViz({ data }: { data: DatasetMatriz }) {
     let m = compute(per);
     for (let i = 0; i < 8; i++) {
       const heightView = rowBudget / rowH;
-      if (m.crowdW * heightView >= fit.cw * 0.88 || m.total > 2500) break;
+      if (m.crowdW * heightView >= fit.cw * 0.88 || m.total > (isMobile ? 900 : 2500)) break;
       const f = finerPer(per);
       if (f === per) break;
       per = f;
@@ -185,7 +188,7 @@ export default function IsotypeMatrixViz({ data }: { data: DatasetMatriz }) {
       canvasW,
       rowH,
     };
-  }, [data, palette, fit, focus]);
+  }, [data, palette, fit, focus, isMobile]);
 
   const ariaLabel = `${data.caracteristica}: matriz de ${vLabels.join(', ')} según ${hLabels.join(
     ', ',

@@ -182,7 +182,7 @@ export default function NosotrosPage() {
     <main className="relative flex h-screen w-full flex-col overflow-hidden bg-bg-base max-md:h-auto max-md:min-h-screen max-md:overflow-y-auto">
       {/* Personas grises deambulando de fondo (mantené el click y te miran) */}
       <div style={open ? DIM_STYLE : UNDIM_STYLE} className="absolute inset-0">
-        <AmbientWalkers count={10} />
+        <AmbientWalkers count={isMobile ? 5 : 10} />
       </div>
 
       {/* Nav: solo la vuelta al Home (wireframe) */}

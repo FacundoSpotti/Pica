@@ -17,6 +17,7 @@ import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
 import { interpolateRgb, max, min, scaleLinear } from 'd3';
 import { TEMA_SCALE } from '@/lib/colors';
 import { figureCount, perLabel, seriesScale } from '@/lib/isotype';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { useSpriteWalkers, type WalkerTarget } from '@/hooks/useSpriteWalkers';
 import type { DatasetEspacial } from '@/types/data';
 import { DataTable, VizFooter, VizHeader } from './VizShared';
@@ -81,10 +82,14 @@ function DeptPanel({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const CAP = CROWD_COLS * CROWD_ROWS; // techo de figuras por panel (200)
 
-  const targets = useMemo(() => {
+  const { targets, panelW, panelH } = useMemo(() => {
     const colored = Math.min(CAP, figureCount(dept.valor, per));
     // Proporción: `base/per` figuras con el resto en gris. Magnitud: solo coloreadas.
     const total = mode === 'proporcion' ? Math.min(CAP, Math.round(base / per)) : colored;
+    // El canvas se ajusta a las figuras REALES (en mobile hay menos y más grandes)
+    const cols = Math.max(1, Math.ceil(total / CROWD_ROWS));
+    const panelW = MARGIN * 2 + (cols - 1) * PITCH_X + C_W * SCALE;
+    const panelH = CROWD_H;
     const out: WalkerTarget[] = [];
     for (let j = 0; j < total; j++) {
       out.push({
@@ -93,7 +98,7 @@ function DeptPanel({
         color: j < colored ? colorOf(dept.valor) : CONTEXT_GRAY,
       });
     }
-    return out;
+    return { targets: out, panelW, panelH };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dept.id, dept.valor, per, mode, base]);
 
@@ -135,8 +140,8 @@ function DeptPanel({
       )}
       <canvas
         ref={canvasRef}
-        width={CROWD_W}
-        height={CROWD_H}
+        width={panelW}
+        height={panelH}
         role="img"
         aria-label={`${dept.nombre}: ${dept.valor}${unidad ?? ''} representado con figuras sobre un total de 100.`}
         className="mt-2 w-full"
@@ -179,12 +184,14 @@ export default function MapViz({ data }: { data: DatasetEspacial }) {
   const showCrowd = proportional || data.personas === true;
   const mode: 'proporcion' | 'magnitud' = proportional ? 'proporcion' : 'magnitud';
   const baseLabel = data.unidad === '%' ? '%' : data.base?.label;
+  // Mobile: menos figuras por panel (más grandes y livianas para el teléfono)
+  const isMobile = useIsMobile();
   const { per } = useMemo(
     () =>
       proportional
-        ? seriesScale(proporcionBase!, baseLabel, CAP)
-        : seriesScale(maxV, data.unidad, 150),
-    [proportional, proporcionBase, baseLabel, maxV, data.unidad, CAP],
+        ? seriesScale(proporcionBase!, baseLabel, isMobile ? 100 : CAP)
+        : seriesScale(maxV, data.unidad, isMobile ? 80 : 150),
+    [proportional, proporcionBase, baseLabel, maxV, data.unidad, CAP, isMobile],
   );
 
   // Alto disponible medido → mapa y multitudes entran sin scroll

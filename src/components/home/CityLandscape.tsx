@@ -26,6 +26,7 @@ import {
   BUILDING_LAYERS,
   LANDSCAPE_COMPLETE,
   LANDSCAPE_PALACIO,
+  PALACIO_HITBOX_POLYGON,
   polygonCentroid,
   polygonClipPath,
 } from '@/lib/assets';
@@ -38,9 +39,12 @@ import type { Tematica } from '@/types/sprites';
 const DEBUG_HITBOXES = false;
 const DEBUG_PATHS = false;
 
+/** Lo clickeable del mapa: las 5 temáticas o el Palacio ("dato al azar"). */
+export type Seleccionable = Tematica | 'palacio';
+
 interface CityLandscapeProps {
-  selectedTema: Tematica | null;
-  onSelect: (tema: Tematica, centerPct: { x: number; y: number }) => void;
+  selectedTema: Seleccionable | null;
+  onSelect: (tema: Seleccionable, centerPct: { x: number; y: number }) => void;
   /** Canvas de puntos (se inserta entre el fondo y las capas de edificios). */
   children?: React.ReactNode;
 }
@@ -54,8 +58,8 @@ const GRAYSCALE = 'grayscale(100%) brightness(0.5)';
 
 export default function CityLandscape({ selectedTema, onSelect, children }: CityLandscapeProps) {
   // Hover sobre un edificio: cartel con la temática + elevación intermedia
-  const [hoveredTema, setHoveredTema] = useState<Tematica | null>(null);
-  const hoveredRef = useRef<Tematica | null>(null);
+  const [hoveredTema, setHoveredTema] = useState<Seleccionable | null>(null);
+  const hoveredRef = useRef<Seleccionable | null>(null);
   hoveredRef.current = hoveredTema;
 
   // Modo "atract": sin interacción, cada tanto un edificio destella con su
@@ -78,6 +82,21 @@ export default function CityLandscape({ selectedTema, onSelect, children }: City
     return () => clearInterval(interval);
   }, [selectedTema, hoveredTema]);
 
+  // Palacio ("dato al azar"): mismo lenguaje de hover/selección que los
+  // edificios de temática, en BLANCO (no es una temática).
+  const palacioSel = selectedTema === 'palacio';
+  const palacioHov = hoveredTema === 'palacio';
+  const pS = palacioHov ? 1 : 0;
+  const palacioStyle: React.CSSProperties = {
+    ...pixelated,
+    filter:
+      selectedTema && !palacioSel
+        ? GRAYSCALE
+        : `drop-shadow(0 0 3px color-mix(in srgb, #EBEBEB ${pS * 100}%, transparent)) drop-shadow(0 0 8px color-mix(in srgb, #EBEBEB ${pS * 40}%, transparent))`,
+    transform: `translateY(${palacioSel ? '-0.9%' : palacioHov ? '-0.45%' : '0'})`,
+    transition: 'filter 350ms ease, transform 400ms cubic-bezier(0.22, 1, 0.36, 1)',
+  };
+
   return (
     <div className="absolute inset-0 h-full w-full">
       {/* 1. Ciudad completa — se desatura al seleccionar */}
@@ -99,7 +118,7 @@ export default function CityLandscape({ selectedTema, onSelect, children }: City
         src={assetUrl(LANDSCAPE_PALACIO)}
         alt=""
         className={layerClass}
-        style={{ ...pixelated, filter: selectedTema ? GRAYSCALE : 'none' }}
+        style={palacioStyle}
       />
       {BUILDING_LAYER_ORDER.map((tema) => {
         const isSelected = selectedTema === tema;
@@ -144,7 +163,7 @@ export default function CityLandscape({ selectedTema, onSelect, children }: City
         alt=""
         aria-hidden="true"
         className={layerClass}
-        style={{ ...pixelated, filter: selectedTema ? GRAYSCALE : 'none' }}
+        style={palacioStyle}
       />
 
       {/* 3c. Microvida: ventanas encendiéndose y apagándose en los edificios */}
@@ -170,6 +189,48 @@ export default function CityLandscape({ selectedTema, onSelect, children }: City
           ))}
         </svg>
       )}
+
+      {/* 4b-pre. Hitbox del PALACIO (dato al azar) — va ANTES que las temáticas
+          para que, en zonas de solape, ganen los edificios de temática. */}
+      {(() => {
+        const poly = PALACIO_HITBOX_POLYGON;
+        const center = polygonCentroid(poly);
+        const topY = Math.min(...poly.map(([, y]) => y));
+        return (
+          <div className="contents">
+            <button
+              type="button"
+              onClick={() => onSelect('palacio', center)}
+              onMouseEnter={() => setHoveredTema('palacio')}
+              onMouseLeave={() => setHoveredTema(null)}
+              onFocus={() => setHoveredTema('palacio')}
+              onBlur={() => setHoveredTema(null)}
+              aria-label="Explorar una estadística al azar (Palacio Legislativo)"
+              aria-pressed={palacioSel}
+              className="absolute inset-0 cursor-pointer"
+              style={{ clipPath: polygonClipPath(poly) }}
+            />
+            {palacioHov && (
+              <div
+                className="pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-full"
+                style={{ left: `${center.x * 100}%`, top: `${topY * 100}%` }}
+              >
+                <p
+                  className="whitespace-nowrap border-2 bg-black/85 px-3 py-1 font-display text-pica-subtitle font-bold uppercase"
+                  style={{ borderColor: '#EBEBEB', color: '#EBEBEB', letterSpacing: '0.12em' }}
+                >
+                  Dato al azar
+                </p>
+                <div
+                  aria-hidden="true"
+                  className="mx-auto h-2 w-2 -translate-y-1"
+                  style={{ backgroundColor: '#EBEBEB', transform: 'rotate(45deg)' }}
+                />
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {/* 4b. Hitboxes (polígonos). Clickeables solo V1; debug muestra las 5 */}
       {TEMA_ORDER.map((tema) => {

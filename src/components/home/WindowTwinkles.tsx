@@ -51,7 +51,7 @@ function samplePoint(poly: Polygon): { x: number; y: number } | null {
   return null;
 }
 
-export default function WindowTwinkles({ selectedTema }: { selectedTema: Tematica | null }) {
+export default function WindowTwinkles({ selectedTema }: { selectedTema: Tematica | 'palacio' | null }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const selectedRef = useRef(selectedTema);
   selectedRef.current = selectedTema;
