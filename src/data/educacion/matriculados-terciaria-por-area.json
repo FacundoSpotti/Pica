@@ -6,7 +6,6 @@
   "tipoResultado": "B",
   "personas": true,
   "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.1.13 (fuente MEC)",
-  "fuenteUrl": "https://www.ine.gub.uy/",
   "anio": 2024,
   "unidad": "estudiantes",
   "descripcion": "Estudiantes matriculados en educación terciaria (universitaria y no universitaria, pública y privada, grado y posgrado) según área de conocimiento UIS, 2024.",

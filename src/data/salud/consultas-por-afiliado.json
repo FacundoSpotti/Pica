@@ -7,7 +7,6 @@
   "presentacion": "per-capita",
   "glifo": "heart",
   "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.2.5 (fuente MSP-SINADI)",
-  "fuenteUrl": "https://www.ine.gub.uy/",
   "anio": 2024,
   "descripcion": "Consultas médicas totales por afiliado en el año, por tipo de prestador integral de salud, 2024.",
   "unidad": "consultas/afiliado/año",

@@ -5,11 +5,13 @@
   "caracteristica": "Médicos por 1.000 habitantes",
   "tipoResultado": "E",
   "fuente": "INE — Anuario Estadístico Nacional 2025, cuadros 3.2.1 y 2.1.1",
-  "fuenteUrl": "https://www.ine.gub.uy/",
   "anio": 2024,
   "descripcion": "Médicos afiliados a la Caja de Jubilaciones de Profesionales Universitarios por cada 1.000 habitantes, por departamento (médicos 2024 sobre población estimada 2023). Es una aproximación: mide médicos registrados por residencia, no en ejercicio.",
   "unidad": "médicos/1.000 hab",
-  "base": { "valor": 1000, "label": "habitantes" },
+  "base": {
+    "valor": 1000,
+    "label": "habitantes"
+  },
   "departamentos": [
     {
       "id": "UY-MO",

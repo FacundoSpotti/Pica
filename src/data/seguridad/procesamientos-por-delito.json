@@ -6,7 +6,6 @@
   "tipoResultado": "B",
   "presentacion": "grilla",
   "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.6.4 (fuente Poder Judicial)",
-  "fuenteUrl": "https://www.ine.gub.uy/",
   "anio": 2024,
   "unidad": "procesamientos",
   "descripcion": "Cantidad de procesamientos según el principal delito tipificado, 2024 (suma de todos los tramos de edad; excluye la categoría \"otros delitos\"). El dato refiere a procesamientos judiciales, no a hechos denunciados.",

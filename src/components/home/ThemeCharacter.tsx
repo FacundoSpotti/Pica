@@ -4,7 +4,7 @@
 // PICA — ThemeCharacter
 // Personaje pixel art de una temática girando 360° en loop continuo.
 // Usa buildRotationSheet (spriteManager): 5 frames dibujados + 3 espejados,
-// normalizados a celdas uniformes. 80ms por frame → 640ms la vuelta completa.
+// normalizados a celdas uniformes. 100ms por frame → 800ms la vuelta completa.
 // Con prefers-reduced-motion queda quieto en el frame frontal.
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -16,7 +16,7 @@ import { buildRotationSheet } from '@/lib/spriteManager';
 import type { RotationSheet, Tematica } from '@/types/sprites';
 
 /** ms por frame de la rotación (ver pica-home). */
-const FRAME_DURATION = 80;
+const FRAME_DURATION = 100;
 
 interface ThemeCharacterProps {
   tema: Tematica;

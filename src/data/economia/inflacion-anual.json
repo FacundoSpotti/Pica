@@ -5,7 +5,6 @@
   "caracteristica": "Inflación anual (IPC)",
   "tipoResultado": "C",
   "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 9.1.1 (Índice de Precios del Consumo)",
-  "fuenteUrl": "https://www.ine.gub.uy/",
   "anio": 2024,
   "unidad": "%",
   "descripcion": "Variación anual del Índice de Precios del Consumo (IPC), Total País. Base octubre 2022 = 100.",

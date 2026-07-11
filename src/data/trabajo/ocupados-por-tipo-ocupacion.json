@@ -6,7 +6,6 @@
   "tipoResultado": "B",
   "personas": true,
   "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.4.8 (fuente ECH, CIUO 08)",
-  "fuenteUrl": "https://www.ine.gub.uy/",
   "anio": 2024,
   "descripcion": "Distribución de las personas ocupadas según el tipo de ocupación principal (2024). Porcentaje sobre el total de ocupados.",
   "unidad": "%",

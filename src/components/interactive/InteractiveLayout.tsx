@@ -74,7 +74,9 @@ export default function InteractiveLayout() {
           de layout con spring, ver pica-ui) y "Nosotros" desaparece — dentro
           de los datos no importa nada más que los datos. */}
       <header className="z-10 grid grid-cols-3 items-center p-6 short:py-2 max-md:flex max-md:flex-wrap max-md:items-center max-md:gap-y-1 max-md:p-4">
-        {/* Breadcrumb (izquierda) cuando hay temática */}
+        {/* Breadcrumb (izquierda) cuando hay temática.
+            Inicio → selector de temáticas · Temática → elegir entidad ·
+            Entidad → texto plano (es donde estás, no navega). */}
         {tema && (
           <nav
             aria-label="Ubicación"
@@ -84,6 +86,16 @@ export default function InteractiveLayout() {
             <button
               type="button"
               onClick={() => setParams({})}
+              aria-label="Ir a elegir temática"
+              className="text-text-secondary underline-offset-4 hover:underline"
+            >
+              Inicio
+            </button>
+            <span aria-hidden="true" className="text-text-muted">/</span>
+            <button
+              type="button"
+              onClick={() => setParams({ tema })}
+              aria-label={`Ver entidades de ${TEMA_LABEL[tema]}`}
               className="underline-offset-4 hover:underline"
               style={{ color: TEMA_COLOR[tema] }}
             >
@@ -92,14 +104,12 @@ export default function InteractiveLayout() {
             {entidad && (
               <>
                 <span aria-hidden="true" className="text-text-muted">/</span>
-                <button
-                  type="button"
-                  onClick={() => setParams({ tema })}
-                  aria-label="Volver a la lista de entidades"
-                  className="truncate text-text-secondary underline-offset-4 hover:underline max-md:max-w-[38vw]"
+                <span
+                  aria-current="page"
+                  className="truncate text-text-secondary max-md:max-w-[38vw]"
                 >
                   {entidad}
-                </button>
+                </span>
               </>
             )}
           </nav>
@@ -128,12 +138,12 @@ export default function InteractiveLayout() {
                   <img
                     src={assetUrl(LOGOS.animacion.navbar.light)}
                     alt="Pica"
-                    className="h-10 w-auto"
+                    className="h-14 w-auto"
                     style={{ imageRendering: 'pixelated' }}
                   />
                 ) : (
                   // En reposo: logo inline con ojos vivos (mirada + parpadeo)
-                  <PicaLogo className="h-10 w-auto text-text-primary" />
+                  <PicaLogo className="h-14 w-auto text-text-primary" />
                 )}
               </Link>
             </motion.div>
@@ -170,12 +180,16 @@ export default function InteractiveLayout() {
                   className="flex w-44 flex-col items-center gap-3 rounded-lg border-2 px-6 py-6 transition-transform hover:scale-105 short:py-3 max-md:w-full max-md:flex-row max-md:justify-start max-md:gap-4 max-md:px-4 max-md:py-2"
                   style={{ borderColor: TEMA_COLOR[t] }}
                 >
-                  <img
-                    src={assetUrl(THEME_STATIC[t])}
-                    alt=""
-                    className="h-24 w-auto max-md:h-10 short:h-14"
-                    style={{ imageRendering: 'pixelated' }}
-                  />
+                  {/* Slot de ancho fijo: los personajes tienen anchos
+                      distintos y desalineaban el texto (ej. Educación). */}
+                  <span className="flex shrink-0 justify-center max-md:w-12">
+                    <img
+                      src={assetUrl(THEME_STATIC[t])}
+                      alt=""
+                      className="h-24 w-auto max-md:h-10 short:h-14"
+                      style={{ imageRendering: 'pixelated' }}
+                    />
+                  </span>
                   <span
                     className="font-display text-pica-button font-bold uppercase"
                     style={{ color: TEMA_COLOR[t], letterSpacing: '0.12em' }}

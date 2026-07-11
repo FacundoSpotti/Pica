@@ -5,7 +5,6 @@
   "caracteristica": "Gasto en salud por habitante",
   "tipoResultado": "C",
   "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.2.8 (fuente MSP — Área Económica de la Salud)",
-  "fuenteUrl": "https://www.ine.gub.uy/",
   "anio": 2023,
   "descripcion": "Gasto corriente en salud por habitante por año, en dólares corrientes.",
   "unidad": "US$",

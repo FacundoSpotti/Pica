@@ -29,7 +29,11 @@ export function VizHeader({
     setExpanded(false);
     const check = () => {
       const el = pRef.current;
-      if (el) setClamped(el.scrollHeight > el.clientHeight + 2);
+      if (!el) return;
+      // Tolerancia de media línea: el redondeo del line-height daba falsos
+      // positivos con textos de una sola línea.
+      const lh = parseFloat(getComputedStyle(el).lineHeight) || 24;
+      setClamped(el.scrollHeight - el.clientHeight > lh / 2);
     };
     check();
     window.addEventListener('resize', check);
@@ -103,9 +107,8 @@ export function DataTable({ caption, head, rows }: DataTableProps) {
       <summary className="cursor-pointer font-sans text-pica-subtitle text-text-secondary underline-offset-2 hover:underline">
         Ver datos en tabla
       </summary>
-      {/* La tabla scrollea INTERNAMENTE (max-h): al abrirla no corre el layout
-          ni se corta contra el borde de la pantalla. */}
-      <div className="max-h-[38vh] overflow-y-auto">
+      {/* La tabla se despliega COMPLETA: con una tabla abierta el visor
+          permite scroll de página (ver CharacteristicExplorer :has). */}
       <table className="mt-2 w-full max-w-md border-collapse font-sans text-pica-subtitle">
         <caption className="sr-only">{caption}</caption>
         <thead>
@@ -123,9 +126,9 @@ export function DataTable({ caption, head, rows }: DataTableProps) {
         </thead>
         <tbody>
           {rows.map((row, i) => (
-            <tr key={i}>
+            <tr key={i} className="border-b border-white/10">
               {row.map((cell, j) => (
-                <td key={j} className="border-b border-white/10 px-2 py-1 text-text-primary">
+                <td key={j} className="px-2 py-1 text-text-primary">
                   {typeof cell === 'number' ? cell.toLocaleString('es-UY') : cell}
                 </td>
               ))}
@@ -133,7 +136,6 @@ export function DataTable({ caption, head, rows }: DataTableProps) {
           ))}
         </tbody>
       </table>
-      </div>
     </details>
   );
 }

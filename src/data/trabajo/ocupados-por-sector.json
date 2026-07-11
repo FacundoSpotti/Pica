@@ -6,7 +6,6 @@
   "tipoResultado": "B",
   "personas": true,
   "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.4.7 (fuente ECH, CIIU Rev. 4)",
-  "fuenteUrl": "https://www.ine.gub.uy/",
   "anio": 2024,
   "descripcion": "Distribución de las personas ocupadas según el sector de actividad económica en el que trabajan (2024). Porcentaje sobre el total de ocupados.",
   "unidad": "%",

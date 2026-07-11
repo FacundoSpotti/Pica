@@ -6,7 +6,6 @@
   "tipoResultado": "E",
   "personas": true,
   "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.10.1 (fuente UNASEV)",
-  "fuenteUrl": "https://www.ine.gub.uy/",
   "anio": 2024,
   "unidad": "por 100.000 hab",
   "descripcion": "Personas fallecidas en siniestros de tránsito por cada 100.000 habitantes, por departamento de ocurrencia, 2024 (fallecidos 2024 sobre población estimada 2023).",

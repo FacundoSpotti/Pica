@@ -298,7 +298,7 @@ export default function NosotrosPage() {
 
       {/* Pie: crédito académico */}
       <footer
-        className="pointer-events-none z-10 pb-4 text-center font-sans text-pica-subtitle text-text-muted"
+        className="pointer-events-none z-10 mx-auto max-w-md px-8 pb-4 text-center font-sans text-pica-subtitle text-text-muted"
         style={open ? DIM_STYLE : UNDIM_STYLE}
       >
         Proyecto académico — Diseño Interactivo, Universidad ORT Uruguay · Facundo Spotti

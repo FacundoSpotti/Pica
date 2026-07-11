@@ -5,7 +5,6 @@
   "caracteristica": "Siniestros de tránsito por año",
   "tipoResultado": "C",
   "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.10.2 (fuente UNASEV)",
-  "fuenteUrl": "https://www.ine.gub.uy/",
   "anio": 2024,
   "unidad": "siniestros",
   "descripcion": "Cantidad total de siniestros de tránsito registrados por año en Uruguay.",

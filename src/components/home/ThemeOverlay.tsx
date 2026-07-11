@@ -69,6 +69,17 @@ export default function ThemeOverlay({ tema, onClose, fullscreen = false }: Them
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
 
+  // Fullscreen (mobile): bloquear el scroll de la página detrás del modal —
+  // la opacidad deja ver el fondo, pero no debe poder scrollearse.
+  useEffect(() => {
+    if (!fullscreen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [fullscreen]);
+
   return (
     <motion.div
       role="dialog"

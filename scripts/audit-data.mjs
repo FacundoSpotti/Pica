@@ -33,8 +33,9 @@ for (const { d } of datasets) {
 
   // ── Fuente / URL / año ──────────────────────────────────────────────────
   if (!d.fuente || d.fuente.trim().length < 8) add('ERROR', id, 'fuente ausente o muy corta');
-  if (!d.fuenteUrl) add('WARN', id, 'sin fuenteUrl');
-  else {
+  // Política (Facundo): sin link profundo real NO se pone fuenteUrl — la fuente
+  // queda como texto. La ausencia de URL es un estado válido, no un warning.
+  if (d.fuenteUrl) {
     try {
       const host = new URL(d.fuenteUrl).hostname.replace(/^www\./, '');
       if (!OK_HOSTS.some((h) => host === h || host.endsWith('.' + h) || host.endsWith(h)))

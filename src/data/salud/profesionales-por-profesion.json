@@ -6,7 +6,6 @@
   "tipoResultado": "B",
   "personas": true,
   "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.2.1 (fuente Caja de Jubilaciones de Profesionales Universitarios)",
-  "fuenteUrl": "https://www.ine.gub.uy/",
   "anio": 2024,
   "descripcion": "Profesionales de la salud afiliados a la Caja de Jubilaciones de Profesionales Universitarios, según profesión, 2024 (total país). Mide profesionales registrados, no necesariamente en ejercicio.",
   "unidad": "profesionales",

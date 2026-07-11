@@ -14,7 +14,7 @@
 // completo en el viewport; capas, canvas y hitboxes comparten coordenadas en %.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { AnimatePresence } from 'framer-motion';
 import CityLandscape from '@/components/home/CityLandscape';
@@ -71,6 +71,15 @@ export default function HomePage() {
 
   const handleConverged = useCallback(() => setOverlayOpen(true), []);
 
+  // El cartel no espera a que TODOS los puntos lleguen: aparece a los 2s del
+  // click (la animación de convergencia sigue de fondo). Si la convergencia
+  // termina antes, onConverged lo abre antes.
+  useEffect(() => {
+    if (!selected) return;
+    const t = setTimeout(() => setOverlayOpen(true), 2000);
+    return () => clearTimeout(t);
+  }, [selected]);
+
   const handleClose = useCallback(() => {
     setOverlayOpen(false);
     setSelected(null); // los puntos vuelven a sus calles (reset)
@@ -92,7 +101,7 @@ export default function HomePage() {
           FLUJO, por fuera y arriba del mapa (no montado sobre él). */}
       <header className="relative z-30 flex items-center justify-between p-6 md:absolute md:inset-x-0 md:top-0">
         <Link href="/" aria-label="Pica — inicio">
-          <PicaLogo className="h-12 w-auto text-text-primary" />
+          <PicaLogo className="h-16 w-auto text-text-primary" />
         </Link>
         <Link
           href="/nosotros"
@@ -167,12 +176,14 @@ export default function HomePage() {
                 background: isSel ? `${TEMA_COLOR[t]}26` : 'transparent',
               }}
             >
-              <img
-                src={assetUrl(THEME_STATIC[t])}
-                alt=""
-                className="h-10 w-auto"
-                style={{ imageRendering: 'pixelated' }}
-              />
+              <span className="flex w-12 shrink-0 justify-center">
+                <img
+                  src={assetUrl(THEME_STATIC[t])}
+                  alt=""
+                  className="h-10 w-auto"
+                  style={{ imageRendering: 'pixelated' }}
+                />
+              </span>
               <span
                 className="font-display text-pica-button font-bold uppercase"
                 style={{ color: TEMA_COLOR[t], letterSpacing: '0.12em' }}
