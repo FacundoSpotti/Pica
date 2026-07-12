@@ -69,7 +69,7 @@ export default function InteractiveLayout() {
   );
 
   return (
-    <main className="flex h-screen w-screen flex-col overflow-hidden bg-bg-base">
+    <main className="flex h-screen w-screen flex-col overflow-hidden bg-bg-base max-md:h-dvh">
       {/* Nav superior: al elegir temática el logo viaja al CENTRO (animación
           de layout con spring, ver pica-ui) y "Nosotros" desaparece — dentro
           de los datos no importa nada más que los datos. */}
@@ -83,6 +83,15 @@ export default function InteractiveLayout() {
             className="flex min-w-0 items-center gap-2 justify-self-start font-sans text-pica-paragraph max-md:order-3 max-md:basis-full"
             style={{ gridColumn: 1, gridRow: 1 }}
           >
+            {/* Flecha: vuelve UN nivel (viz → entidades → temáticas) */}
+            <button
+              type="button"
+              onClick={() => (entidad ? setParams({ tema }) : setParams({}))}
+              aria-label="Volver un nivel"
+              className="px-1 text-text-secondary transition-colors hover:text-text-primary"
+            >
+              ←
+            </button>
             <button
               type="button"
               onClick={() => setParams({})}
@@ -92,21 +101,29 @@ export default function InteractiveLayout() {
               Inicio
             </button>
             <span aria-hidden="true" className="text-text-muted">/</span>
-            <button
-              type="button"
-              onClick={() => setParams({ tema })}
-              aria-label={`Ver entidades de ${TEMA_LABEL[tema]}`}
-              className="underline-offset-4 hover:underline"
-              style={{ color: TEMA_COLOR[tema] }}
-            >
-              {TEMA_LABEL[tema]}
-            </button>
+            {/* El color de la temática marca la PÁGINA ACTUAL: si hay entidad,
+                la temática es un ancestro (neutra, clickeable). */}
+            {entidad ? (
+              <button
+                type="button"
+                onClick={() => setParams({ tema })}
+                aria-label={`Ver entidades de ${TEMA_LABEL[tema]}`}
+                className="text-text-secondary underline-offset-4 hover:underline"
+              >
+                {TEMA_LABEL[tema]}
+              </button>
+            ) : (
+              <span aria-current="page" style={{ color: TEMA_COLOR[tema] }}>
+                {TEMA_LABEL[tema]}
+              </span>
+            )}
             {entidad && (
               <>
                 <span aria-hidden="true" className="text-text-muted">/</span>
                 <span
                   aria-current="page"
-                  className="truncate text-text-secondary max-md:max-w-[38vw]"
+                  className="truncate max-md:max-w-[38vw]"
+                  style={{ color: TEMA_COLOR[tema] }}
                 >
                   {entidad}
                 </span>

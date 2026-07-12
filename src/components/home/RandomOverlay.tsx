@@ -94,15 +94,16 @@ export default function RandomOverlay({ onClose, fullscreen = false }: RandomOve
           style={{ letterSpacing: '0.1em' }}
           {...rise(0.18)}
         >
-          ¿Un dato al azar?
+          ¡Pica!
         </motion.h2>
 
         <motion.p
           className="max-w-sm font-sans text-pica-paragraph text-text-secondary"
           {...rise(0.3)}
         >
-          El Palacio guarda todas las estadísticas del país. Te mostramos una
-          elegida al azar — puede ser de cualquier temática.
+          Como en el escondite: «¡pica!» es encontrar al que estaba escondido.
+          Acá los escondidos son los datos — tocá el botón y te revelamos una
+          estadística al azar, de cualquier temática.
         </motion.p>
 
         <motion.div className="flex gap-4" {...rise(0.42)}>
@@ -113,7 +114,7 @@ export default function RandomOverlay({ onClose, fullscreen = false }: RandomOve
             className="font-display text-pica-button px-6 py-2 font-bold uppercase transition-transform hover:scale-105"
             style={{ backgroundColor: WHITE, color: '#0A0A0A', letterSpacing: '0.06em' }}
           >
-            Sorprendeme
+            Dato al azar
           </button>
           <button
             type="button"

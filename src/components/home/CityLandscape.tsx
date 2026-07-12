@@ -205,7 +205,7 @@ export default function CityLandscape({ selectedTema, onSelect, children }: City
               onMouseLeave={() => setHoveredTema(null)}
               onFocus={() => setHoveredTema('palacio')}
               onBlur={() => setHoveredTema(null)}
-              aria-label="Explorar una estadística al azar (Palacio Legislativo)"
+              aria-label="¡Pica! — descubrir una estadística al azar (Palacio Legislativo)"
               aria-pressed={palacioSel}
               className="absolute inset-0 cursor-pointer"
               style={{ clipPath: polygonClipPath(poly) }}
@@ -219,7 +219,7 @@ export default function CityLandscape({ selectedTema, onSelect, children }: City
                   className="whitespace-nowrap border-2 bg-black/85 px-3 py-1 font-display text-pica-subtitle font-bold uppercase"
                   style={{ borderColor: '#EBEBEB', color: '#EBEBEB', letterSpacing: '0.12em' }}
                 >
-                  Dato al azar
+                  ¡Pica!
                 </p>
                 <div
                   aria-hidden="true"

@@ -179,7 +179,7 @@ export default function NosotrosPage() {
   }, [open]);
 
   return (
-    <main className="relative flex h-screen w-full flex-col overflow-hidden bg-bg-base max-md:h-auto max-md:min-h-screen max-md:overflow-y-auto">
+    <main className="relative flex h-screen w-full flex-col overflow-hidden bg-bg-base max-md:h-auto max-md:min-h-dvh max-md:overflow-y-auto">
       {/* Personas grises deambulando de fondo (mantené el click y te miran) */}
       <div style={open ? DIM_STYLE : UNDIM_STYLE} className="absolute inset-0">
         <AmbientWalkers count={isMobile ? 5 : 10} />

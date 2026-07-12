@@ -16,7 +16,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { interpolateRgb } from 'd3';
-import { TEMA_PALETTE, textOnColor } from '@/lib/colors';
+import { paletteFor, textOnColor } from '@/lib/colors';
 import { figureCount, matrixScale, niceClosest, perLabel } from '@/lib/isotype';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useSpriteWalkers, type WalkerTarget } from '@/hooks/useSpriteWalkers';
@@ -76,7 +76,8 @@ function CrowdRow({
 }
 
 export default function IsotypeMatrixViz({ data }: { data: DatasetMatriz }) {
-  const palette = TEMA_PALETTE[data.tematica];
+  // Paleta sin repeticiones para la dimensión horizontal (la más numerosa)
+  const palette = paletteFor(data.tematica, Math.max(data.filas.length, data.columnas.length));
   const gridRef = useRef<HTMLDivElement>(null);
   // Categoría aislada al clickear su chip (el resto de la multitud va a gris)
   const [focus, setFocus] = useState<string | null>(null);
@@ -215,7 +216,7 @@ export default function IsotypeMatrixViz({ data }: { data: DatasetMatriz }) {
               aria-pressed={isFocused}
               aria-label={`Aislar ${l}`}
               onClick={() => setFocus((f) => (f === l ? null : l))}
-              className="whitespace-nowrap px-2 py-1 font-sans text-pica-subtitle transition-opacity max-md:py-2"
+              className="whitespace-nowrap px-2 py-1 font-sans text-pica-subtitle transition-opacity max-md:px-1.5 max-md:py-0.5 max-md:text-[14px] max-md:leading-4"
               style={{
                 backgroundColor: c,
                 color: textOnColor(c),

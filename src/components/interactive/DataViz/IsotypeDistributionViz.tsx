@@ -15,7 +15,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useMemo, useRef, useState } from 'react';
-import { TEMA_PALETTE, textOnColor } from '@/lib/colors';
+import { paletteFor, textOnColor } from '@/lib/colors';
 import { figureCount, figureScale, niceClosest, perLabel } from '@/lib/isotype';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useSpriteWalkers, type SpritePool, type WalkerTarget } from '@/hooks/useSpriteWalkers';
@@ -56,7 +56,8 @@ interface Cat {
 
 export default function IsotypeDistributionViz({ data }: { data: DatasetDistribucion }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const palette = TEMA_PALETTE[data.tematica];
+  // Paleta sin repeticiones: tantos colores distintos como categorías
+  const palette = paletteFor(data.tematica, data.categorias.length);
   const [focus, setFocus] = useState<string | null>(null);
   // Mobile: MENOS figuras (se ven más grandes y pesa menos en el teléfono).
   const isMobile = useIsMobile();
@@ -176,7 +177,7 @@ export default function IsotypeDistributionViz({ data }: { data: DatasetDistribu
               aria-pressed={isFocused}
               aria-label={`Aislar ${item.label}`}
               onClick={() => setFocus((f) => (f === item.label ? null : item.label))}
-              className="flex items-center gap-2 px-2 py-1 font-sans text-pica-subtitle transition-opacity max-md:py-2"
+              className="flex items-center gap-2 px-2 py-1 font-sans text-pica-subtitle transition-opacity max-md:gap-1 max-md:px-1.5 max-md:py-0.5 max-md:text-[14px] max-md:leading-4"
               style={{
                 backgroundColor: item.color,
                 color: textOnColor(item.color),
@@ -184,7 +185,7 @@ export default function IsotypeDistributionViz({ data }: { data: DatasetDistribu
                 boxShadow: isFocused ? `0 0 0 2px #EBEBEB` : 'none',
               }}
             >
-              <strong className="font-display text-pica-button font-bold leading-none">
+              <strong className="font-display text-pica-button font-bold leading-none max-md:text-[15px]">
                 {item.valor.toLocaleString('es-UY')}
                 {data.unidad === '%' ? '%' : ''}
               </strong>

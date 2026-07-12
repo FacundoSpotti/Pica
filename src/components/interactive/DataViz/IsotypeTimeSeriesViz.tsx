@@ -15,7 +15,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { TEMA_COLOR, TEMA_PALETTE, textOnColor } from '@/lib/colors';
+import { paletteFor, TEMA_COLOR, textOnColor } from '@/lib/colors';
 import { figureCount, perLabel, seriesScale } from '@/lib/isotype';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useSpriteWalkers, type WalkerTarget } from '@/hooks/useSpriteWalkers';
@@ -104,7 +104,8 @@ export default function IsotypeTimeSeriesViz({ data }: { data: DatasetSerie }) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
   const color = TEMA_COLOR[data.tematica];
-  const palette = TEMA_PALETTE[data.tematica];
+  // Paleta sin repeticiones: un color distinto por período
+  const palette = paletteFor(data.tematica, data.puntos.length);
   const [sel, setSel] = useState<ViewSel>(data.puntos.length - 1);
   // Mobile: menos figuras (más grandes y livianas para el teléfono)
   const isMobile = useIsMobile();

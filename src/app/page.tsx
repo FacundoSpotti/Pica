@@ -94,7 +94,7 @@ export default function HomePage() {
       {/* Hero: el landscape ocupa el primer viewport; se scrollea hacia abajo
           para llegar a los artículos. En mobile el hero crece (mapa + botones
           + notas) y deja de recortar. */}
-      <section className="relative h-screen w-full overflow-hidden max-md:h-auto max-md:min-h-screen max-md:overflow-visible max-md:pb-10">
+      <section className="relative h-screen w-full overflow-hidden max-md:h-auto max-md:min-h-dvh max-md:overflow-visible max-md:pb-10">
       {/* Personas grises caminando por el margen oscuro (como en Nosotros) —
           detrás del stage; mantené el click sobre una y te mira */}
       <AmbientWalkers count={isMobile ? 5 : 8} className="absolute inset-0 h-full w-full" />

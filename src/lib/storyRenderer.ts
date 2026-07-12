@@ -10,7 +10,7 @@
 
 import { geoMercator, geoPath, interpolateRgb, scaleLinear } from 'd3';
 import { SPRITE_CONFIGS, LOGOS, assetUrl } from '@/lib/assets';
-import { TEMA_COLOR, TEMA_LABEL, TEMA_PALETTE, TEMA_SCALE, textOnColor } from '@/lib/colors';
+import { paletteFor, TEMA_COLOR, TEMA_LABEL, TEMA_SCALE, textOnColor } from '@/lib/colors';
 import { figureCount, figureScale, matrixScale, niceClosest, perLabel } from '@/lib/isotype';
 import { loadSprite, tintSprite } from '@/lib/spriteManager';
 import { hardenAlpha } from '@/hooks/useSpriteWalkers';
@@ -478,7 +478,16 @@ export async function renderStory(
   const ctx = story.getContext('2d')!;
   const tema = dataset.tematica;
   const color = TEMA_COLOR[tema];
-  const palette = TEMA_PALETTE[tema];
+  // Paleta sin repeticiones según cuántas categorías/períodos tenga el dato
+  const paletteN =
+    dataset.tipoResultado === 'B'
+      ? dataset.categorias.length
+      : dataset.tipoResultado === 'C'
+        ? dataset.puntos.length
+        : dataset.tipoResultado === 'D'
+          ? Math.max(dataset.filas.length, dataset.columnas.length)
+          : 8;
+  const palette = paletteFor(tema, paletteN);
   const sans = fontFamily('--font-vt323');
   const display = fontFamily('--font-handjet');
   if (typeof document !== 'undefined' && document.fonts?.ready) await document.fonts.ready;

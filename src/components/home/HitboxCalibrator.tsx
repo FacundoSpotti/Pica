@@ -17,7 +17,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useEffect, useRef, useState } from 'react';
-import { BUILDING_HITBOX_POLYGONS } from '@/lib/assets';
+import { BUILDING_HITBOX_POLYGONS, PALACIO_HITBOX_POLYGON } from '@/lib/assets';
 import { TEMA_COLOR, TEMA_LABEL } from '@/lib/colors';
 import type { Tematica } from '@/types/sprites';
 import {
@@ -29,27 +29,39 @@ import {
 
 type Pt = [number, number];
 
-/** Orden de calibración (mismo orden que el bloque en assets.ts). */
-const SEQUENCE: readonly Tematica[] = ['educacion', 'salud', 'trabajo', 'economia', 'seguridad'];
+/** Editables: las 5 temáticas + el Palacio (dato al azar). */
+type CalKey = Tematica | 'palacio';
+const SEQUENCE: readonly CalKey[] = [
+  'educacion', 'salud', 'trabajo', 'economia', 'seguridad', 'palacio',
+];
+const colorOf = (k: CalKey) => (k === 'palacio' ? '#EBEBEB' : TEMA_COLOR[k]);
+const labelOf = (k: CalKey) => (k === 'palacio' ? 'Palacio (dato al azar)' : TEMA_LABEL[k]);
 
-/** Serializa los polígonos en el formato exacto de assets.ts. */
-function serialize(polys: Record<Tematica, Pt[]>): string {
-  const rows = SEQUENCE.map(
+/** Serializa los polígonos en el formato exacto de assets.ts (ambos bloques). */
+function serialize(polys: Record<CalKey, Pt[]>): string {
+  const temas = SEQUENCE.filter((k): k is Tematica => k !== 'palacio');
+  const rows = temas.map(
     (tema) =>
       `  ${tema}: [` + polys[tema].map(([x, y]) => `[${x}, ${y}]`).join(', ') + '],',
   );
+  const palacio =
+    'export const PALACIO_HITBOX_POLYGON: Polygon = [\n' +
+    polys.palacio.map(([x, y]) => `  [${x}, ${y}],`).join('\n') +
+    '\n];';
   return (
     'export const BUILDING_HITBOX_POLYGONS: Record<Tematica, Polygon> = {\n' +
     rows.join('\n') +
-    '\n};'
+    '\n};\n\n' +
+    palacio
   );
 }
 
 /** Polígonos actuales de assets.ts como estado inicial editable. */
-function initialPolys(): Record<Tematica, Pt[]> {
-  const out = {} as Record<Tematica, Pt[]>;
+function initialPolys(): Record<CalKey, Pt[]> {
+  const out = {} as Record<CalKey, Pt[]>;
   for (const tema of SEQUENCE) {
-    out[tema] = BUILDING_HITBOX_POLYGONS[tema].map(([x, y]) => [x, y] as Pt);
+    const src = tema === 'palacio' ? PALACIO_HITBOX_POLYGON : BUILDING_HITBOX_POLYGONS[tema];
+    out[tema] = src.map(([x, y]) => [x, y] as Pt);
   }
   return out;
 }
@@ -68,7 +80,7 @@ function centroid(poly: Pt[]): Pt {
 export default function HitboxCalibrator() {
   const [active, setActive] = useState(false);
   const [mode, setMode] = useState<CalibrationMode>(calibration.mode);
-  const [polys, setPolys] = useState<Record<Tematica, Pt[]>>(initialPolys);
+  const [polys, setPolys] = useState<Record<CalKey, Pt[]>>(initialPolys);
   const [temaIdx, setTemaIdx] = useState(0);
   const [cursor, setCursor] = useState<Pt | null>(null);
   const [flash, setFlash] = useState<string | null>(null);
@@ -180,9 +192,9 @@ export default function HitboxCalibrator() {
               {poly.length >= 3 ? (
                 <polygon
                   points={pts}
-                  fill={TEMA_COLOR[tema]}
+                  fill={colorOf(tema)}
                   fillOpacity={isCurrent ? 0.35 : 0.15}
-                  stroke={TEMA_COLOR[tema]}
+                  stroke={colorOf(tema)}
                   strokeWidth={isCurrent ? 3 : 1.5}
                   vectorEffect="non-scaling-stroke"
                 />
@@ -191,7 +203,7 @@ export default function HitboxCalibrator() {
                   <polyline
                     points={pts}
                     fill="none"
-                    stroke={TEMA_COLOR[tema]}
+                    stroke={colorOf(tema)}
                     strokeWidth={3}
                     vectorEffect="non-scaling-stroke"
                   />
@@ -226,7 +238,7 @@ export default function HitboxCalibrator() {
               left: `${cx * 100}%`,
               top: `${cy * 100}%`,
               fontFamily: 'monospace',
-              color: TEMA_COLOR[tema],
+              color: colorOf(tema),
             }}
           >
             {tema}
@@ -240,8 +252,8 @@ export default function HitboxCalibrator() {
         className="pointer-events-none absolute left-2 top-2 z-50 bg-black/85 px-3 py-2 text-[12px] leading-relaxed text-white"
         style={{ fontFamily: 'monospace' }}
       >
-        <p className="font-bold" style={{ color: TEMA_COLOR[currentTema] }}>
-          MODO CALIBRACIÓN DE HITBOXES — {TEMA_LABEL[currentTema].toUpperCase()} ({temaIdx + 1}/5)
+        <p className="font-bold" style={{ color: colorOf(currentTema) }}>
+          MODO CALIBRACIÓN DE HITBOXES — {labelOf(currentTema).toUpperCase()} ({temaIdx + 1}/{SEQUENCE.length})
         </p>
         <p>click agregar vértice · N siguiente temática · 1-5 elegir</p>
         <p>Z deshacer vértice · X borrar temática actual (y redibujar)</p>

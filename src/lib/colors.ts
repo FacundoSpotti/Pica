@@ -89,6 +89,32 @@ export const TEMA_PALETTE: Record<Tematica, string[]> = {
 };
 
 /**
+ * Paleta SIN repeticiones para un visor con `n` categorías. Arranca con la
+ * curada del tema (TEMA_PALETTE) y, si hacen falta más, se extiende con tonos
+ * 600 (profundos), 300 (claros) y 200/500 de las 8 familias — hasta 40+
+ * colores distintos que combinan entre sí. REGLA: dentro de un visor no puede
+ * repetirse un color entre categorías.
+ */
+const FAMILIAS = ['blue', 'pink', 'purple', 'red', 'yellow', 'green', 'cyan', 'orange'] as const;
+export function paletteFor(tema: Tematica, n: number): string[] {
+  const base = TEMA_PALETTE[tema];
+  if (n <= base.length) return [...base];
+  const out = [...base];
+  const seen = new Set(out.map((c) => c.toLowerCase()));
+  for (const tono of [600, 300, 200, 500] as const) {
+    for (const fam of FAMILIAS) {
+      const c = picaColors[fam][tono];
+      if (!seen.has(c.toLowerCase())) {
+        seen.add(c.toLowerCase());
+        out.push(c);
+        if (out.length >= n) return out;
+      }
+    }
+  }
+  return out;
+}
+
+/**
  * Extremos de la escala de color para visualizaciones de intensidad
  * (mapa coroplético, heatmap): tono 100 (valores bajos) → 600 (valores altos).
  */
