@@ -146,7 +146,11 @@ export default function IsotypeTimeSeriesViz({ data }: { data: DatasetSerie }) {
       return { per, label: perLabel(per, data.unidad), totalFigs, counts };
     }
     const maxValor = Math.max(...data.puntos.map((p) => p.valor));
-    const { per, label } = seriesScale(maxValor, data.unidad, isMobile ? 220 : 500);
+    // REGLA para conteos absolutos de personas: como máximo 1 figura por caso
+    // (per >= 1) — nunca "10 figuras = 1 caso".
+    let per = seriesScale(maxValor, data.unidad, isMobile ? 220 : 500).per;
+    if (per < 1) per = 1;
+    const label = perLabel(per, data.unidad);
     const counts = data.puntos.map((p) => figureCount(p.valor, per));
     return { per, label, totalFigs: Math.max(...counts), counts };
   }, [data, proportional, totalUnits, isMobile]);
@@ -165,10 +169,13 @@ export default function IsotypeTimeSeriesViz({ data }: { data: DatasetSerie }) {
     const cols = Math.max(1, Math.ceil(total / rows));
     const crowdW = (cols - 1) * PITCH_X + C_W * SCALE;
     const crowdH = (rows - 1) * PITCH_Y + C_H * SCALE;
+    // Con pocas figuras (conteos chicos, ej. 45 casos) se permite más zoom
+    // para que la multitud LLENE el área — el pixel art escala nítido.
+    const hiClamp = total <= 80 ? 5 : 2.2;
     const view = clamp(
       Math.min(fit.cw / (crowdW + MARGIN * 2), budgetSingle / (crowdH + MARGIN * 2)),
       0.3,
-      2.2,
+      hiClamp,
     );
     // Canvas full-bleed: cubre toda el área visible; la multitud va centrada
     const canvasW = Math.max(crowdW + MARGIN * 2, Math.floor(fit.cw / view));
@@ -182,6 +189,7 @@ export default function IsotypeTimeSeriesViz({ data }: { data: DatasetSerie }) {
   const all = useMemo(() => {
     const maxValor = Math.max(...data.puntos.map((p) => p.valor));
     let per = seriesScale(maxValor, data.unidad, BAR_ROWS * 2).per;
+    if (!proportional && per < 1) per = 1;
 
     const compute = (p: number) => {
       const counts = data.puntos.map((pt) => figureCount(pt.valor, p));
@@ -200,6 +208,7 @@ export default function IsotypeTimeSeriesViz({ data }: { data: DatasetSerie }) {
       if (m.crowdW * heightView >= fit.cw * 0.88 || m.total > 2200) break;
       const f = finerPer(per);
       if (f === per) break;
+      if (!proportional && f < 1) break; // máx. 1 figura por caso
       per = f;
       m = compute(per);
     }
@@ -246,7 +255,7 @@ export default function IsotypeTimeSeriesViz({ data }: { data: DatasetSerie }) {
       label: perLabel(per, data.unidad),
       per,
     };
-  }, [data, palette, fit.cw, budgetAll]);
+  }, [data, palette, fit.cw, budgetAll, proportional]);
 
   // ── Targets de la vista por período ────────────────────────────────────────
   const targets = useMemo(() => {
@@ -276,9 +285,13 @@ export default function IsotypeTimeSeriesViz({ data }: { data: DatasetSerie }) {
   // Escala propia de la lista mobile (~36 figuras el año más alto)
   const mobileAll = useMemo(() => {
     const maxValor = Math.max(...data.puntos.map((p) => p.valor));
-    const { per, label } = seriesScale(maxValor, data.unidad, 36);
-    return { counts: data.puntos.map((p) => figureCount(p.valor, per)), label };
-  }, [data]);
+    let per = seriesScale(maxValor, data.unidad, 36).per;
+    if (!proportional && per < 1) per = 1;
+    return {
+      counts: data.puntos.map((p) => figureCount(p.valor, per)),
+      label: perLabel(per, data.unidad),
+    };
+  }, [data, proportional]);
 
   useSpriteWalkers(canvasRef, mobileAllView ? [] : targets, {
     scale: SCALE,
@@ -442,20 +455,28 @@ export default function IsotypeTimeSeriesViz({ data }: { data: DatasetSerie }) {
                 style={{ width: all.crowdViewW, maxWidth: '100%' }}
                 aria-hidden="true"
               >
-                {all.bars.map((b) => (
-                  <div key={b.periodo} style={{ width: `${b.frac * 100}%` }}>
-                    <p className="font-sans text-pica-subtitle leading-tight text-text-muted">
-                      {b.periodo}
-                    </p>
-                    <p
-                      className="font-display text-[18px] font-bold leading-tight"
-                      style={{ color: b.color }}
-                    >
-                      {b.valor.toLocaleString('es-UY')}
-                      {data.unidad === '%' ? '%' : ''}
-                    </p>
-                  </div>
-                ))}
+                {all.bars.map((b) => {
+                  // Muchos períodos → año abreviado ('01) y tipografía menor,
+                  // para que las etiquetas no se solapen en pantallas angostas
+                  const abrev = all.bars.length >= 13;
+                  return (
+                    <div key={b.periodo} style={{ width: `${b.frac * 100}%` }}>
+                      <p
+                        className={`font-sans leading-tight text-text-muted ${abrev ? 'text-[12px]' : 'text-pica-subtitle'}`}
+                        title={b.periodo}
+                      >
+                        {abrev ? `'${b.periodo.slice(-2)}` : b.periodo}
+                      </p>
+                      <p
+                        className={`font-display font-bold leading-tight ${abrev ? 'text-[13px]' : 'text-[18px]'}`}
+                        style={{ color: b.color }}
+                      >
+                        {b.valor.toLocaleString('es-UY')}
+                        {data.unidad === '%' ? '%' : ''}
+                      </p>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -465,7 +486,7 @@ export default function IsotypeTimeSeriesViz({ data }: { data: DatasetSerie }) {
         <div
           role="group"
           aria-label="Elegir período (también con la rueda del mouse)"
-          className="flex shrink-0 flex-col border-l-2 border-white/15 pl-2"
+          className="flex max-h-[calc(100dvh-230px)] shrink-0 flex-col overflow-y-auto border-l-2 border-white/15 pl-2"
         >
           {data.puntos.map((p, i) => {
             const active = sel === i;
@@ -490,7 +511,7 @@ export default function IsotypeTimeSeriesViz({ data }: { data: DatasetSerie }) {
             type="button"
             aria-pressed={isAll}
             onClick={() => setSel('all')}
-            className="mt-1 border-t border-white/15 px-2 py-0.5 text-left font-display text-pica-subtitle font-bold uppercase leading-tight transition-colors"
+            className="sticky bottom-0 z-10 mt-1 border-t border-white/15 bg-bg-base px-2 py-0.5 text-left font-display text-pica-subtitle font-bold uppercase leading-tight transition-colors"
             style={{
               color: isAll ? textOnColor(color) : '#EBEBEB',
               backgroundColor: isAll ? color : 'transparent',
