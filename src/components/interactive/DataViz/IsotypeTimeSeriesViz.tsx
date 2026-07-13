@@ -103,6 +103,7 @@ export default function IsotypeTimeSeriesViz({ data }: { data: DatasetSerie }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
+  const railRef = useRef<HTMLDivElement>(null);
   const color = TEMA_COLOR[data.tematica];
   // Paleta sin repeticiones: un color distinto por período
   const palette = paletteFor(data.tematica, data.puntos.length);
@@ -157,6 +158,28 @@ export default function IsotypeTimeSeriesViz({ data }: { data: DatasetSerie }) {
 
   const budgetSingle = Math.max(180, fit.ah - 64);
   const budgetAll = Math.max(160, fit.ah - 64 - 48);
+
+  // Rail de períodos: alto MEDIDO (no un calc estático que se pasaba del
+  // viewport y dejaba años y TODOS cortados por el overflow del visor).
+  const [railH, setRailH] = useState<number | null>(null);
+  useEffect(() => {
+    const update = () => {
+      const el = railRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      setRailH(Math.max(160, window.innerHeight - r.top - 20));
+    };
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, [fit]);
+
+  // El rail se desplaza SOLO hasta el período activo (o TODOS)
+  useEffect(() => {
+    railRef.current
+      ?.querySelector('[data-active="true"]')
+      ?.scrollIntoView({ block: 'nearest' });
+  }, [sel, railH]);
 
   // Grilla adaptada a la caja: filas ~proporción del área disponible
   const singleLayout = useMemo(() => {
@@ -484,9 +507,11 @@ export default function IsotypeTimeSeriesViz({ data }: { data: DatasetSerie }) {
 
         {/* Rail vertical de períodos (compacto) */}
         <div
+          ref={railRef}
           role="group"
           aria-label="Elegir período (también con la rueda del mouse)"
-          className="flex max-h-[calc(100dvh-230px)] shrink-0 flex-col overflow-y-auto border-l-2 border-white/15 pl-2"
+          className="flex shrink-0 flex-col overflow-y-auto border-l-2 border-white/15 pl-2"
+          style={{ maxHeight: railH ?? undefined }}
         >
           {data.puntos.map((p, i) => {
             const active = sel === i;
@@ -495,6 +520,7 @@ export default function IsotypeTimeSeriesViz({ data }: { data: DatasetSerie }) {
                 key={p.periodo}
                 type="button"
                 aria-pressed={active}
+                data-active={active || undefined}
                 onClick={() => setSel(i)}
                 className="px-2 py-0 text-left font-sans text-pica-subtitle leading-tight transition-colors"
                 style={{
@@ -510,6 +536,7 @@ export default function IsotypeTimeSeriesViz({ data }: { data: DatasetSerie }) {
           <button
             type="button"
             aria-pressed={isAll}
+            data-active={isAll || undefined}
             onClick={() => setSel('all')}
             className="sticky bottom-0 z-10 mt-1 border-t border-white/15 bg-bg-base px-2 py-0.5 text-left font-display text-pica-subtitle font-bold uppercase leading-tight transition-colors"
             style={{
