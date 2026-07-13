@@ -58,9 +58,8 @@ export function niceClosest(raw: number): number {
 /** Etiqueta legible de una escala ('20 figuras = 1%' o '1 figura = 5.000 personas'). */
 export function perLabel(per: number, unidad?: string): string {
   // per = 1 → unidad en singular ("1 figura = 1 caso", no "1 casos")
-  const singular = per === 1 && unidad && unidad !== '%' && unidad.endsWith('s')
-    ? unidad.slice(0, -1)
-    : unidad;
+  const singular =
+    per === 1 && unidad && /^[a-záéíóúñ]+s$/i.test(unidad) ? unidad.slice(0, -1) : unidad;
   const u = singular === '%' ? '%' : singular ? ` ${singular}` : '';
   if (per < 1) return `${Math.round(1 / per)} figuras = 1${u}`;
   return `1 figura = ${per.toLocaleString('es-UY')}${u}`;

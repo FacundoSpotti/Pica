@@ -86,15 +86,17 @@ function DeptPanel({
     const colored = Math.min(CAP, figureCount(dept.valor, per));
     // Proporción: `base/per` figuras con el resto en gris. Magnitud: solo coloreadas.
     const total = mode === 'proporcion' ? Math.min(CAP, Math.round(base / per)) : colored;
-    // El canvas se ajusta a las figuras REALES (en mobile hay menos y más grandes)
-    const cols = Math.max(1, Math.ceil(total / CROWD_ROWS));
+    // El canvas se ajusta a las figuras REALES: en magnitud con pocas figuras
+    // (ej. tasa 2-3) las filas también se reducen — sin cajas vacías gigantes.
+    const rows = mode === 'proporcion' ? CROWD_ROWS : Math.max(1, Math.min(CROWD_ROWS, total));
+    const cols = Math.max(1, Math.ceil(total / rows));
     const panelW = MARGIN * 2 + (cols - 1) * PITCH_X + C_W * SCALE;
-    const panelH = CROWD_H;
+    const panelH = MARGIN * 2 + (rows - 1) * PITCH_Y + C_H * SCALE;
     const out: WalkerTarget[] = [];
     for (let j = 0; j < total; j++) {
       out.push({
-        x: MARGIN + Math.floor(j / CROWD_ROWS) * PITCH_X - C_MIN_X * SCALE,
-        y: MARGIN + (j % CROWD_ROWS) * PITCH_Y - C_MIN_Y * SCALE,
+        x: MARGIN + Math.floor(j / rows) * PITCH_X - C_MIN_X * SCALE,
+        y: MARGIN + (j % rows) * PITCH_Y - C_MIN_Y * SCALE,
         color: j < colored ? colorOf(dept.valor) : CONTEXT_GRAY,
       });
     }
@@ -144,9 +146,16 @@ function DeptPanel({
         width={panelW}
         height={panelH}
         role="img"
-        aria-label={`${dept.nombre}: ${dept.valor}${unidad ?? ''} representado con figuras sobre un total de 100.`}
-        className="mt-2 w-full"
-        style={{ imageRendering: 'pixelated' }}
+        aria-label={`${dept.nombre}: ${dept.valor}${unidad ? ` ${unidad}` : ''}${mode === 'proporcion' ? ' representado con figuras sobre el total de referencia.' : ' — una figura por caso.'}`}
+        className="mt-2"
+        style={{
+          imageRendering: 'pixelated',
+          width: 'auto',
+          height: 'auto',
+          maxWidth: '100%',
+          // proporción: llena el panel como antes; magnitud: tamaño acorde
+          minWidth: mode === 'proporcion' ? '100%' : undefined,
+        }}
       />
     </div>
   );
@@ -187,13 +196,13 @@ export default function MapViz({ data }: { data: DatasetEspacial }) {
   const baseLabel = data.unidad === '%' ? '%' : data.base?.label;
   // Mobile: menos figuras por panel (más grandes y livianas para el teléfono)
   const isMobile = useIsMobile();
-  const { per } = useMemo(
-    () =>
-      proportional
-        ? seriesScale(proporcionBase!, baseLabel, isMobile ? 100 : CAP)
-        : seriesScale(maxV, data.unidad, isMobile ? 80 : 150),
-    [proportional, proporcionBase, baseLabel, maxV, data.unidad, CAP, isMobile],
-  );
+  const { per } = useMemo(() => {
+    if (proportional) return seriesScale(proporcionBase!, baseLabel, isMobile ? 100 : CAP);
+    // Conteos/tasas absolutas: como máximo 1 figura por caso (per >= 1) —
+    // si un departamento tiene 2, se dibujan 2.
+    const s = seriesScale(maxV, data.unidad, isMobile ? 80 : 150);
+    return s.per < 1 ? { per: 1, label: perLabel(1, data.unidad) } : s;
+  }, [proportional, proporcionBase, baseLabel, maxV, data.unidad, CAP, isMobile]);
 
   // Alto disponible medido → mapa y multitudes entran sin scroll
   const rowRef = useRef<HTMLDivElement>(null);
@@ -203,7 +212,7 @@ export default function MapViz({ data }: { data: DatasetEspacial }) {
     if (!el) return;
     const update = () => {
       const rect = el.getBoundingClientRect();
-      const avail = Math.max(200, window.innerHeight - rect.top - 190);
+      const avail = Math.max(200, window.innerHeight - rect.top - 220);
       setFit({
         mapW: Math.round(Math.min(430, ((avail - 30) * 480) / 520)),
         // panel: nombre+número+delta ≈ 130px; el resto para la multitud
@@ -229,7 +238,7 @@ export default function MapViz({ data }: { data: DatasetEspacial }) {
       {/* Composición centrada: [seleccionado] [MAPA] [comparado] */}
       <div
         ref={rowRef}
-        className="grid grid-cols-1 items-center gap-6 md:grid-cols-[1fr_auto_1fr]"
+        className="grid grid-cols-1 items-center gap-6 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]"
       >
         {/* IZQUIERDA — panel del departamento seleccionado */}
         {showCrowd && (
