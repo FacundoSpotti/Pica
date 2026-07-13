@@ -199,11 +199,13 @@ export default function InteractiveLayout() {
                 >
                   {/* Slot de ancho fijo: los personajes tienen anchos
                       distintos y desalineaban el texto (ej. Educación). */}
-                  <span className="flex shrink-0 justify-center max-md:w-12">
+                  {/* Caja fija + object-contain: los personajes tienen
+                      proporciones distintas (Economía desbordaba la caja). */}
+                  <span className="flex shrink-0 items-center justify-center max-md:h-10 max-md:w-12">
                     <img
                       src={assetUrl(THEME_STATIC[t])}
                       alt=""
-                      className="h-24 w-auto max-md:h-10 short:h-14"
+                      className="h-24 w-auto object-contain max-md:h-10 max-md:w-12 short:h-14"
                       style={{ imageRendering: 'pixelated' }}
                     />
                   </span>

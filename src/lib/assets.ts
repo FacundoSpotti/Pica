@@ -120,16 +120,29 @@ export const BUILDING_HITBOX_POLYGONS: Record<Tematica, Polygon> = {
   seguridad: [[0.001, 0.523], [0.104, 0.641], [0.258, 0.491], [0.223, 0.433], [0.22, 0.4], [0.157, 0.336]],
 };
 
-/**
- * Hitbox del Palacio Legislativo (edificio central, "dato al azar").
- * APROXIMADA: bbox del alfa del PNG de la capa, con 15% de margen hacia
- * adentro (el alfa incluye sombras). Recalibrable con la herramienta H.
- */
+// Hitbox del Palacio Legislativo ("dato al azar") — CALIBRADA por Facundo con
+// el HitboxCalibrator (tecla H): no editar a mano, recalibrar con la herramienta.
 export const PALACIO_HITBOX_POLYGON: Polygon = [
-  [0.398, 0.32],
-  [0.62, 0.32],
-  [0.62, 0.605],
-  [0.398, 0.605],
+  [0.661, 0.507],
+  [0.585, 0.603],
+  [0.525, 0.66],
+  [0.475, 0.607],
+  [0.456, 0.629],
+  [0.389, 0.557],
+  [0.399, 0.533],
+  [0.353, 0.51],
+  [0.413, 0.439],
+  [0.418, 0.394],
+  [0.479, 0.336],
+  [0.497, 0.309],
+  [0.505, 0.269],
+  [0.522, 0.329],
+  [0.535, 0.35],
+  [0.557, 0.363],
+  [0.561, 0.356],
+  [0.588, 0.383],
+  [0.587, 0.426],
+  [0.655, 0.499],
 ];
 
 /**

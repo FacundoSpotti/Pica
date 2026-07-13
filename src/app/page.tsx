@@ -182,11 +182,11 @@ export default function HomePage() {
                 background: isSel ? `${TEMA_COLOR[t]}26` : 'transparent',
               }}
             >
-              <span className="flex w-12 shrink-0 justify-center">
+              <span className="flex h-10 w-12 shrink-0 items-center justify-center">
                 <img
                   src={assetUrl(THEME_STATIC[t])}
                   alt=""
-                  className="h-10 w-auto"
+                  className="h-10 w-12 object-contain"
                   style={{ imageRendering: 'pixelated' }}
                 />
               </span>
