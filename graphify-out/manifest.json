@@ -1,0 +1,612 @@
+{
+  "app/interactivo/loading.tsx": {
+    "mtime": 1782872814.1818922,
+    "ast_hash": "6d17b2a53b9905ceb9285970f3e07594",
+    "semantic_hash": "6d17b2a53b9905ceb9285970f3e07594"
+  },
+  "app/interactivo/page.tsx": {
+    "mtime": 1783047427.7408726,
+    "ast_hash": "d52f1102305f7aec9632ee5cdd2591de",
+    "semantic_hash": "d52f1102305f7aec9632ee5cdd2591de"
+  },
+  "app/layout.tsx": {
+    "mtime": 1783458125.6713507,
+    "ast_hash": "c2a66902e0733fff562b978b0b0bb288",
+    "semantic_hash": "c2a66902e0733fff562b978b0b0bb288"
+  },
+  "app/nosotros/page.tsx": {
+    "mtime": 1783883550.299516,
+    "ast_hash": "e5ab33e5d75098a0a98b3cbb1362f834",
+    "semantic_hash": "e5ab33e5d75098a0a98b3cbb1362f834"
+  },
+  "app/not-found.tsx": {
+    "mtime": 1782872827.5205004,
+    "ast_hash": "36f86a75a08f98f83c275ff40112a2e7",
+    "semantic_hash": "36f86a75a08f98f83c275ff40112a2e7"
+  },
+  "app/page.tsx": {
+    "mtime": 1783888171.2376952,
+    "ast_hash": "44e660cfc1226242c9dc1169e396d0ea",
+    "semantic_hash": "44e660cfc1226242c9dc1169e396d0ea"
+  },
+  "components/home/ArticulosDestacados.tsx": {
+    "mtime": 1783363171.5616925,
+    "ast_hash": "ab08b261ce7853434b521bafa0a9919b",
+    "semantic_hash": "ab08b261ce7853434b521bafa0a9919b"
+  },
+  "components/home/CityLandscape.tsx": {
+    "mtime": 1783883550.303031,
+    "ast_hash": "4525a4abff30370ee65b88a168dda4a5",
+    "semantic_hash": "4525a4abff30370ee65b88a168dda4a5"
+  },
+  "components/home/ColorBar.tsx": {
+    "mtime": 1783026874.5247688,
+    "ast_hash": "42ed1b29861dbd04eb7806863b9a0ecb",
+    "semantic_hash": "42ed1b29861dbd04eb7806863b9a0ecb"
+  },
+  "components/home/HitboxCalibrator.tsx": {
+    "mtime": 1783885181.4354546,
+    "ast_hash": "3068fd32c6a9187bdad3dc9d43a051ec",
+    "semantic_hash": "3068fd32c6a9187bdad3dc9d43a051ec"
+  },
+  "components/home/HomeCanvas.tsx": {
+    "mtime": 1783030710.2821975,
+    "ast_hash": "c13cd19c677f8ad0c24e55ab54574c2c",
+    "semantic_hash": "c13cd19c677f8ad0c24e55ab54574c2c"
+  },
+  "components/home/PathCalibrator.tsx": {
+    "mtime": 1783028598.4167657,
+    "ast_hash": "653f11ddc00b83693fb7189b7c0c13ef",
+    "semantic_hash": "653f11ddc00b83693fb7189b7c0c13ef"
+  },
+  "components/home/RandomOverlay.tsx": {
+    "mtime": 1783884201.3125849,
+    "ast_hash": "829126b0ffe2db89c642f88949c95180",
+    "semantic_hash": "829126b0ffe2db89c642f88949c95180"
+  },
+  "components/home/StickyNotes.tsx": {
+    "mtime": 1783430228.562321,
+    "ast_hash": "8a122274c0488e48d61e7bdc23dc7985",
+    "semantic_hash": "8a122274c0488e48d61e7bdc23dc7985"
+  },
+  "components/home/ThemeCharacter.tsx": {
+    "mtime": 1783808849.7906442,
+    "ast_hash": "5af313fa3eac0cc3a6c691e42a21859b",
+    "semantic_hash": "5af313fa3eac0cc3a6c691e42a21859b"
+  },
+  "components/home/ThemeOverlay.tsx": {
+    "mtime": 1783808904.1996107,
+    "ast_hash": "a74b40231b5839d7031649f527b78287",
+    "semantic_hash": "a74b40231b5839d7031649f527b78287"
+  },
+  "components/home/WindowTwinkles.tsx": {
+    "mtime": 1783810791.6920202,
+    "ast_hash": "caecda24afcbacb57828116bfc85b8ce",
+    "semantic_hash": "caecda24afcbacb57828116bfc85b8ce"
+  },
+  "components/home/calibrationState.ts": {
+    "mtime": 1783028514.8207543,
+    "ast_hash": "861a7a9d21fda3b9ad6b2f4f93227675",
+    "semantic_hash": "861a7a9d21fda3b9ad6b2f4f93227675"
+  },
+  "components/interactive/CharacteristicExplorer.tsx": {
+    "mtime": 1783808849.7958946,
+    "ast_hash": "bd4ef3d9d15dde3ae8a4969b0bcbf916",
+    "semantic_hash": "bd4ef3d9d15dde3ae8a4969b0bcbf916"
+  },
+  "components/interactive/DataViz/DistributionViz.tsx": {
+    "mtime": 1783352008.9514332,
+    "ast_hash": "a53bfb3893639eee74f91ecde5481918",
+    "semantic_hash": "a53bfb3893639eee74f91ecde5481918"
+  },
+  "components/interactive/DataViz/IconGridViz.tsx": {
+    "mtime": 1783351932.499097,
+    "ast_hash": "6fd6e2cdb0435523ed069fab08f969a9",
+    "semantic_hash": "6fd6e2cdb0435523ed069fab08f969a9"
+  },
+  "components/interactive/DataViz/IsotypeDistributionViz.tsx": {
+    "mtime": 1783884201.3075852,
+    "ast_hash": "65c0b123d17c40aa59a8426dc712aaf0",
+    "semantic_hash": "65c0b123d17c40aa59a8426dc712aaf0"
+  },
+  "components/interactive/DataViz/IsotypeGlyphViz.tsx": {
+    "mtime": 1783351872.7005527,
+    "ast_hash": "2fbb0f4e283caefe302de34aceb2717c",
+    "semantic_hash": "2fbb0f4e283caefe302de34aceb2717c"
+  },
+  "components/interactive/DataViz/IsotypeMatrixViz.tsx": {
+    "mtime": 1783884201.309584,
+    "ast_hash": "0e2eb5769f2839cd199281c0f1acdfbb",
+    "semantic_hash": "0e2eb5769f2839cd199281c0f1acdfbb"
+  },
+  "components/interactive/DataViz/IsotypeTimeSeriesViz.tsx": {
+    "mtime": 1783917414.8258622,
+    "ast_hash": "1697ea20afff8f3fa6f133ad56060ab4",
+    "semantic_hash": "1697ea20afff8f3fa6f133ad56060ab4"
+  },
+  "components/interactive/DataViz/MapViz.tsx": {
+    "mtime": 1783947045.015327,
+    "ast_hash": "b9b0295f5f6e44845ef97f4bf3889882",
+    "semantic_hash": "b9b0295f5f6e44845ef97f4bf3889882"
+  },
+  "components/interactive/DataViz/MatrixViz.tsx": {
+    "mtime": 1783353141.099724,
+    "ast_hash": "30552a9b063d7fbf954d8942fd87b22d",
+    "semantic_hash": "30552a9b063d7fbf954d8942fd87b22d"
+  },
+  "components/interactive/DataViz/PerCapitaViz.tsx": {
+    "mtime": 1783351901.4546797,
+    "ast_hash": "1a78cb6473b2ed16e0bcf4b512f10f1d",
+    "semantic_hash": "1a78cb6473b2ed16e0bcf4b512f10f1d"
+  },
+  "components/interactive/DataViz/ScalarViz.tsx": {
+    "mtime": 1783351828.701997,
+    "ast_hash": "532632c13f2bfb25ed32b8c218e53331",
+    "semantic_hash": "532632c13f2bfb25ed32b8c218e53331"
+  },
+  "components/interactive/DataViz/TimeSeriesViz.tsx": {
+    "mtime": 1783353150.4120429,
+    "ast_hash": "1d820961f04b6c5c4a4134c3899f0367",
+    "semantic_hash": "1d820961f04b6c5c4a4134c3899f0367"
+  },
+  "components/interactive/DataViz/VizRouter.tsx": {
+    "mtime": 1783348203.8270023,
+    "ast_hash": "1f91bd9576ce4243f582699a23d3511f",
+    "semantic_hash": "1f91bd9576ce4243f582699a23d3511f"
+  },
+  "components/interactive/DataViz/VizShared.tsx": {
+    "mtime": 1783809023.9309204,
+    "ast_hash": "c0a511b483c8b24affe7d66b6bb83814",
+    "semantic_hash": "c0a511b483c8b24affe7d66b6bb83814"
+  },
+  "components/interactive/EntityGrid.tsx": {
+    "mtime": 1783460468.5329244,
+    "ast_hash": "cf6e22912a86a1de80ce012dd46d9fcd",
+    "semantic_hash": "cf6e22912a86a1de80ce012dd46d9fcd"
+  },
+  "components/interactive/EntityIcon.tsx": {
+    "mtime": 1783948987.8996558,
+    "ast_hash": "ec2717699634263c0f854d7ce32df444",
+    "semantic_hash": "ec2717699634263c0f854d7ce32df444"
+  },
+  "components/interactive/InteractiveLayout.tsx": {
+    "mtime": 1783888171.237057,
+    "ast_hash": "7425510a9615bc67b08b70f1e29f255b",
+    "semantic_hash": "7425510a9615bc67b08b70f1e29f255b"
+  },
+  "components/interactive/ShareStory.tsx": {
+    "mtime": 1783431927.3874533,
+    "ast_hash": "a4895987e51c723f618da71c31e3d44b",
+    "semantic_hash": "a4895987e51c723f618da71c31e3d44b"
+  },
+  "components/shared/AmbientWalkers.tsx": {
+    "mtime": 1783106119.5314808,
+    "ast_hash": "7e2676eea6ecdd98620b32c073e6f1ab",
+    "semantic_hash": "7e2676eea6ecdd98620b32c073e6f1ab"
+  },
+  "components/shared/PicaLogo.tsx": {
+    "mtime": 1783461771.9998505,
+    "ast_hash": "ca8f1707b7ef4dd35b983a0cc392def4",
+    "semantic_hash": "ca8f1707b7ef4dd35b983a0cc392def4"
+  },
+  "components/shared/PixelIcon.tsx": {
+    "mtime": 1783948955.0253797,
+    "ast_hash": "baddb5718b1becb7cace7c065d1422c6",
+    "semantic_hash": "baddb5718b1becb7cace7c065d1422c6"
+  },
+  "components/shared/SpriteBadge.tsx": {
+    "mtime": 1783101263.4922595,
+    "ast_hash": "03bc6f20fb545f897ce8b5c95e02bd0b",
+    "semantic_hash": "03bc6f20fb545f897ce8b5c95e02bd0b"
+  },
+  "data/economia/consumo-electrico-por-region.json": {
+    "mtime": 1783808691.5196352,
+    "ast_hash": "d938cb4923cdbfb9c850d03cf1b62213",
+    "semantic_hash": "d938cb4923cdbfb9c850d03cf1b62213"
+  },
+  "data/economia/inflacion-anual.json": {
+    "mtime": 1783808691.522636,
+    "ast_hash": "7a410b477605522f28d945dce6eb0574",
+    "semantic_hash": "7a410b477605522f28d945dce6eb0574"
+  },
+  "data/economia/ipc-por-division.json": {
+    "mtime": 1783808691.5246174,
+    "ast_hash": "1a72d7ad919f36bc295ef9307ed8e78b",
+    "semantic_hash": "1a72d7ad919f36bc295ef9307ed8e78b"
+  },
+  "data/educacion/aprobacion-media-basica-por-departamento.json": {
+    "mtime": 1783808691.527622,
+    "ast_hash": "9d74b6907c3c3b52ac0a18e434eb2c54",
+    "semantic_hash": "9d74b6907c3c3b52ac0a18e434eb2c54"
+  },
+  "data/educacion/aprobacion-media-superior-por-departamento.json": {
+    "mtime": 1783808691.5296316,
+    "ast_hash": "e4bedbbbf1ccecee2fe329c9dee50164",
+    "semantic_hash": "e4bedbbbf1ccecee2fe329c9dee50164"
+  },
+  "data/educacion/egresados-terciaria-por-area.json": {
+    "mtime": 1783808691.53062,
+    "ast_hash": "4f17edfe811b7b635f8d61423ac77ab9",
+    "semantic_hash": "4f17edfe811b7b635f8d61423ac77ab9"
+  },
+  "data/educacion/egreso-media-superior.json": {
+    "mtime": 1783383622.741045,
+    "ast_hash": "aaeeaf6779abeb9c28393277d0c80128",
+    "semantic_hash": "aaeeaf6779abeb9c28393277d0c80128"
+  },
+  "data/educacion/egreso-por-nivel-socioeconomico.json": {
+    "mtime": 1783383622.745047,
+    "ast_hash": "4f12d314b9707fc65883ef06ffe063f9",
+    "semantic_hash": "4f12d314b9707fc65883ef06ffe063f9"
+  },
+  "data/educacion/matriculados-terciaria-por-area.json": {
+    "mtime": 1783808691.5326993,
+    "ast_hash": "d03daf049d18486c661fb975fe757781",
+    "semantic_hash": "d03daf049d18486c661fb975fe757781"
+  },
+  "data/educacion/nivel-educativo.json": {
+    "mtime": 1783344210.2574086,
+    "ast_hash": "7009286347d1d067d3260749ec3d2f39",
+    "semantic_hash": "7009286347d1d067d3260749ec3d2f39"
+  },
+  "data/educacion/nivel-por-generacion.json": {
+    "mtime": 1783344210.2594228,
+    "ast_hash": "d765a098b52b060d0837acb1421b67fa",
+    "semantic_hash": "d765a098b52b060d0837acb1421b67fa"
+  },
+  "data/educacion/nivel-por-sexo.json": {
+    "mtime": 1783344210.2594228,
+    "ast_hash": "83e1b87b286a9c3ed3afd7873efaa010",
+    "semantic_hash": "83e1b87b286a9c3ed3afd7873efaa010"
+  },
+  "data/educacion/sin-ciclo-basico-por-departamento.json": {
+    "mtime": 1783344210.2609267,
+    "ast_hash": "4d91f440f32e2ccff748e014f395b7ec",
+    "semantic_hash": "4d91f440f32e2ccff748e014f395b7ec"
+  },
+  "data/educacion/terciaria-por-departamento.json": {
+    "mtime": 1783344210.2619333,
+    "ast_hash": "2ed6823158c121fd71677008acda7a03",
+    "semantic_hash": "2ed6823158c121fd71677008acda7a03"
+  },
+  "data/salud/camas-por-prestador.json": {
+    "mtime": 1783808691.5378857,
+    "ast_hash": "19a6f3aedd3a6876be1e54fffd591706",
+    "semantic_hash": "19a6f3aedd3a6876be1e54fffd591706"
+  },
+  "data/salud/cobertura-asse-por-departamento.json": {
+    "mtime": 1783808691.5388868,
+    "ast_hash": "305029d58c39322bf657f9364e4ec4ad",
+    "semantic_hash": "305029d58c39322bf657f9364e4ec4ad"
+  },
+  "data/salud/cobertura-iamc-por-departamento.json": {
+    "mtime": 1783808691.5408857,
+    "ast_hash": "3034dedac85502247bb0596aec589ac1",
+    "semantic_hash": "3034dedac85502247bb0596aec589ac1"
+  },
+  "data/salud/cobertura-por-edad.json": {
+    "mtime": 1783808691.5418882,
+    "ast_hash": "00e27aa291d031e51c3a4dd70575e6d3",
+    "semantic_hash": "00e27aa291d031e51c3a4dd70575e6d3"
+  },
+  "data/salud/cobertura-salud.json": {
+    "mtime": 1783808691.5418882,
+    "ast_hash": "2cc51013043d49cac1a59c8d1d9c85c2",
+    "semantic_hash": "2cc51013043d49cac1a59c8d1d9c85c2"
+  },
+  "data/salud/consultas-por-afiliado.json": {
+    "mtime": 1783808691.5433137,
+    "ast_hash": "975dbfd59ac4baed99ab0e4b90b9d106",
+    "semantic_hash": "975dbfd59ac4baed99ab0e4b90b9d106"
+  },
+  "data/salud/egresos-hospitalarios.json": {
+    "mtime": 1783808691.544322,
+    "ast_hash": "260354af92161f0b696b94b77b39079a",
+    "semantic_hash": "260354af92161f0b696b94b77b39079a"
+  },
+  "data/salud/financiamiento-salud.json": {
+    "mtime": 1783808691.544322,
+    "ast_hash": "f841f81a0c7087d6a92e83dba3fe88ca",
+    "semantic_hash": "f841f81a0c7087d6a92e83dba3fe88ca"
+  },
+  "data/salud/gasto-salud-por-habitante.json": {
+    "mtime": 1783808691.545737,
+    "ast_hash": "329cb8ca0f72c8d2a88a9b38a4685d06",
+    "semantic_hash": "329cb8ca0f72c8d2a88a9b38a4685d06"
+  },
+  "data/salud/medicos-por-departamento.json": {
+    "mtime": 1783808691.545737,
+    "ast_hash": "33156a597c597475c24dbc63c03d2c49",
+    "semantic_hash": "33156a597c597475c24dbc63c03d2c49"
+  },
+  "data/salud/mortalidad-infantil.json": {
+    "mtime": 1783383622.745047,
+    "ast_hash": "536db07162a0d0be73e0ae1a19e60bc0",
+    "semantic_hash": "536db07162a0d0be73e0ae1a19e60bc0"
+  },
+  "data/salud/profesionales-por-profesion.json": {
+    "mtime": 1783808691.5468745,
+    "ast_hash": "3fd4d0dc8cdf8e4e69feea9b0d42a6ba",
+    "semantic_hash": "3fd4d0dc8cdf8e4e69feea9b0d42a6ba"
+  },
+  "data/salud/vacunacion.json": {
+    "mtime": 1783383622.7463467,
+    "ast_hash": "2b82b5187c776cb2d01630a72c9a3917",
+    "semantic_hash": "2b82b5187c776cb2d01630a72c9a3917"
+  },
+  "data/seguridad/fallecidos-transito-por-departamento.json": {
+    "mtime": 1783808691.5481956,
+    "ast_hash": "cb67c7e8e955e2896c57452f0c1257e5",
+    "semantic_hash": "cb67c7e8e955e2896c57452f0c1257e5"
+  },
+  "data/seguridad/femicidios.json": {
+    "mtime": 1783347940.0769022,
+    "ast_hash": "db6054546570c3b4461a8f6305659a87",
+    "semantic_hash": "db6054546570c3b4461a8f6305659a87"
+  },
+  "data/seguridad/feminicidio-arma.json": {
+    "mtime": 1783908065.900694,
+    "ast_hash": "c4a0aa46cf9657e35496e52cdd21a126",
+    "semantic_hash": "c4a0aa46cf9657e35496e52cdd21a126"
+  },
+  "data/seguridad/feminicidio-edad-victimas.json": {
+    "mtime": 1783908065.898168,
+    "ast_hash": "72e32fab459af8770e3e215676664e90",
+    "semantic_hash": "72e32fab459af8770e3e215676664e90"
+  },
+  "data/seguridad/feminicidio-relacion.json": {
+    "mtime": 1783908065.8964736,
+    "ast_hash": "eae8743ea228fc98131f998ed5a4b090",
+    "semantic_hash": "eae8743ea228fc98131f998ed5a4b090"
+  },
+  "data/seguridad/feminicidios-por-anio.json": {
+    "mtime": 1783908065.8934815,
+    "ast_hash": "75e0af8b7019f3528f36e0b4cbcb754e",
+    "semantic_hash": "75e0af8b7019f3528f36e0b4cbcb754e"
+  },
+  "data/seguridad/feminicidios-tasa-departamento.json": {
+    "mtime": 1783908065.902702,
+    "ast_hash": "ee98db021a5cb673d0b645a702709154",
+    "semantic_hash": "ee98db021a5cb673d0b645a702709154"
+  },
+  "data/seguridad/hurtos-por-departamento.json": {
+    "mtime": 1783808691.550466,
+    "ast_hash": "6d7776dd75d17cba98502974a0196e49",
+    "semantic_hash": "6d7776dd75d17cba98502974a0196e49"
+  },
+  "data/seguridad/procesamientos-por-delito.json": {
+    "mtime": 1783808691.5524883,
+    "ast_hash": "0f4d918c347ccc955830a8f63f0f4a22",
+    "semantic_hash": "0f4d918c347ccc955830a8f63f0f4a22"
+  },
+  "data/seguridad/siniestros-transito.json": {
+    "mtime": 1783808691.553473,
+    "ast_hash": "da96e2ec19f9837c20b584acc9fd1094",
+    "semantic_hash": "da96e2ec19f9837c20b584acc9fd1094"
+  },
+  "data/trabajo/actividad-por-departamento.json": {
+    "mtime": 1783344210.2763107,
+    "ast_hash": "3f4605f642f893c78fb32073bd4b42eb",
+    "semantic_hash": "3f4605f642f893c78fb32073bd4b42eb"
+  },
+  "data/trabajo/actividad-por-edad.json": {
+    "mtime": 1783344210.2773218,
+    "ast_hash": "2b2ccf530b8bce36e75e05296ae9d8d6",
+    "semantic_hash": "2b2ccf530b8bce36e75e05296ae9d8d6"
+  },
+  "data/trabajo/actividad-por-nivel-educativo.json": {
+    "mtime": 1783344210.2793286,
+    "ast_hash": "91ddb94b32b433db219a1f735a348e4c",
+    "semantic_hash": "91ddb94b32b433db219a1f735a348e4c"
+  },
+  "data/trabajo/actividad-por-sexo.json": {
+    "mtime": 1783344210.2803273,
+    "ast_hash": "aee74ad5bf8b23a25f542fcd99776a85",
+    "semantic_hash": "aee74ad5bf8b23a25f542fcd99776a85"
+  },
+  "data/trabajo/desempleo-por-departamento.json": {
+    "mtime": 1783344210.2803273,
+    "ast_hash": "85e952cb42c997b7616d64379149e6b4",
+    "semantic_hash": "85e952cb42c997b7616d64379149e6b4"
+  },
+  "data/trabajo/desempleo-por-edad.json": {
+    "mtime": 1783344210.2817936,
+    "ast_hash": "de5809015e78e745fc611962d2cbdc8f",
+    "semantic_hash": "de5809015e78e745fc611962d2cbdc8f"
+  },
+  "data/trabajo/desempleo-por-nivel-educativo.json": {
+    "mtime": 1783344210.282799,
+    "ast_hash": "9cb2438d7e88ce03d69e284173bcd6d4",
+    "semantic_hash": "9cb2438d7e88ce03d69e284173bcd6d4"
+  },
+  "data/trabajo/desempleo-por-sexo.json": {
+    "mtime": 1783344210.2838006,
+    "ast_hash": "7df4a643cad3d8adb9b2a7da385a657c",
+    "semantic_hash": "7df4a643cad3d8adb9b2a7da385a657c"
+  },
+  "data/trabajo/desempleo-sexo-edad.json": {
+    "mtime": 1783344210.2838006,
+    "ast_hash": "055e1c81cd0662cd4d1edaeff063c848",
+    "semantic_hash": "055e1c81cd0662cd4d1edaeff063c848"
+  },
+  "data/trabajo/empleo-por-departamento.json": {
+    "mtime": 1783344210.2857995,
+    "ast_hash": "c8c9a86c93f11264c1333d6dd67917e9",
+    "semantic_hash": "c8c9a86c93f11264c1333d6dd67917e9"
+  },
+  "data/trabajo/empleo-por-edad.json": {
+    "mtime": 1783344210.2857995,
+    "ast_hash": "58d095b994aefdc84e15bf4de22d6fb3",
+    "semantic_hash": "58d095b994aefdc84e15bf4de22d6fb3"
+  },
+  "data/trabajo/empleo-por-nivel-educativo.json": {
+    "mtime": 1783344210.2873058,
+    "ast_hash": "293e9c2e802c42ec50809beb73b937d6",
+    "semantic_hash": "293e9c2e802c42ec50809beb73b937d6"
+  },
+  "data/trabajo/empleo-por-sexo.json": {
+    "mtime": 1783344210.288311,
+    "ast_hash": "53c4d43c7bcdf74b3e05b976ff87097d",
+    "semantic_hash": "53c4d43c7bcdf74b3e05b976ff87097d"
+  },
+  "data/trabajo/informalidad-por-categoria.json": {
+    "mtime": 1783344210.289318,
+    "ast_hash": "10774c325e2e492d89c65d4078312ebe",
+    "semantic_hash": "10774c325e2e492d89c65d4078312ebe"
+  },
+  "data/trabajo/informalidad-por-departamento.json": {
+    "mtime": 1783344210.289318,
+    "ast_hash": "b5a84016031190ad7da25a5e8fdc304a",
+    "semantic_hash": "b5a84016031190ad7da25a5e8fdc304a"
+  },
+  "data/trabajo/informalidad-por-edad.json": {
+    "mtime": 1783344210.2903166,
+    "ast_hash": "cc85f99b3737df2124aafda595a2682c",
+    "semantic_hash": "cc85f99b3737df2124aafda595a2682c"
+  },
+  "data/trabajo/informalidad-por-nivel-educativo.json": {
+    "mtime": 1783344210.2915514,
+    "ast_hash": "8b046769fc2be533825b1780d4f1d4fb",
+    "semantic_hash": "8b046769fc2be533825b1780d4f1d4fb"
+  },
+  "data/trabajo/informalidad-por-sexo.json": {
+    "mtime": 1783344210.2925513,
+    "ast_hash": "a5082ea1fb38cc8bfea8457c3928401a",
+    "semantic_hash": "a5082ea1fb38cc8bfea8457c3928401a"
+  },
+  "data/trabajo/informalidad-sexo-nivel.json": {
+    "mtime": 1783344210.2935584,
+    "ast_hash": "eaf14ee27552323fdecbc5b37f26ab41",
+    "semantic_hash": "eaf14ee27552323fdecbc5b37f26ab41"
+  },
+  "data/trabajo/ocupados-por-categoria.json": {
+    "mtime": 1783344210.294557,
+    "ast_hash": "0d960808147852b64d87184547b47348",
+    "semantic_hash": "0d960808147852b64d87184547b47348"
+  },
+  "data/trabajo/ocupados-por-sector.json": {
+    "mtime": 1783808691.5755744,
+    "ast_hash": "54ee5eb12aa6cfb2cbe10b8e24f39294",
+    "semantic_hash": "54ee5eb12aa6cfb2cbe10b8e24f39294"
+  },
+  "data/trabajo/ocupados-por-tipo-ocupacion.json": {
+    "mtime": 1783808691.5755744,
+    "ast_hash": "2256743d77e2c21c8e3bf45bafb01e97",
+    "semantic_hash": "2256743d77e2c21c8e3bf45bafb01e97"
+  },
+  "data/trabajo/salarios.json": {
+    "mtime": 1783045886.6133723,
+    "ast_hash": "f098a061c5cf117bbe3391cd076e62a5",
+    "semantic_hash": "f098a061c5cf117bbe3391cd076e62a5"
+  },
+  "data/trabajo/subempleo-por-categoria.json": {
+    "mtime": 1783344210.2985585,
+    "ast_hash": "514699283e1daaf51b01641d5cc97bfa",
+    "semantic_hash": "514699283e1daaf51b01641d5cc97bfa"
+  },
+  "data/trabajo/subempleo-por-departamento.json": {
+    "mtime": 1783344210.299558,
+    "ast_hash": "5df5635f63cc8f6674c672cde31d4027",
+    "semantic_hash": "5df5635f63cc8f6674c672cde31d4027"
+  },
+  "data/trabajo/subempleo-por-edad.json": {
+    "mtime": 1783344210.3005586,
+    "ast_hash": "5ca4e674d5bbd91c8181e73e273b86e8",
+    "semantic_hash": "5ca4e674d5bbd91c8181e73e273b86e8"
+  },
+  "data/trabajo/subempleo-por-nivel-educativo.json": {
+    "mtime": 1783344210.3005586,
+    "ast_hash": "0b9b7cc51719e6847ccd2f79cee9487f",
+    "semantic_hash": "0b9b7cc51719e6847ccd2f79cee9487f"
+  },
+  "data/trabajo/subempleo-por-sexo.json": {
+    "mtime": 1783344210.3020387,
+    "ast_hash": "2df3cb8420a7062732d7e1637f3e54a8",
+    "semantic_hash": "2df3cb8420a7062732d7e1637f3e54a8"
+  },
+  "hooks/useColorDots.ts": {
+    "mtime": 1783027695.0034685,
+    "ast_hash": "a20485f6b135adcd5a979da1131f10b9",
+    "semantic_hash": "a20485f6b135adcd5a979da1131f10b9"
+  },
+  "hooks/useCountUp.ts": {
+    "mtime": 1783129053.6830568,
+    "ast_hash": "e2f24562cb13e3ee76a8bdcb963b5688",
+    "semantic_hash": "e2f24562cb13e3ee76a8bdcb963b5688"
+  },
+  "hooks/useIsMobile.ts": {
+    "mtime": 1783429349.757998,
+    "ast_hash": "4da0fe86752cd6d53feea4f2840f40bc",
+    "semantic_hash": "4da0fe86752cd6d53feea4f2840f40bc"
+  },
+  "hooks/useSpriteWalkers.ts": {
+    "mtime": 1783225644.9937198,
+    "ast_hash": "d497bbf2c5f285b83e36a321ba8ce2cc",
+    "semantic_hash": "d497bbf2c5f285b83e36a321ba8ce2cc"
+  },
+  "lib/assets.ts": {
+    "mtime": 1783887646.4453578,
+    "ast_hash": "b15853073f71879efca22af6dafefc14",
+    "semantic_hash": "b15853073f71879efca22af6dafefc14"
+  },
+  "lib/colors.ts": {
+    "mtime": 1783883859.739899,
+    "ast_hash": "cbfbf519502beb3e400f0f953cc11b90",
+    "semantic_hash": "cbfbf519502beb3e400f0f953cc11b90"
+  },
+  "lib/datasets.ts": {
+    "mtime": 1783908732.1359975,
+    "ast_hash": "d0e0017e8c77a71339cecdeb92ac0f1c",
+    "semantic_hash": "d0e0017e8c77a71339cecdeb92ac0f1c"
+  },
+  "lib/hitbox.ts": {
+    "mtime": 1782913858.164776,
+    "ast_hash": "62a2892cf8c62966ca9b664200b3c4ff",
+    "semantic_hash": "62a2892cf8c62966ca9b664200b3c4ff"
+  },
+  "lib/isotype.ts": {
+    "mtime": 1783946385.5996375,
+    "ast_hash": "af4e7c13fb39fa36009077c1d7331fb3",
+    "semantic_hash": "af4e7c13fb39fa36009077c1d7331fb3"
+  },
+  "lib/randomDataset.ts": {
+    "mtime": 1783810616.6833525,
+    "ast_hash": "28d74f390991033b5712667631a1a67e",
+    "semantic_hash": "28d74f390991033b5712667631a1a67e"
+  },
+  "lib/slug.ts": {
+    "mtime": 1783047174.8752005,
+    "ast_hash": "4715b657fe72dbfd88be74138e3499f0",
+    "semantic_hash": "4715b657fe72dbfd88be74138e3499f0"
+  },
+  "lib/spriteManager.ts": {
+    "mtime": 1782913367.1310716,
+    "ast_hash": "23e9001efd148c64fc682c362632e8e4",
+    "semantic_hash": "23e9001efd148c64fc682c362632e8e4"
+  },
+  "lib/storyRenderer.ts": {
+    "mtime": 1783884201.3115866,
+    "ast_hash": "34c7388383e975ad0defc8b1a0139e40",
+    "semantic_hash": "34c7388383e975ad0defc8b1a0139e40"
+  },
+  "schemas/base.ts": {
+    "mtime": 1783348179.73919,
+    "ast_hash": "6d16db8b71ed2747f735e64b31c1ac1d",
+    "semantic_hash": "6d16db8b71ed2747f735e64b31c1ac1d"
+  },
+  "types/data.ts": {
+    "mtime": 1783035163.5812683,
+    "ast_hash": "f48874e7562bc5ff5ae7ed4490ab3e1a",
+    "semantic_hash": "f48874e7562bc5ff5ae7ed4490ab3e1a"
+  },
+  "types/sprites.ts": {
+    "mtime": 1783025981.0666354,
+    "ast_hash": "40dcbda7e277a6e65cbd9dd324bbb7d3",
+    "semantic_hash": "40dcbda7e277a6e65cbd9dd324bbb7d3"
+  },
+  "data/README.md": {
+    "mtime": 1783440855.1143155,
+    "ast_hash": "9210640b689bc6d4f4bf81587fe5ce10",
+    "semantic_hash": "9210640b689bc6d4f4bf81587fe5ce10"
+  }
+}
