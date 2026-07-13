@@ -1,0 +1,35 @@
+{
+  "id": "feminicidio-edad-victimas",
+  "tematica": "seguridad",
+  "entidad": "Violencia de género",
+  "caracteristica": "Edad de las víctimas",
+  "tipoResultado": "B",
+  "personas": true,
+  "fuente": "Feminicidio Uruguay — registro de la sociedad civil a partir de prensa",
+  "fuenteUrl": "https://docs.google.com/spreadsheets/d/1PO6wDzI1pCV7q3vTey7aJHRb1d4nVMs9eW21L3R2aPs/edit",
+  "anio": 2025,
+  "unidad": "%",
+  "descripcion": "Edad de las víctimas de feminicidio, sobre los 721 casos con dato del registro 2001–2025. Registro ciudadano relevado de medios de prensa (no oficial): sus criterios son más amplios que los del Observatorio de Violencia de Género, por eso las cifras pueden diferir. Línea de apoyo: 0800 4141 (*4141 desde el celular).",
+  "categorias": [
+    {
+      "label": "Menores de 18",
+      "valor": 10.8
+    },
+    {
+      "label": "18 a 29",
+      "valor": 26.5
+    },
+    {
+      "label": "30 a 44",
+      "valor": 33.1
+    },
+    {
+      "label": "45 a 59",
+      "valor": 15.3
+    },
+    {
+      "label": "60 y más",
+      "valor": 14.3
+    }
+  ]
+}

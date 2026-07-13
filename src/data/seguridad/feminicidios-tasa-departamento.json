@@ -1,0 +1,110 @@
+{
+  "id": "feminicidios-tasa-departamento",
+  "tematica": "seguridad",
+  "entidad": "Departamentos",
+  "caracteristica": "Tasa de feminicidios",
+  "tipoResultado": "E",
+  "personas": true,
+  "fuente": "Feminicidio Uruguay — registro de la sociedad civil a partir de prensa",
+  "fuenteUrl": "https://docs.google.com/spreadsheets/d/1PO6wDzI1pCV7q3vTey7aJHRb1d4nVMs9eW21L3R2aPs/edit",
+  "anio": 2025,
+  "unidad": "por 100.000 mujeres",
+  "descripcion": "Tasa anual de feminicidios por cada 100.000 mujeres, por departamento (casos de marzo 2001 a 2026 sobre población femenina del Censo 2011). Registro ciudadano relevado de medios de prensa (no oficial): sus criterios son más amplios que los del Observatorio de Violencia de Género, por eso las cifras pueden diferir. Línea de apoyo: 0800 4141 (*4141 desde el celular).",
+  "departamentos": [
+    {
+      "id": "UY-AR",
+      "nombre": "Artigas",
+      "valor": 2.52
+    },
+    {
+      "id": "UY-CA",
+      "nombre": "Canelones",
+      "valor": 1.5
+    },
+    {
+      "id": "UY-CL",
+      "nombre": "Cerro Largo",
+      "valor": 2.79
+    },
+    {
+      "id": "UY-CO",
+      "nombre": "Colonia",
+      "valor": 1.31
+    },
+    {
+      "id": "UY-DU",
+      "nombre": "Durazno",
+      "valor": 1.63
+    },
+    {
+      "id": "UY-FS",
+      "nombre": "Flores",
+      "valor": 2.16
+    },
+    {
+      "id": "UY-FD",
+      "nombre": "Florida",
+      "valor": 2.19
+    },
+    {
+      "id": "UY-LA",
+      "nombre": "Lavalleja",
+      "valor": 1.18
+    },
+    {
+      "id": "UY-MA",
+      "nombre": "Maldonado",
+      "valor": 2.21
+    },
+    {
+      "id": "UY-MO",
+      "nombre": "Montevideo",
+      "valor": 1.54
+    },
+    {
+      "id": "UY-PA",
+      "nombre": "Paysandú",
+      "valor": 2.04
+    },
+    {
+      "id": "UY-RN",
+      "nombre": "Río Negro",
+      "valor": 1.3
+    },
+    {
+      "id": "UY-RV",
+      "nombre": "Rivera",
+      "valor": 2.44
+    },
+    {
+      "id": "UY-RO",
+      "nombre": "Rocha",
+      "valor": 2.14
+    },
+    {
+      "id": "UY-SA",
+      "nombre": "Salto",
+      "valor": 1.04
+    },
+    {
+      "id": "UY-SJ",
+      "nombre": "San José",
+      "valor": 1.3
+    },
+    {
+      "id": "UY-SO",
+      "nombre": "Soriano",
+      "valor": 1.22
+    },
+    {
+      "id": "UY-TA",
+      "nombre": "Tacuarembó",
+      "valor": 2.22
+    },
+    {
+      "id": "UY-TT",
+      "nombre": "Treinta y Tres",
+      "valor": 3.49
+    }
+  ]
+}

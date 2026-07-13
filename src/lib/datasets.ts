@@ -37,6 +37,11 @@ import salud_profesionales_por_profesion from "@/data/salud/profesionales-por-pr
 import salud_vacunacion from "@/data/salud/vacunacion.json";
 import seguridad_fallecidos_transito_por_departamento from "@/data/seguridad/fallecidos-transito-por-departamento.json";
 import seguridad_femicidios from "@/data/seguridad/femicidios.json";
+import seguridad_feminicidio_arma from "@/data/seguridad/feminicidio-arma.json";
+import seguridad_feminicidio_edad_victimas from "@/data/seguridad/feminicidio-edad-victimas.json";
+import seguridad_feminicidio_relacion from "@/data/seguridad/feminicidio-relacion.json";
+import seguridad_feminicidios_por_anio from "@/data/seguridad/feminicidios-por-anio.json";
+import seguridad_feminicidios_tasa_departamento from "@/data/seguridad/feminicidios-tasa-departamento.json";
 import seguridad_hurtos_por_departamento from "@/data/seguridad/hurtos-por-departamento.json";
 import seguridad_procesamientos_por_delito from "@/data/seguridad/procesamientos-por-delito.json";
 import seguridad_siniestros_transito from "@/data/seguridad/siniestros-transito.json";
@@ -99,6 +104,11 @@ const RAW_DATASETS: unknown[] = [
   salud_vacunacion,
   seguridad_fallecidos_transito_por_departamento,
   seguridad_femicidios,
+  seguridad_feminicidio_arma,
+  seguridad_feminicidio_edad_victimas,
+  seguridad_feminicidio_relacion,
+  seguridad_feminicidios_por_anio,
+  seguridad_feminicidios_tasa_departamento,
   seguridad_hurtos_por_departamento,
   seguridad_procesamientos_por_delito,
   seguridad_siniestros_transito,

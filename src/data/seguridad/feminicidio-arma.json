@@ -1,0 +1,39 @@
+{
+  "id": "feminicidio-arma",
+  "tematica": "seguridad",
+  "entidad": "Violencia de género",
+  "caracteristica": "Medio utilizado",
+  "tipoResultado": "B",
+  "personas": true,
+  "fuente": "Feminicidio Uruguay — registro de la sociedad civil a partir de prensa",
+  "fuenteUrl": "https://docs.google.com/spreadsheets/d/1PO6wDzI1pCV7q3vTey7aJHRb1d4nVMs9eW21L3R2aPs/edit",
+  "anio": 2025,
+  "unidad": "%",
+  "descripcion": "Medio con el que se cometió el feminicidio, sobre los 532 casos con dato del registro 2001–2025. Registro ciudadano relevado de medios de prensa (no oficial): sus criterios son más amplios que los del Observatorio de Violencia de Género, por eso las cifras pueden diferir. Línea de apoyo: 0800 4141 (*4141 desde el celular).",
+  "categorias": [
+    {
+      "label": "Arma de fuego",
+      "valor": 47.2
+    },
+    {
+      "label": "Arma blanca",
+      "valor": 31.4
+    },
+    {
+      "label": "Golpes",
+      "valor": 9.6
+    },
+    {
+      "label": "Asfixia o estrangulamiento",
+      "valor": 6.6
+    },
+    {
+      "label": "Fuego",
+      "valor": 3.2
+    },
+    {
+      "label": "Otros o múltiples",
+      "valor": 2.1
+    }
+  ]
+}

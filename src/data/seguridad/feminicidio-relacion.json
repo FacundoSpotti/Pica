@@ -1,0 +1,35 @@
+{
+  "id": "feminicidio-relacion",
+  "tematica": "seguridad",
+  "entidad": "Violencia de género",
+  "caracteristica": "Relación del feminicida con la víctima",
+  "tipoResultado": "B",
+  "personas": true,
+  "fuente": "Feminicidio Uruguay — registro de la sociedad civil a partir de prensa",
+  "fuenteUrl": "https://docs.google.com/spreadsheets/d/1PO6wDzI1pCV7q3vTey7aJHRb1d4nVMs9eW21L3R2aPs/edit",
+  "anio": 2025,
+  "unidad": "%",
+  "descripcion": "Quién era el feminicida para la víctima, sobre los 654 casos aclarados del registro 2001–2025. Registro ciudadano relevado de medios de prensa (no oficial): sus criterios son más amplios que los del Observatorio de Violencia de Género, por eso las cifras pueden diferir. Línea de apoyo: 0800 4141 (*4141 desde el celular).",
+  "categorias": [
+    {
+      "label": "Pareja o ex-pareja",
+      "valor": 74.8
+    },
+    {
+      "label": "Familiar (padre, hijo u otro)",
+      "valor": 12.8
+    },
+    {
+      "label": "Pareja o ex-pareja de una familiar",
+      "valor": 2.9
+    },
+    {
+      "label": "Allegado u otro conocido",
+      "valor": 7.5
+    },
+    {
+      "label": "Sin vínculo",
+      "valor": 2
+    }
+  ]
+}

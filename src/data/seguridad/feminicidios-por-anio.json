@@ -1,0 +1,115 @@
+{
+  "id": "feminicidios-por-anio",
+  "tematica": "seguridad",
+  "entidad": "Violencia de género",
+  "caracteristica": "Feminicidios por año",
+  "tipoResultado": "C",
+  "personas": true,
+  "fuente": "Feminicidio Uruguay — registro de la sociedad civil a partir de prensa",
+  "fuenteUrl": "https://docs.google.com/spreadsheets/d/1PO6wDzI1pCV7q3vTey7aJHRb1d4nVMs9eW21L3R2aPs/edit",
+  "anio": 2025,
+  "unidad": "casos",
+  "descripcion": "Feminicidios registrados por año en Uruguay (2001 releva desde marzo). Registro ciudadano relevado de medios de prensa (no oficial): sus criterios son más amplios que los del Observatorio de Violencia de Género, por eso las cifras pueden diferir. Línea de apoyo: 0800 4141 (*4141 desde el celular).",
+  "puntos": [
+    {
+      "periodo": "2001",
+      "valor": 21
+    },
+    {
+      "periodo": "2002",
+      "valor": 15
+    },
+    {
+      "periodo": "2003",
+      "valor": 16
+    },
+    {
+      "periodo": "2004",
+      "valor": 31
+    },
+    {
+      "periodo": "2005",
+      "valor": 31
+    },
+    {
+      "periodo": "2006",
+      "valor": 28
+    },
+    {
+      "periodo": "2007",
+      "valor": 24
+    },
+    {
+      "periodo": "2008",
+      "valor": 31
+    },
+    {
+      "periodo": "2009",
+      "valor": 29
+    },
+    {
+      "periodo": "2010",
+      "valor": 31
+    },
+    {
+      "periodo": "2011",
+      "valor": 32
+    },
+    {
+      "periodo": "2012",
+      "valor": 34
+    },
+    {
+      "periodo": "2013",
+      "valor": 30
+    },
+    {
+      "periodo": "2014",
+      "valor": 20
+    },
+    {
+      "periodo": "2015",
+      "valor": 40
+    },
+    {
+      "periodo": "2016",
+      "valor": 23
+    },
+    {
+      "periodo": "2017",
+      "valor": 39
+    },
+    {
+      "periodo": "2018",
+      "valor": 40
+    },
+    {
+      "periodo": "2019",
+      "valor": 31
+    },
+    {
+      "periodo": "2020",
+      "valor": 24
+    },
+    {
+      "periodo": "2021",
+      "valor": 32
+    },
+    {
+      "periodo": "2022",
+      "valor": 45
+    },
+    {
+      "periodo": "2023",
+      "valor": 26
+    },
+    {
+      "periodo": "2024",
+      "valor": 34
+    },
+    {
+      "periodo": "2025",
+      "valor": 27
+    }
+  ]
+}

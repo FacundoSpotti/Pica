@@ -38,7 +38,14 @@ for (const { d } of datasets) {
   if (d.fuenteUrl) {
     try {
       const host = new URL(d.fuenteUrl).hostname.replace(/^www\./, '');
-      if (!OK_HOSTS.some((h) => host === h || host.endsWith('.' + h) || host.endsWith(h)))
+      // Fuentes de la SOCIEDAD CIVIL declaradas como tales en `fuente` (ej.
+      // "registro de la sociedad civil") están permitidas: la etiqueta es la
+      // transparencia. Solo se warnea el dominio si NO está declarado.
+      const declaradaNoOficial = /sociedad civil/i.test(d.fuente);
+      if (
+        !declaradaNoOficial &&
+        !OK_HOSTS.some((h) => host === h || host.endsWith('.' + h) || host.endsWith(h))
+      )
         add('WARN', id, `fuenteUrl no es de un dominio oficial conocido: ${host}`);
     } catch {
       add('ERROR', id, `fuenteUrl inválida: ${d.fuenteUrl}`);
