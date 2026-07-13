@@ -88,7 +88,11 @@ function DeptPanel({
     const total = mode === 'proporcion' ? Math.min(CAP, Math.round(base / per)) : colored;
     // El canvas se ajusta a las figuras REALES: en magnitud con pocas figuras
     // (ej. tasa 2-3) las filas también se reducen — sin cajas vacías gigantes.
-    const rows = mode === 'proporcion' ? CROWD_ROWS : Math.max(1, Math.min(CROWD_ROWS, total));
+    // Magnitud: orientación HORIZONTAL — filas = ceil(total/8) (18 casos ⇒ 3×6)
+    const rows =
+      mode === 'proporcion'
+        ? CROWD_ROWS
+        : Math.max(1, Math.min(CROWD_ROWS, Math.ceil(total / 8)));
     const cols = Math.max(1, Math.ceil(total / rows));
     const panelW = MARGIN * 2 + (cols - 1) * PITCH_X + C_W * SCALE;
     const panelH = MARGIN * 2 + (rows - 1) * PITCH_Y + C_H * SCALE;
@@ -238,7 +242,7 @@ export default function MapViz({ data }: { data: DatasetEspacial }) {
       {/* Composición centrada: [seleccionado] [MAPA] [comparado] */}
       <div
         ref={rowRef}
-        className="grid grid-cols-1 items-center gap-6 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]"
+        className="grid grid-cols-1 items-start gap-6 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]"
       >
         {/* IZQUIERDA — panel del departamento seleccionado */}
         {showCrowd && (
