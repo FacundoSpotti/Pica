@@ -76,7 +76,29 @@ export const SPRITE_SHEET = {
 
 const LANDSCAPE_DIR = `${ASSET_BASE}/design_system/landscape`;
 
-/** Dimensiones nativas del landscape (todas las capas). */
+/**
+ * ARTE DEL LANDSCAPE — 'original' es la imagen fuente; 'c4'/'c6' son el
+ * MOSAICO PIXEL REAL generado por scripts/pixelate-landscape.py (celda de
+ * 4/6 px con color predominante por zona + paleta global de 64 colores,
+ * misma grilla en todas las capas → hitboxes, paths, twinkles y bandera
+ * quedan intactos porque todo se posiciona en %).
+ * · 'c4': pixelado fino (en desktop casi no se percibe la grilla)
+ * · 'c6': pixel art visible conservando la identidad de los edificios
+ * Default 'c6'; para alternar sin tocar código: NEXT_PUBLIC_LANDSCAPE_ART
+ * en .env.local ('original' | 'c4' | 'c6'). Para regenerar con otros
+ * parámetros: `python scripts/pixelate-landscape.py --cell N`.
+ */
+export type LandscapeVariant = 'original' | 'c4' | 'c6';
+export const LANDSCAPE_VARIANT: LandscapeVariant =
+  (process.env.NEXT_PUBLIC_LANDSCAPE_ART as LandscapeVariant) || 'c6';
+
+const LANDSCAPE_ART_DIR =
+  LANDSCAPE_VARIANT === 'original'
+    ? LANDSCAPE_DIR
+    : `${LANDSCAPE_DIR}/pixel/${LANDSCAPE_VARIANT}`;
+
+/** Dimensiones nativas del landscape (todas las capas, en el arte ORIGINAL).
+ * Solo se usa para la RELACIÓN DE ASPECTO — válida para todas las variantes. */
 export const LANDSCAPE_SIZE = { width: 4096, height: 2305 } as const;
 
 /**
@@ -84,21 +106,21 @@ export const LANDSCAPE_SIZE = { width: 4096, height: 2305 } as const;
  * Es la imagen default del Home. Las capas individuales de edificios se usan
  * solo al seleccionar una temática (mostrar ese edificio en color).
  */
-export const LANDSCAPE_COMPLETE = `${LANDSCAPE_DIR}/Landscape_complete.png`;
+export const LANDSCAPE_COMPLETE = `${LANDSCAPE_ART_DIR}/Landscape_complete.png`;
 
 /** Capa base: ciudad con el centro (edificios temáticos) vaciado. */
-export const LANDSCAPE_BACKGROUND = `${LANDSCAPE_DIR}/Landscape_background.png`;
+export const LANDSCAPE_BACKGROUND = `${LANDSCAPE_ART_DIR}/Landscape_background.png`;
 
 /** Palacio Legislativo: decorativo central, NO clickeable. */
-export const LANDSCAPE_PALACIO = `${LANDSCAPE_DIR}/Landscape_parts_palacio_legislativo.png`;
+export const LANDSCAPE_PALACIO = `${LANDSCAPE_ART_DIR}/Landscape_parts_palacio_legislativo.png`;
 
 /** Capa de color de cada temática (se muestra al seleccionar el edificio). */
 export const BUILDING_LAYERS: Record<Tematica, string> = {
-  educacion: `${LANDSCAPE_DIR}/Landscape_parts-educacion.png`, // IAVA (sin tilde en disco)
-  trabajo: `${LANDSCAPE_DIR}/Landscape_parts_trabajo.png`, // Intendencia
-  salud: `${LANDSCAPE_DIR}/Landscape_parts_salud.png`, // Hospital de Clínicas
-  economia: `${LANDSCAPE_DIR}/Landscape_parts_economia.png`, // BROU (V2)
-  seguridad: `${LANDSCAPE_DIR}/Landscape_parts_seguridad.png`, // Comisaría (V2)
+  educacion: `${LANDSCAPE_ART_DIR}/Landscape_parts-educacion.png`, // IAVA (sin tilde en disco)
+  trabajo: `${LANDSCAPE_ART_DIR}/Landscape_parts_trabajo.png`, // Intendencia
+  salud: `${LANDSCAPE_ART_DIR}/Landscape_parts_salud.png`, // Hospital de Clínicas
+  economia: `${LANDSCAPE_ART_DIR}/Landscape_parts_economia.png`, // BROU (V2)
+  seguridad: `${LANDSCAPE_ART_DIR}/Landscape_parts_seguridad.png`, // Comisaría (V2)
 };
 
 /**
