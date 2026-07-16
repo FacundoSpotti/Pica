@@ -19,6 +19,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useEffect, useRef, useState } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import {
   assetUrl,
   BUILDING_HITBOX_POLYGONS,
@@ -26,10 +27,12 @@ import {
   BUILDING_LAYERS,
   LANDSCAPE_COMPLETE,
   LANDSCAPE_PALACIO,
+  PALACIO_FLAG_ANCHOR,
   PALACIO_HITBOX_POLYGON,
   polygonCentroid,
   polygonClipPath,
 } from '@/lib/assets';
+import PalacioFlag from '@/components/home/PalacioFlag';
 import WindowTwinkles from '@/components/home/WindowTwinkles';
 import { ACTIVE_TEMAS, isTemaActive, TEMA_COLOR, TEMA_LABEL, TEMA_ORDER } from '@/lib/colors';
 import { STREET_PATHS } from '@/hooks/useColorDots';
@@ -49,10 +52,9 @@ interface CityLandscapeProps {
   children?: React.ReactNode;
 }
 
-// rounded-2xl en cada capa: en mobile el stage es overflow-visible (para que el
-// cartel del edificio no se corte) y el redondeo lo aportan las imágenes.
-const layerClass =
-  'pointer-events-none absolute inset-0 h-full w-full rounded-2xl object-fill';
+// Sin redondeo: con EdgeDissolve los bordes se disuelven en píxeles — un
+// radio en las esquinas dejaba ver una curva de recorte contra el dither.
+const layerClass = 'pointer-events-none absolute inset-0 h-full w-full object-fill';
 const pixelated = { imageRendering: 'pixelated' as const };
 const GRAYSCALE = 'grayscale(100%) brightness(0.5)';
 
@@ -166,7 +168,12 @@ export default function CityLandscape({ selectedTema, onSelect, children }: City
         style={palacioStyle}
       />
 
-      {/* 3c. Microvida: ventanas encendiéndose y apagándose en los edificios */}
+      {/* 3c. Bandera de Uruguay: se IZA en la punta del Palacio al clickearlo */}
+      <AnimatePresence>
+        {palacioSel && <PalacioFlag anchor={PALACIO_FLAG_ANCHOR} />}
+      </AnimatePresence>
+
+      {/* 3d. Microvida: ventanas encendiéndose y apagándose en los edificios */}
       <WindowTwinkles selectedTema={selectedTema} />
 
       {/* 4a. Debug de paths — líneas rojas sobre las calles */}

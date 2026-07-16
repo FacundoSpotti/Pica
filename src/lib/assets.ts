@@ -146,6 +146,14 @@ export const PALACIO_HITBOX_POLYGON: Polygon = [
 ];
 
 /**
+ * Punta del Palacio donde se iza la bandera de Uruguay al clickearlo.
+ * PLACEHOLDER derivado del vértice más alto del hitbox calibrado — la posición
+ * FINA se calibra in-app con la tecla B (FlagCalibrator, NEXT_PUBLIC_CALIBRATORS=on)
+ * y se pega acá.
+ */
+export const PALACIO_FLAG_ANCHOR: { x: number; y: number } = { x: 0.505, y: 0.269 };
+
+/**
  * Orden de apilado (z) de las capas de edificios, de abajo hacia arriba.
  * Trabajo (Intendencia) va ÚLTIMO porque su antena pasa por encima del
  * edificio de Salud — si se renderiza debajo, la antena queda cortada.

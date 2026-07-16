@@ -5,10 +5,12 @@
 // Sección clara debajo del landscape: espacio para futuras LECTURAS narrativas
 // sobre los datos (tipo The Pudding). Tarjetas PLACEHOLDER con estética
 // editorial contemporánea: portada con gradient del color de la temática +
-// trama de puntos pixel + ícono grande, chip "Próximamente", jerarquía
-// tipográfica y elevación al hover con sombra pixel.
+// trama de puntos pixel + ícono grande, chip "Próximamente" y botón de color.
+// Hover: MISMA animación que las cards de entidades/temáticas (elevación +
+// destello del color) para no multiplicar estilos — acá con borde NEGRO.
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { motion, useReducedMotion } from 'framer-motion';
 import PixelIcon, { type PixelIconName } from '@/components/shared/PixelIcon';
 import { TEMA_COLOR, TEMA_LABEL, textOnColor } from '@/lib/colors';
 import type { Tematica } from '@/types/sprites';
@@ -25,6 +27,8 @@ const COVER_ICON: Record<string, PixelIconName> = {
 };
 
 export default function ArticulosDestacados() {
+  const shouldReduce = useReducedMotion();
+
   return (
     <section className="w-full bg-gradient-to-b from-[#F2F2EE] via-[#ECECE8] to-[#E3E3DD] px-6 py-20 text-bg-base md:px-12">
       <div className="mx-auto max-w-[1600px]">
@@ -50,7 +54,20 @@ export default function ArticulosDestacados() {
             const onColor = textOnColor(color);
             return (
               <li key={i}>
-                <article className="group flex h-full flex-col overflow-hidden rounded-lg border-2 border-bg-base/10 bg-white/70 shadow-[6px_8px_0_rgba(10,10,10,0.08)] transition-all duration-300 hover:-translate-y-2 hover:border-bg-base/25 hover:shadow-[10px_14px_0_rgba(10,10,10,0.14)]">
+                {/* Misma animación que EntityGrid / selector de temáticas:
+                    elevación + destello; acá el borde en hover es NEGRO. */}
+                <motion.article
+                  whileHover={shouldReduce ? undefined : { y: -6 }}
+                  className="group flex h-full flex-col overflow-hidden rounded-lg border-2 border-bg-base/15 bg-white/70 transition-shadow duration-300"
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = '#0A0A0A';
+                    e.currentTarget.style.boxShadow = `0 0 0 1px #0A0A0A, 0 8px 30px -8px ${color}80`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = '';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                >
                   {/* Portada: gradient del color + trama de puntos + ícono */}
                   <div
                     className="relative flex aspect-[4/3] w-full items-center justify-center overflow-hidden"
@@ -74,9 +91,7 @@ export default function ArticulosDestacados() {
                       color={onColor}
                       className="relative transition-transform duration-300 group-hover:scale-110"
                     />
-                    <span
-                      className="absolute right-3 top-3 bg-bg-base/85 px-2 py-0.5 font-display text-[13px] font-bold uppercase tracking-[0.14em] text-text-primary"
-                    >
+                    <span className="absolute right-3 top-3 bg-bg-base/85 px-2 py-0.5 font-display text-[13px] font-bold uppercase tracking-[0.14em] text-text-primary">
                       Próximamente
                     </span>
                   </div>
@@ -85,7 +100,10 @@ export default function ArticulosDestacados() {
                   <div className="flex flex-1 flex-col gap-2 p-5">
                     <p
                       className="font-display text-pica-subtitle font-bold uppercase"
-                      style={{ color: `color-mix(in srgb, ${color} 80%, #0A0A0A)`, letterSpacing: '0.14em' }}
+                      style={{
+                        color: `color-mix(in srgb, ${color} 80%, #0A0A0A)`,
+                        letterSpacing: '0.14em',
+                      }}
                     >
                       {TEMA_LABEL[tema]}
                     </p>
@@ -95,9 +113,14 @@ export default function ArticulosDestacados() {
                     <p className="font-sans text-pica-subtitle leading-snug text-neutral-600">
                       Breve descripción de la lectura: qué historia cuentan estos datos.
                     </p>
-                    <span
-                      className="mt-auto flex items-center gap-2 pt-3 font-display text-pica-button font-bold uppercase tracking-wide text-neutral-400"
+                    {/* Botón de color (placeholder deshabilitado) */}
+                    <button
+                      type="button"
+                      disabled
+                      aria-disabled="true"
                       title="Próximamente"
+                      className="mt-auto flex w-fit cursor-not-allowed items-center gap-2 px-5 py-2 font-display text-pica-button font-bold uppercase tracking-wide"
+                      style={{ backgroundColor: color, color: onColor }}
                     >
                       Saber más
                       <span
@@ -106,9 +129,9 @@ export default function ArticulosDestacados() {
                       >
                         →
                       </span>
-                    </span>
+                    </button>
                   </div>
-                </article>
+                </motion.article>
               </li>
             );
           })}

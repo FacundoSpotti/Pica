@@ -26,6 +26,7 @@ import ThemeOverlay from '@/components/home/ThemeOverlay';
 import RandomOverlay from '@/components/home/RandomOverlay';
 import PathCalibrator from '@/components/home/PathCalibrator';
 import HitboxCalibrator from '@/components/home/HitboxCalibrator';
+import FlagCalibrator from '@/components/home/FlagCalibrator';
 import StickyNotes from '@/components/home/StickyNotes';
 import ArticulosDestacados from '@/components/home/ArticulosDestacados';
 import AmbientWalkers from '@/components/shared/AmbientWalkers';
@@ -129,10 +130,10 @@ export default function HomePage() {
           MOBILE: el mapa va ARRIBA (flujo normal bajo el header) y debajo se
           muestran los botones de temáticas — el mapa sigue siendo clickeable. */}
       <div
-        className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl max-md:static max-md:mx-auto max-md:mt-1 max-md:translate-x-0 max-md:translate-y-0 max-md:overflow-visible"
+        className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 overflow-hidden max-md:static max-md:mx-auto max-md:mt-1 max-md:translate-x-0 max-md:translate-y-0 max-md:overflow-visible"
         style={{
-          width: `min(90vw, calc((100vh - 170px) * ${ASPECT}))`,
-          height: `min(100vh - 170px, calc(90vw / ${ASPECT}))`,
+          width: `min(93vw, calc((100vh - 150px) * ${ASPECT}))`,
+          height: `min(100vh - 150px, calc(93vw / ${ASPECT}))`,
         }}
       >
         <CityLandscape selectedTema={selected?.tema ?? null} onSelect={handleSelect}>
@@ -162,12 +163,13 @@ export default function HomePage() {
 
         {/* Herramientas de calibración (dev) — apagadas por defecto. Para
             reactivarlas: crear .env.local con NEXT_PUBLIC_CALIBRATORS=on
-            (P = paths, H = hitboxes). Dentro del stage para que las
+            (P = paths, H = hitboxes, B = bandera del Palacio). Dentro del stage para que las
             coordenadas % coincidan con el landscape. */}
         {CALIBRATORS_ON && (
           <>
             <PathCalibrator />
             <HitboxCalibrator />
+            <FlagCalibrator />
           </>
         )}
       </div>
@@ -178,7 +180,7 @@ export default function HomePage() {
           del explorador): ícono + nombre, una temática por fila. */}
       <div
         className="relative z-10 mx-auto mt-5 flex flex-col gap-2 md:hidden"
-        style={{ width: `min(90vw, calc((100vh - 170px) * ${ASPECT}))` }}
+        style={{ width: `min(93vw, calc((100vh - 150px) * ${ASPECT}))` }}
       >
         {TEMA_ORDER.map((t) => {
           const isSel = selected?.tema === t;
@@ -269,7 +271,7 @@ export default function HomePage() {
           mapa, que lo taparían). */}
       <div
         className="relative z-10 mx-auto mt-6 grid grid-cols-2 items-start gap-4 md:hidden"
-        style={{ width: `min(90vw, calc((100vh - 170px) * ${ASPECT}))` }}
+        style={{ width: `min(93vw, calc((100vh - 150px) * ${ASPECT}))` }}
       >
         <StickyNotes flow />
       </div>
@@ -293,8 +295,8 @@ export default function HomePage() {
       <div
         className="pointer-events-none absolute left-1/2 top-1/2 z-20 hidden -translate-x-1/2 -translate-y-1/2 md:block"
         style={{
-          width: `min(90vw, calc((100vh - 170px) * ${ASPECT}))`,
-          height: `min(100vh - 170px, calc(90vw / ${ASPECT}))`,
+          width: `min(93vw, calc((100vh - 150px) * ${ASPECT}))`,
+          height: `min(100vh - 150px, calc(93vw / ${ASPECT}))`,
         }}
       >
         <StickyNotes />
