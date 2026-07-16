@@ -15,6 +15,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import PicaLogo from '@/components/shared/PicaLogo';
 import AmbientWalkers from '@/components/shared/AmbientWalkers';
 import PixelSparkles from '@/components/shared/PixelSparkles';
+import UruguayFlag from '@/components/shared/UruguayFlag';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { picaColors } from '../../../config/tailwind.colors';
 
@@ -212,6 +213,13 @@ export default function NosotrosPage() {
           <p className="mt-2 max-w-xs text-center font-sans text-pica-subtitle text-text-secondary">
             Datos de Uruguay que se dejan encontrar.
           </p>
+          {/* Bandera pixel flameando — identidad uruguaya del proyecto */}
+          <div className="mt-3 flex items-center gap-2">
+            <UruguayFlag height={22} />
+            <span className="font-sans text-pica-subtitle uppercase tracking-[0.18em] text-text-muted">
+              Hecho en Uruguay
+            </span>
+          </div>
         </div>
 
         {CARDS.map((card, i) => {

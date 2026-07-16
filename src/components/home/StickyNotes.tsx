@@ -10,6 +10,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { motion, useReducedMotion } from 'framer-motion';
+import UruguayFlag from '@/components/shared/UruguayFlag';
 import { useCountUp } from '@/hooks/useCountUp';
 
 /** Población de Uruguay — Censo 2023, INE (el número del skill). */
@@ -97,6 +98,8 @@ export default function StickyNotes({ flow = false }: { flow?: boolean }) {
 
       {/* Versión — abajo a la derecha, chiquita */}
       <Note className="-bottom-5 -right-5 !w-[clamp(88px,8vw,8rem)]" rotate={-2} delay={0.6} flow={flow}>
+        {/* Bandera pixel flameando: esto es de Uruguay */}
+        <UruguayFlag height={20} className="mb-1" />
         <p className="font-sans text-pica-subtitle leading-tight text-text-muted">
           pica v0.1
           <br />

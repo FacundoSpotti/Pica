@@ -12,6 +12,7 @@
 
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import UruguayFlag from '@/components/shared/UruguayFlag';
 import { assetUrl, LANDSCAPE_COMPLETE } from '@/lib/assets';
 
 let shownThisLoad = false;
@@ -81,6 +82,18 @@ export default function WelcomeScreen() {
           >
             Los datos estaban escondidos. Pica los encuentra.
           </motion.p>
+          {/* Bandera pixel flameando — esto es Uruguay */}
+          <motion.div
+            className="flex items-center gap-3"
+            initial={{ opacity: 0, y: shouldReduce ? 0 : 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: shouldReduce ? 0 : 0.5, delay: 0.8 }}
+          >
+            <UruguayFlag height={26} />
+            <span className="font-sans text-pica-subtitle uppercase tracking-[0.2em] text-white/60">
+              Datos de Uruguay
+            </span>
+          </motion.div>
           {/* Indicador de carga: tres píxeles parpadeando */}
           <div className="mt-2 flex gap-2" aria-hidden="true">
             {[0, 1, 2].map((i) => (
