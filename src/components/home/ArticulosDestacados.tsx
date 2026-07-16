@@ -15,7 +15,7 @@ const CARDS: Tematica[] = ['educacion', 'economia', 'salud', 'trabajo'];
 
 export default function ArticulosDestacados() {
   return (
-    <section className="w-full bg-[#ECECE8] px-6 py-16 text-bg-base md:px-12">
+    <section className="w-full bg-gradient-to-b from-[#F2F2EE] via-[#ECECE8] to-[#E3E3DD] px-6 py-16 text-bg-base md:px-12">
       <h2 className="mb-12 text-center font-display text-pica-heading-2 font-bold uppercase tracking-wide">
         Artículos destacados
       </h2>
@@ -27,7 +27,7 @@ export default function ArticulosDestacados() {
             <li key={i} className="flex flex-col">
               {/* Portada (placeholder) */}
               <div
-                className="aspect-square w-full bg-bg-base"
+                className="aspect-square w-full bg-gradient-to-br from-[#1A1A18] to-[#0A0A0A] shadow-[6px_8px_0_rgba(10,10,10,0.12)]"
                 aria-hidden="true"
               />
               <h3 className="mt-4 font-display text-pica-title font-bold uppercase leading-none">

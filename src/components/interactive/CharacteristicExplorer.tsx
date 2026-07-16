@@ -78,6 +78,8 @@ export default function CharacteristicExplorer({
               style={{
                 borderColor: isActive ? color : 'transparent',
                 color: isActive ? color : '#A0A09A',
+                // Glow sutil en la pestaña activa (solo estética)
+                textShadow: isActive ? `0 0 18px ${color}59` : 'none',
               }}
             >
               {d.caracteristica}

@@ -68,7 +68,12 @@ export default function RandomOverlay({ onClose, fullscreen = false }: RandomOve
           ? 'fixed inset-0 z-50 flex items-center justify-center overflow-y-auto'
           : 'absolute inset-0 z-30 flex items-center justify-center overflow-hidden'
       }
-      style={{ background: fullscreen ? 'rgba(8, 8, 8, 0.96)' : 'rgba(8, 8, 8, 0.85)' }}
+      style={{
+        backgroundColor: fullscreen ? 'rgba(8, 8, 8, 0.96)' : 'rgba(8, 8, 8, 0.85)',
+        // Halo blanco sutil detrás del contenido (el Palacio no es temática)
+        backgroundImage:
+          'radial-gradient(65% 65% at 50% 42%, rgba(235, 235, 235, 0.06), transparent 70%)',
+      }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -113,7 +118,7 @@ export default function RandomOverlay({ onClose, fullscreen = false }: RandomOve
             ref={exploreRef}
             type="button"
             onClick={() => router.push(getRandomDatasetUrl())}
-            className="font-display text-pica-button px-6 py-2 font-bold uppercase transition-transform hover:scale-105"
+            className="pica-sheen font-display text-pica-button px-6 py-2 font-bold uppercase transition-transform hover:scale-105"
             style={{ backgroundColor: WHITE, color: '#0A0A0A', letterSpacing: '0.06em' }}
           >
             Dato al azar

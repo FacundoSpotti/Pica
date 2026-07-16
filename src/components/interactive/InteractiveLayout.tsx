@@ -20,6 +20,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import EntityGrid from './EntityGrid';
 import CharacteristicExplorer from './CharacteristicExplorer';
 import AmbientWalkers from '@/components/shared/AmbientWalkers';
+import PixelSparkles from '@/components/shared/PixelSparkles';
 import PixelIcon from '@/components/shared/PixelIcon';
 import PicaLogo from '@/components/shared/PicaLogo';
 import { assetUrl, LOGOS, THEME_STATIC } from '@/lib/assets';
@@ -70,7 +71,7 @@ export default function InteractiveLayout() {
   );
 
   return (
-    <main className="flex h-screen w-screen flex-col overflow-hidden bg-bg-base max-md:h-dvh">
+    <main className="pica-bg flex h-screen w-screen flex-col overflow-hidden bg-bg-base max-md:h-dvh">
       {/* Nav superior: al elegir temática el logo viaja al CENTRO (animación
           de layout con spring, ver pica-ui) y "Nosotros" desaparece — dentro
           de los datos no importa nada más que los datos. */}
@@ -150,7 +151,7 @@ export default function InteractiveLayout() {
               className={centered ? 'justify-self-center max-md:mx-auto' : 'justify-self-start'}
               style={{ gridColumn: centered ? 2 : 1, gridRow: 1 }}
             >
-              <Link href="/" aria-label="Pica — inicio">
+              <Link href="/" aria-label="Pica — inicio" className="pica-logo-hover">
                 {logoFlying && !shouldReduce ? (
                   // En vuelo: versión diagonal del logo
                   <img
@@ -188,6 +189,7 @@ export default function InteractiveLayout() {
           <div className="relative flex h-full flex-col items-center justify-center gap-10 px-8 max-md:justify-start max-md:gap-5 max-md:overflow-y-auto max-md:py-4 short:gap-4">
             {/* Personas grises deambulando de fondo (como en Home y Nosotros) */}
             <AmbientWalkers count={6} className="absolute inset-0 h-full w-full" />
+            <PixelSparkles count={16} seed={11} className="hidden md:block" />
             <h1 className="relative font-display text-pica-heading-2 font-bold text-text-primary max-md:text-3xl">
               ¿Qué querés explorar?
             </h1>
@@ -200,7 +202,7 @@ export default function InteractiveLayout() {
                   type="button"
                   onClick={() => setParams({ tema: t })}
                   whileHover={shouldReduce ? undefined : { y: -6 }}
-                  className="flex w-44 flex-col items-center gap-3 rounded-lg border-2 bg-white/[0.03] px-6 py-6 transition-shadow short:py-3 max-md:w-full max-md:flex-row max-md:justify-start max-md:gap-4 max-md:px-4 max-md:py-2"
+                  className="flex w-44 flex-col items-center gap-3 rounded-lg border-2 bg-gradient-to-b from-white/[0.06] to-white/[0.015] px-6 py-6 transition-shadow short:py-3 max-md:w-full max-md:flex-row max-md:justify-start max-md:gap-4 max-md:px-4 max-md:py-2"
                   style={{ borderColor: `${TEMA_COLOR[t]}55` }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.borderColor = TEMA_COLOR[t];

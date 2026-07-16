@@ -91,7 +91,11 @@ export default function ThemeOverlay({ tema, onClose, fullscreen = false }: Them
           ? 'fixed inset-0 z-50 flex items-center justify-center overflow-y-auto'
           : 'absolute inset-0 z-30 flex items-center justify-center overflow-hidden'
       }
-      style={{ background: fullscreen ? 'rgba(8, 8, 8, 0.96)' : 'rgba(8, 8, 8, 0.85)' }}
+      style={{
+        backgroundColor: fullscreen ? 'rgba(8, 8, 8, 0.96)' : 'rgba(8, 8, 8, 0.85)',
+        // Tinte radial sutil del color de la temática detrás del contenido
+        backgroundImage: `radial-gradient(65% 65% at 50% 42%, ${color}12, transparent 70%)`,
+      }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -139,7 +143,7 @@ export default function ThemeOverlay({ tema, onClose, fullscreen = false }: Them
               ref={exploreRef}
               type="button"
               onClick={() => router.push(`/interactivo?tema=${tema}`)}
-              className="font-display text-pica-button px-6 py-2 font-bold uppercase transition-transform hover:scale-105"
+              className="pica-sheen font-display text-pica-button px-6 py-2 font-bold uppercase transition-transform hover:scale-105"
               style={{
                 backgroundColor: color,
                 color: TEMA_TEXT_ON_COLOR[tema],

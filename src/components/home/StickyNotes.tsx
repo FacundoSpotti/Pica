@@ -35,7 +35,7 @@ function Note({
       // Ancho fluido: en pantallas chicas (ej. 1024×600) las notas a 192px
       // tapaban el mapa y los carteles de hover de las temáticas — clamp las
       // achica proporcionalmente y solo llegan a 12rem en monitores grandes.
-      className={`${flow ? 'relative w-full' : `absolute w-[clamp(120px,13vw,12rem)] ${className}`} border-2 border-white/25 bg-[#141412] px-3 pb-3 pt-4 shadow-[4px_6px_0_rgba(0,0,0,0.45)]`}
+      className={`${flow ? 'relative w-full' : `absolute w-[clamp(120px,13vw,12rem)] ${className}`} border-2 border-white/25 bg-gradient-to-b from-[#1B1B18] to-[#101010] px-3 pb-3 pt-4 shadow-[4px_6px_0_rgba(0,0,0,0.45)]`}
       style={{ rotate }}
       initial={{ opacity: 0, y: shouldReduce ? 0 : 14 }}
       animate={{ opacity: 1, y: 0 }}
@@ -44,7 +44,7 @@ function Note({
       {/* Cinta adhesiva pixel */}
       <span
         aria-hidden="true"
-        className="absolute -top-2 left-1/2 h-3 w-12 -translate-x-1/2 bg-white/20"
+        className="absolute -top-2 left-1/2 h-3 w-12 -translate-x-1/2 bg-gradient-to-b from-white/30 to-white/10"
       />
       {children}
     </motion.div>

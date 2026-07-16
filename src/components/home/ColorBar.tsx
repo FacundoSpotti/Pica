@@ -14,7 +14,20 @@
 import { COLORBAR_ORDER, isTemaActive, TEMA_COLOR, TEMA_LABEL } from '@/lib/colors';
 
 export default function ColorBar() {
+  // Halo: la misma secuencia de colores, difuminada, "iluminando" apenas el
+  // borde inferior. Decorativo — la barra sólida de abajo no cambia.
+  const glowGradient = `linear-gradient(90deg, ${COLORBAR_ORDER.map(
+    (tema, i) =>
+      `${TEMA_COLOR[tema]} ${(i / COLORBAR_ORDER.length) * 100}% ${((i + 1) / COLORBAR_ORDER.length) * 100}%`,
+  ).join(', ')})`;
+
   return (
+    <>
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute bottom-0 left-0 z-10 h-2 w-full opacity-35 blur-md"
+        style={{ background: glowGradient }}
+      />
     <ul
       className="absolute bottom-0 left-0 z-20 flex h-1 w-full list-none items-end"
       aria-label="Temáticas disponibles"
@@ -39,5 +52,6 @@ export default function ColorBar() {
         );
       })}
     </ul>
+    </>
   );
 }

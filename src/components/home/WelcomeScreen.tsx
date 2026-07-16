@@ -56,6 +56,10 @@ export default function WelcomeScreen() {
           role="status"
           aria-label="Bienvenido a Pica — cargando"
           className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-5 bg-[#050505] px-6 text-center"
+          style={{
+            backgroundImage:
+              'radial-gradient(60% 50% at 50% 45%, rgba(235, 235, 235, 0.05), transparent 70%)',
+          }}
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: shouldReduce ? 0 : 0.6, ease: 'easeOut' }}

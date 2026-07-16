@@ -28,6 +28,7 @@ import HitboxCalibrator from '@/components/home/HitboxCalibrator';
 import StickyNotes from '@/components/home/StickyNotes';
 import ArticulosDestacados from '@/components/home/ArticulosDestacados';
 import AmbientWalkers from '@/components/shared/AmbientWalkers';
+import PixelSparkles from '@/components/shared/PixelSparkles';
 import PixelIcon from '@/components/shared/PixelIcon';
 import PicaLogo from '@/components/shared/PicaLogo';
 import {
@@ -91,7 +92,7 @@ export default function HomePage() {
   return (
     // w-full (no w-screen): con la página scrolleando vertical, w-screen incluye
     // el ancho de la barra de scroll y genera un desborde lateral.
-    <main className="relative w-full overflow-x-hidden bg-bg-base">
+    <main className="pica-bg relative w-full overflow-x-hidden bg-bg-base">
       {/* Bienvenida + carga: solo en la primera carga real de la página */}
       <WelcomeScreen />
       {/* Hero: el landscape ocupa el primer viewport; se scrollea hacia abajo
@@ -102,10 +103,13 @@ export default function HomePage() {
           detrás del stage; mantené el click sobre una y te mira */}
       <AmbientWalkers count={isMobile ? 5 : 8} className="absolute inset-0 h-full w-full" />
 
+      {/* Destellos pixel titilando en el margen oscuro (solo desktop) */}
+      <PixelSparkles count={26} className="hidden md:block" />
+
       {/* Navegación — logo a la izquierda + link a Nosotros. En mobile va en
           FLUJO, por fuera y arriba del mapa (no montado sobre él). */}
       <header className="relative z-30 flex items-center justify-between p-6 md:absolute md:inset-x-0 md:top-0">
-        <Link href="/" aria-label="Pica — inicio">
+        <Link href="/" aria-label="Pica — inicio" className="pica-logo-hover">
           <PicaLogo className="h-16 w-auto text-text-primary" />
         </Link>
         <Link
@@ -122,12 +126,10 @@ export default function HomePage() {
           MOBILE: el mapa va ARRIBA (flujo normal bajo el header) y debajo se
           muestran los botones de temáticas — el mapa sigue siendo clickeable. */}
       <div
-        className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl max-md:static max-md:mx-auto max-md:mt-1 max-md:translate-x-0 max-md:translate-y-0 max-md:overflow-visible"
+        className="pica-stage-glow absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl max-md:static max-md:mx-auto max-md:mt-1 max-md:translate-x-0 max-md:translate-y-0 max-md:overflow-visible"
         style={{
           width: `min(90vw, calc((100vh - 170px) * ${ASPECT}))`,
           height: `min(100vh - 170px, calc(90vw / ${ASPECT}))`,
-          boxShadow:
-            '0 0 0 2px rgba(235, 235, 235, 0.85), 0 0 22px 3px rgba(235, 235, 235, 0.22)',
         }}
       >
         <CityLandscape selectedTema={selected?.tema ?? null} onSelect={handleSelect}>
@@ -179,7 +181,7 @@ export default function HomePage() {
               onClick={() => handleSelect(t, polygonCentroid(BUILDING_HITBOX_POLYGONS[t]))}
               aria-pressed={isSel}
               aria-label={`Explorar temática ${TEMA_LABEL[t]}`}
-              className="relative flex min-h-[48px] w-full items-center justify-start gap-4 overflow-hidden rounded-lg border-2 bg-white/[0.03] px-4 py-2"
+              className="relative flex min-h-[48px] w-full items-center justify-start gap-4 overflow-hidden rounded-lg border-2 bg-gradient-to-b from-white/[0.06] to-white/[0.015] px-4 py-2"
               style={{
                 borderColor: isSel ? TEMA_COLOR[t] : `${TEMA_COLOR[t]}88`,
                 // Mismo destello que las cards de entidades cuando está activa
@@ -223,7 +225,7 @@ export default function HomePage() {
           onClick={() => handleSelect('palacio', polygonCentroid(PALACIO_HITBOX_POLYGON))}
           aria-pressed={selected?.tema === 'palacio'}
           aria-label="Explorar una estadística al azar (Palacio Legislativo)"
-          className="relative flex min-h-[48px] w-full items-center justify-start gap-4 overflow-hidden rounded-lg border-2 bg-white/[0.03] px-4 py-2"
+          className="relative flex min-h-[48px] w-full items-center justify-start gap-4 overflow-hidden rounded-lg border-2 bg-gradient-to-b from-white/[0.06] to-white/[0.015] px-4 py-2"
           style={{
             borderColor:
               selected?.tema === 'palacio' ? '#EBEBEB' : 'rgba(235,235,235,0.5)',

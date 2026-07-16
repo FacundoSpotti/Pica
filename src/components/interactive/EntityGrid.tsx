@@ -63,7 +63,7 @@ export default function EntityGrid({ tema, entidades, onSelect }: EntityGridProp
                 onClick={() => onSelect(entidad)}
                 whileHover={shouldReduce ? undefined : { y: -6 }}
                 aria-label={`Explorar ${entidad}`}
-                className="group flex h-full w-full flex-col items-center gap-4 rounded-lg border-2 bg-white/[0.03] px-6 py-8 text-center transition-shadow max-md:gap-2 max-md:px-2 max-md:py-4 short:gap-2 short:py-4"
+                className="group flex h-full w-full flex-col items-center gap-4 rounded-lg border-2 bg-gradient-to-b from-white/[0.06] to-white/[0.015] px-6 py-8 text-center transition-shadow max-md:gap-2 max-md:px-2 max-md:py-4 short:gap-2 short:py-4"
                 style={{ borderColor: `${color}55` }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.borderColor = color;

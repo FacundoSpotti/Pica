@@ -124,6 +124,98 @@ img[data-pixelated='true'] {
   }
 }
 
+/* ── Estética: gradients de fondo, destellos y micro-animaciones ─────────── */
+/* Detalles puramente visuales (rama estetica/gradients-microdetalles):
+   nada de acá cambia layout ni responsive — solo backgrounds, sombras y
+   animaciones de opacidad/transform. El kill-switch global de
+   prefers-reduced-motion (arriba) las desactiva todas. */
+
+/* Fondo de página: la base plana gana profundidad con glows radiales MUY
+   sutiles — luz ambiente arriba y tintes de temáticas en las esquinas. */
+.pica-bg {
+  background-color: var(--bg-base);
+  background-image:
+    radial-gradient(120% 70% at 50% -20%, rgba(235, 235, 235, 0.05), transparent 55%),
+    radial-gradient(70% 55% at 0% 100%, rgba(43, 73, 221, 0.055), transparent 60%),
+    radial-gradient(70% 55% at 100% 100%, rgba(255, 122, 39, 0.045), transparent 60%);
+}
+
+/* Destellos pixel (PixelSparkles): puntitos que titilan en los márgenes
+   oscuros. Base opacity 0 → con reduced-motion quedan invisibles (decorativos). */
+.pica-spark {
+  position: absolute;
+  opacity: 0;
+  box-shadow: 0 0 6px 1px currentColor;
+  animation: pica-twinkle var(--spark-dur, 3.5s) ease-in-out infinite;
+  animation-delay: var(--spark-delay, 0s);
+}
+
+@keyframes pica-twinkle {
+  0%, 100% { opacity: 0; transform: scale(0.5); }
+  50% { opacity: 0.85; transform: scale(1); }
+}
+
+/* Marco del landscape del Home: el glow blanco "respira" lentamente. */
+.pica-stage-glow {
+  box-shadow:
+    0 0 0 2px rgba(235, 235, 235, 0.85),
+    0 0 22px 3px rgba(235, 235, 235, 0.22);
+  animation: pica-stage-breathe 7s ease-in-out infinite;
+}
+
+@keyframes pica-stage-breathe {
+  0%, 100% {
+    box-shadow:
+      0 0 0 2px rgba(235, 235, 235, 0.85),
+      0 0 22px 3px rgba(235, 235, 235, 0.22);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px rgba(235, 235, 235, 0.95),
+      0 0 32px 7px rgba(235, 235, 235, 0.3);
+  }
+}
+
+/* Barrido de brillo en botones primarios (hover/focus): un destello diagonal
+   cruza el botón una vez. */
+.pica-sheen {
+  position: relative;
+  overflow: hidden;
+}
+
+.pica-sheen::after {
+  content: '';
+  position: absolute;
+  top: -20%;
+  bottom: -20%;
+  left: -70%;
+  width: 45%;
+  background: linear-gradient(105deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+  transform: skewX(-18deg);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pica-sheen:hover::after,
+.pica-sheen:focus-visible::after {
+  animation: pica-sheen-sweep 0.7s ease forwards;
+}
+
+@keyframes pica-sheen-sweep {
+  0% { left: -70%; opacity: 1; }
+  100% { left: 120%; opacity: 0; }
+}
+
+/* Micro-animación del logo en navs: inclinación leve al hover. */
+.pica-logo-hover {
+  display: inline-block;
+  transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.pica-logo-hover:hover {
+  transform: rotate(-2deg) scale(1.05);
+}
+
 /* ── prefers-contrast (Apple HIG) ────────────────────────────────────────── */
 
 @media (prefers-contrast: more) {

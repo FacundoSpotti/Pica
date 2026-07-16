@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import PicaLogo from '@/components/shared/PicaLogo';
 import AmbientWalkers from '@/components/shared/AmbientWalkers';
+import PixelSparkles from '@/components/shared/PixelSparkles';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { picaColors } from '../../../config/tailwind.colors';
 
@@ -179,10 +180,11 @@ export default function NosotrosPage() {
   }, [open]);
 
   return (
-    <main className="relative flex h-screen w-full flex-col overflow-hidden bg-bg-base max-md:h-auto max-md:min-h-dvh max-md:overflow-y-auto">
+    <main className="pica-bg relative flex h-screen w-full flex-col overflow-hidden bg-bg-base max-md:h-auto max-md:min-h-dvh max-md:overflow-y-auto">
       {/* Personas grises deambulando de fondo (mantené el click y te miran) */}
       <div style={open ? DIM_STYLE : UNDIM_STYLE} className="absolute inset-0">
         <AmbientWalkers count={isMobile ? 5 : 10} />
+        <PixelSparkles count={18} seed={23} className="hidden md:block" />
       </div>
 
       {/* Nav: solo la vuelta al Home (wireframe) */}
@@ -245,8 +247,12 @@ export default function NosotrosPage() {
               >
                 {/* Capa 3: la card — click expande hacia abajo */}
                 <div
-                  className="w-72 border-2 bg-black/70 max-md:w-[82vw]"
-                  style={{ borderColor: card.color }}
+                  className="w-72 border-2 bg-gradient-to-b from-black/80 to-black/60 max-md:w-[82vw]"
+                  style={{
+                    borderColor: card.color,
+                    // Sombra tenue del color de la card — la "despega" del fondo
+                    boxShadow: `0 10px 30px -14px ${card.color}66`,
+                  }}
                 >
                   <button
                     type="button"

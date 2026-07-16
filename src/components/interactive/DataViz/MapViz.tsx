@@ -130,6 +130,9 @@ function DeptPanel({
           color: colorOf(dept.valor),
           fontSize: 44,
           fontVariationSettings: '"ELGR" 1, "ELSH" 2',
+          // Halo tenue del mismo color — puro detalle estético. color-mix
+          // porque colorOf devuelve "rgb(…)" (no hex, no se le apenda alpha).
+          textShadow: `0 0 22px color-mix(in srgb, ${colorOf(dept.valor)} 28%, transparent)`,
         }}
       >
         {dept.valor.toLocaleString('es-UY')}
