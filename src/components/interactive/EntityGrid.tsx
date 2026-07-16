@@ -33,9 +33,11 @@ export default function EntityGrid({ tema, entidades, onSelect }: EntityGridProp
   };
 
   return (
-    // En mobile las tarjetas van a 1 columna (más alto que el viewport) →
-    // scroll vertical; en desktop entra todo y queda centrado.
-    <div className="flex h-full flex-col px-6 pb-10 pt-4 max-md:overflow-y-auto short:pb-4 short:pt-1 md:px-12">
+    // REGLA (Facundo): todas las opciones deben poder leerse SIEMPRE. Se evita
+    // el scroll cuando el contenido entra (queda centrado), pero si la
+    // resolución no alcanza (ej. 6 entidades en pantallas bajas) el contenedor
+    // scrollea — nunca tarjetas cortadas e inalcanzables.
+    <div className="flex h-full flex-col overflow-y-auto px-6 pb-10 pt-4 short:pb-4 short:pt-1 md:px-12">
       <header className="mb-8 text-center short:mb-3">
         <p
           className="font-display text-pica-subtitle font-bold uppercase"
