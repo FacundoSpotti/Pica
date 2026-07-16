@@ -41,9 +41,11 @@ export default function PalacioFlag({ anchor }: PalacioFlagProps) {
   const poleW = Math.max(2, Math.round(2.5 * scale));
 
   return (
+    // Sin z-index propio: el orden del DOM la deja DETRÁS de las capas del
+    // Palacio (el mástil sale de atrás del edificio, no tapa el diseño).
     <div
       ref={rootRef}
-      className="pointer-events-none absolute z-10"
+      className="pointer-events-none absolute"
       style={{ left: `${anchor.x * 100}%`, top: `${anchor.y * 100}%` }}
     >
       <motion.div

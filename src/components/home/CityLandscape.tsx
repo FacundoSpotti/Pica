@@ -113,6 +113,13 @@ export default function CityLandscape({ selectedTema, onSelect, children }: City
       {/* 2. Canvas de puntos de colores (debajo de los edificios) */}
       {children}
 
+      {/* 2b. Bandera de Uruguay: se IZA al clickear el Palacio. Va DETRÁS de
+          las capas del Palacio para que el mástil salga de atrás del edificio
+          y no tape el diseño. */}
+      <AnimatePresence>
+        {palacioSel && <PalacioFlag anchor={PALACIO_FLAG_ANCHOR} />}
+      </AnimatePresence>
+
       {/* 3. Capas de edificios por encima — ocultan los puntos que pasan detrás.
              Palacio (decorativo) + las 5 temáticas en BUILDING_LAYER_ORDER:
              trabajo va último porque su antena pasa por encima de salud.
@@ -169,12 +176,7 @@ export default function CityLandscape({ selectedTema, onSelect, children }: City
         style={palacioStyle}
       />
 
-      {/* 3c. Bandera de Uruguay: se IZA en la punta del Palacio al clickearlo */}
-      <AnimatePresence>
-        {palacioSel && <PalacioFlag anchor={PALACIO_FLAG_ANCHOR} />}
-      </AnimatePresence>
-
-      {/* 3d. Microvida: ventanas encendiéndose y apagándose en los edificios */}
+      {/* 3c. Microvida: ventanas encendiéndose y apagándose en los edificios */}
       <WindowTwinkles selectedTema={selectedTema} />
 
       {/* 4a. Debug de paths — líneas rojas sobre las calles */}
@@ -203,7 +205,6 @@ export default function CityLandscape({ selectedTema, onSelect, children }: City
       {(() => {
         const poly = PALACIO_HITBOX_POLYGON;
         const center = polygonCentroid(poly);
-        const topY = Math.min(...poly.map(([, y]) => y));
         return (
           <div className="contents">
             <button
@@ -218,24 +219,8 @@ export default function CityLandscape({ selectedTema, onSelect, children }: City
               className="absolute inset-0 cursor-pointer"
               style={{ clipPath: polygonClipPath(poly) }}
             />
-            {palacioHov && (
-              <div
-                className="pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-full"
-                style={{ left: `${center.x * 100}%`, top: `${topY * 100}%` }}
-              >
-                <p
-                  className="whitespace-nowrap border-2 bg-black/85 px-3 py-1 font-display text-pica-subtitle font-bold uppercase"
-                  style={{ borderColor: '#EBEBEB', color: '#EBEBEB', letterSpacing: '0.12em' }}
-                >
-                  ¡Pica!
-                </p>
-                <div
-                  aria-hidden="true"
-                  className="mx-auto h-2 w-2 -translate-y-1"
-                  style={{ backgroundColor: '#EBEBEB', transform: 'rotate(45deg)' }}
-                />
-              </div>
-            )}
+            {/* Sin cartel de hover: el destello del edificio alcanza (y al
+                clickear, la bandera cuenta la historia). */}
           </div>
         );
       })()}
