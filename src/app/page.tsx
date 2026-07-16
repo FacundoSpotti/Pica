@@ -18,7 +18,6 @@ import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, motion } from 'framer-motion';
 import CityLandscape, { type Seleccionable } from '@/components/home/CityLandscape';
-import EdgeDissolve from '@/components/home/EdgeDissolve';
 import WelcomeScreen from '@/components/home/WelcomeScreen';
 import HomeCanvas from '@/components/home/HomeCanvas';
 import ColorBar from '@/components/home/ColorBar';
@@ -124,13 +123,11 @@ export default function HomePage() {
       </header>
 
       {/* Stage: landscape CONTENIDO (no full-bleed), centrado con margen oscuro.
-          Sin borde: los bordes del mapa se DISUELVEN en píxeles hacia el fondo
-          (EdgeDissolve) — la ciudad se funde con la página en vez de quedar
-          separada por una línea.
+          Borde blanco fino con brillo suave que "respira" (pica-stage-glow).
           MOBILE: el mapa va ARRIBA (flujo normal bajo el header) y debajo se
           muestran los botones de temáticas — el mapa sigue siendo clickeable. */}
       <div
-        className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 overflow-hidden max-md:static max-md:mx-auto max-md:mt-1 max-md:translate-x-0 max-md:translate-y-0 max-md:overflow-visible"
+        className="pica-stage-glow absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl max-md:static max-md:mx-auto max-md:mt-1 max-md:translate-x-0 max-md:translate-y-0 max-md:overflow-visible"
         style={{
           width: `min(93vw, calc((100vh - 150px) * ${ASPECT}))`,
           height: `min(100vh - 150px, calc(93vw / ${ASPECT}))`,
@@ -143,11 +140,6 @@ export default function HomePage() {
             onConverged={handleConverged}
           />
         </CityLandscape>
-
-        {/* Bordes del mapa disueltos en píxeles hacia el fondo (inmersión).
-            z-10: sobre las capas de edificios, debajo de carteles (z-20) y
-            overlays (z-30); pointer-events-none → los clicks pasan. */}
-        <EdgeDissolve />
 
         {/* Overlay de temática — aparece al completarse la convergencia.
             En mobile NO va acá (el stage lo recorta): se monta fullscreen abajo. */}
