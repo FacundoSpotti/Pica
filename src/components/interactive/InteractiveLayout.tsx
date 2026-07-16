@@ -19,6 +19,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, useReducedMotion } from 'framer-motion';
 import EntityGrid from './EntityGrid';
 import CharacteristicExplorer from './CharacteristicExplorer';
+import AmbientWalkers from '@/components/shared/AmbientWalkers';
 import PixelIcon from '@/components/shared/PixelIcon';
 import PicaLogo from '@/components/shared/PicaLogo';
 import { assetUrl, LOGOS, THEME_STATIC } from '@/lib/assets';
@@ -184,18 +185,31 @@ export default function InteractiveLayout() {
         {/* Estado 1 — sin temática: selector */}
         {!tema && (
           /* MOBILE: tarjetas compactas en columna — las 5 entran SIN scroll. */
-          <div className="flex h-full flex-col items-center justify-center gap-10 px-8 max-md:justify-start max-md:gap-5 max-md:overflow-y-auto max-md:py-4 short:gap-4">
-            <h1 className="font-display text-pica-heading-2 font-bold text-text-primary max-md:text-3xl">
+          <div className="relative flex h-full flex-col items-center justify-center gap-10 px-8 max-md:justify-start max-md:gap-5 max-md:overflow-y-auto max-md:py-4 short:gap-4">
+            {/* Personas grises deambulando de fondo (como en Home y Nosotros) */}
+            <AmbientWalkers count={6} className="absolute inset-0 h-full w-full" />
+            <h1 className="relative font-display text-pica-heading-2 font-bold text-text-primary max-md:text-3xl">
               ¿Qué querés explorar?
             </h1>
-            <div className="flex flex-wrap justify-center gap-6 max-md:w-full max-md:max-w-xs max-md:flex-col max-md:gap-2">
+            <div className="relative flex flex-wrap justify-center gap-6 max-md:w-full max-md:max-w-xs max-md:flex-col max-md:gap-2">
               {ACTIVE_TEMAS.map((t) => (
-                <button
+                /* Misma animación que las cards de entidades (EntityGrid):
+                   elevación al hover + borde y destello del color de la temática */
+                <motion.button
                   key={t}
                   type="button"
                   onClick={() => setParams({ tema: t })}
-                  className="flex w-44 flex-col items-center gap-3 rounded-lg border-2 px-6 py-6 transition-transform hover:scale-105 short:py-3 max-md:w-full max-md:flex-row max-md:justify-start max-md:gap-4 max-md:px-4 max-md:py-2"
-                  style={{ borderColor: TEMA_COLOR[t] }}
+                  whileHover={shouldReduce ? undefined : { y: -6 }}
+                  className="flex w-44 flex-col items-center gap-3 rounded-lg border-2 bg-white/[0.03] px-6 py-6 transition-shadow short:py-3 max-md:w-full max-md:flex-row max-md:justify-start max-md:gap-4 max-md:px-4 max-md:py-2"
+                  style={{ borderColor: `${TEMA_COLOR[t]}55` }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = TEMA_COLOR[t];
+                    e.currentTarget.style.boxShadow = `0 0 0 1px ${TEMA_COLOR[t]}, 0 8px 30px -8px ${TEMA_COLOR[t]}80`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = `${TEMA_COLOR[t]}55`;
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
                 >
                   {/* Slot de ancho fijo: los personajes tienen anchos
                       distintos y desalineaban el texto (ej. Educación). */}
@@ -216,7 +230,7 @@ export default function InteractiveLayout() {
                     {TEMA_LABEL[t]}
                   </span>
                   <span className="sr-only">{TEMA_DESCRIPTION[t]}</span>
-                </button>
+                </motion.button>
               ))}
             </div>
           </div>

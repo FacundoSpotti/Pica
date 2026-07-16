@@ -305,7 +305,9 @@ export default function MapViz({ data }: { data: DatasetEspacial }) {
             </Geographies>
           </ComposableMap>
 
-          {/* Leyenda pixel: bloques discretos + escala de figuras */}
+          {/* Leyenda pixel: bloques discretos; la escala de figuras va DEBAJO
+              del gradiente (al costado se solapaba con las multitudes de los
+              paneles al hacer hover). */}
           <div className="mt-2 flex items-center justify-center gap-2 font-sans text-pica-subtitle text-text-secondary">
             <span>{minV.toLocaleString('es-UY')}</span>
             <div className="flex" aria-hidden="true">
@@ -317,10 +319,10 @@ export default function MapViz({ data }: { data: DatasetEspacial }) {
               {maxV.toLocaleString('es-UY')}
               {data.unidad === '%' ? '%' : ''}
             </span>
-            <span className="ml-3 text-text-muted">
-              {perLabel(per, proportional ? baseLabel : data.unidad)}
-            </span>
           </div>
+          <p className="mt-1 text-center font-sans text-pica-subtitle text-text-muted">
+            {perLabel(per, proportional ? baseLabel : data.unidad)}
+          </p>
         </div>
 
         {/* DERECHA — comparador al hover (placeholder mantiene la composición).

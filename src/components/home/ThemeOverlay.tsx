@@ -97,7 +97,8 @@ export default function ThemeOverlay({ tema, onClose, fullscreen = false }: Them
       exit={{ opacity: 0 }}
       transition={{ duration: shouldReduce ? 0 : 0.35 }}
     >
-      <div className="flex flex-col items-center gap-6 px-8 py-8 md:flex-row md:gap-16">
+      {/* max-h-full + overflow-y-auto: en stages bajos nada queda cortado */}
+      <div className="flex max-h-full flex-col items-center gap-6 overflow-y-auto px-8 py-8 short:gap-4 short:py-4 md:flex-row md:gap-16">
         {/* IZQUIERDA — personaje 360° + título debajo */}
         <div className="flex flex-col items-center gap-4">
           {/* Marco neon con el color de la temática (ref. de Figma) */}

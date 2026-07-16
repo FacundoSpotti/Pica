@@ -94,9 +94,11 @@ export default function CharacteristicExplorer({
       )}
 
       {/* Visualización activa — encabezado anclado arriba (nunca se corta el
-          título) + viz centrada debajo, sin scroll en desktop. En MOBILE el
-          contenido suele ser más alto que el viewport → scroll vertical. */}
-      <div className="mt-3 flex min-h-0 flex-1 items-start justify-center overflow-hidden max-md:overflow-y-auto short:mt-1 [&:has(details[open])]:overflow-y-auto">
+          título) + viz centrada debajo. overflow-y-AUTO: en resoluciones donde
+          la viz entra completa no hay scroll, pero si no entra (ej. multitudes
+          altas en pantallas bajas) se puede scrollear hasta la fuente y el
+          "ver tabla" — nunca quedan opciones inalcanzables. */}
+      <div className="mt-3 flex min-h-0 flex-1 items-start justify-center overflow-y-auto short:mt-1">
         <AnimatePresence mode="wait">
           {active && (
             <motion.div

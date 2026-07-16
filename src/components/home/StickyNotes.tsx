@@ -32,7 +32,10 @@ function Note({
   const shouldReduce = useReducedMotion();
   return (
     <motion.div
-      className={`${flow ? 'relative w-full' : `absolute w-48 ${className}`} border-2 border-white/25 bg-[#141412] px-3 pb-3 pt-4 shadow-[4px_6px_0_rgba(0,0,0,0.45)]`}
+      // Ancho fluido: en pantallas chicas (ej. 1024×600) las notas a 192px
+      // tapaban el mapa y los carteles de hover de las temáticas — clamp las
+      // achica proporcionalmente y solo llegan a 12rem en monitores grandes.
+      className={`${flow ? 'relative w-full' : `absolute w-[clamp(120px,13vw,12rem)] ${className}`} border-2 border-white/25 bg-[#141412] px-3 pb-3 pt-4 shadow-[4px_6px_0_rgba(0,0,0,0.45)]`}
       style={{ rotate }}
       initial={{ opacity: 0, y: shouldReduce ? 0 : 14 }}
       animate={{ opacity: 1, y: 0 }}
@@ -60,7 +63,7 @@ export default function StickyNotes({ flow = false }: { flow?: boolean }) {
           Población
         </p>
         <p
-          className="font-display text-[30px] font-black leading-none text-text-primary"
+          className="font-display text-[clamp(20px,2.3vw,30px)] font-black leading-none text-text-primary"
           style={{ fontVariationSettings: '"ELGR" 1, "ELSH" 2', fontVariantNumeric: 'tabular-nums' }}
         >
           {Math.round(population).toLocaleString('es-UY')}
@@ -93,7 +96,7 @@ export default function StickyNotes({ flow = false }: { flow?: boolean }) {
       </Note>
 
       {/* Versión — abajo a la derecha, chiquita */}
-      <Note className="-bottom-5 -right-5 !w-32" rotate={-2} delay={0.6} flow={flow}>
+      <Note className="-bottom-5 -right-5 !w-[clamp(88px,8vw,8rem)]" rotate={-2} delay={0.6} flow={flow}>
         <p className="font-sans text-pica-subtitle leading-tight text-text-muted">
           pica v0.1
           <br />

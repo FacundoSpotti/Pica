@@ -16,8 +16,9 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import CityLandscape, { type Seleccionable } from '@/components/home/CityLandscape';
+import WelcomeScreen from '@/components/home/WelcomeScreen';
 import HomeCanvas from '@/components/home/HomeCanvas';
 import ColorBar from '@/components/home/ColorBar';
 import ThemeOverlay from '@/components/home/ThemeOverlay';
@@ -91,6 +92,8 @@ export default function HomePage() {
     // w-full (no w-screen): con la página scrolleando vertical, w-screen incluye
     // el ancho de la barra de scroll y genera un desborde lateral.
     <main className="relative w-full overflow-x-hidden bg-bg-base">
+      {/* Bienvenida + carga: solo en la primera carga real de la página */}
+      <WelcomeScreen />
       {/* Hero: el landscape ocupa el primer viewport; se scrollea hacia abajo
           para llegar a los artículos. En mobile el hero crece (mapa + botones
           + notas) y deja de recortar. */}
@@ -176,13 +179,28 @@ export default function HomePage() {
               onClick={() => handleSelect(t, polygonCentroid(BUILDING_HITBOX_POLYGONS[t]))}
               aria-pressed={isSel}
               aria-label={`Explorar temática ${TEMA_LABEL[t]}`}
-              className="flex min-h-[48px] w-full items-center justify-start gap-4 rounded-lg border-2 px-4 py-2"
+              className="relative flex min-h-[48px] w-full items-center justify-start gap-4 overflow-hidden rounded-lg border-2 bg-white/[0.03] px-4 py-2"
               style={{
-                borderColor: TEMA_COLOR[t],
-                background: isSel ? `${TEMA_COLOR[t]}26` : 'transparent',
+                borderColor: isSel ? TEMA_COLOR[t] : `${TEMA_COLOR[t]}88`,
+                // Mismo destello que las cards de entidades cuando está activa
+                boxShadow: isSel
+                  ? `0 0 0 1px ${TEMA_COLOR[t]}, 0 8px 30px -8px ${TEMA_COLOR[t]}80`
+                  : 'none',
               }}
             >
-              <span className="flex h-10 w-12 shrink-0 items-center justify-center">
+              {/* Barra de carga: el fondo se llena de izquierda a derecha durante
+                  la animación de convergencia (2s) — señal de "esperá, viene". */}
+              {isSel && (
+                <motion.span
+                  aria-hidden="true"
+                  className="absolute inset-0 origin-left"
+                  style={{ background: `${TEMA_COLOR[t]}40` }}
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ duration: 2, ease: 'linear' }}
+                />
+              )}
+              <span className="relative flex h-10 w-12 shrink-0 items-center justify-center">
                 <img
                   src={assetUrl(THEME_STATIC[t])}
                   alt=""
@@ -191,7 +209,7 @@ export default function HomePage() {
                 />
               </span>
               <span
-                className="font-display text-pica-button font-bold uppercase"
+                className="relative font-display text-pica-button font-bold uppercase"
                 style={{ color: TEMA_COLOR[t], letterSpacing: '0.12em' }}
               >
                 {TEMA_LABEL[t]}
@@ -205,17 +223,31 @@ export default function HomePage() {
           onClick={() => handleSelect('palacio', polygonCentroid(PALACIO_HITBOX_POLYGON))}
           aria-pressed={selected?.tema === 'palacio'}
           aria-label="Explorar una estadística al azar (Palacio Legislativo)"
-          className="flex min-h-[48px] w-full items-center justify-start gap-4 rounded-lg border-2 px-4 py-2"
+          className="relative flex min-h-[48px] w-full items-center justify-start gap-4 overflow-hidden rounded-lg border-2 bg-white/[0.03] px-4 py-2"
           style={{
-            borderColor: 'rgba(235,235,235,0.5)',
-            background: selected?.tema === 'palacio' ? 'rgba(235,235,235,0.12)' : 'transparent',
+            borderColor:
+              selected?.tema === 'palacio' ? '#EBEBEB' : 'rgba(235,235,235,0.5)',
+            boxShadow:
+              selected?.tema === 'palacio'
+                ? '0 0 0 1px #EBEBEB, 0 8px 30px -8px rgba(235,235,235,0.5)'
+                : 'none',
           }}
         >
-          <span className="flex w-12 shrink-0 justify-center">
+          {selected?.tema === 'palacio' && (
+            <motion.span
+              aria-hidden="true"
+              className="absolute inset-0 origin-left"
+              style={{ background: 'rgba(235,235,235,0.22)' }}
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ duration: 2, ease: 'linear' }}
+            />
+          )}
+          <span className="relative flex w-12 shrink-0 justify-center">
             <PixelIcon name="ticket" size={28} color="#EBEBEB" />
           </span>
           <span
-            className="font-display text-pica-button font-bold uppercase text-text-primary"
+            className="relative font-display text-pica-button font-bold uppercase text-text-primary"
             style={{ letterSpacing: '0.12em' }}
           >
             Dato al azar

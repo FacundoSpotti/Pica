@@ -74,17 +74,19 @@ export default function RandomOverlay({ onClose, fullscreen = false }: RandomOve
       exit={{ opacity: 0 }}
       transition={{ duration: shouldReduce ? 0 : 0.35 }}
     >
-      <div className="flex flex-col items-center gap-6 px-8 py-8 text-center">
+      {/* max-h-full + overflow-y-auto: si el stage es bajo (ej. 1024×600) nada
+          queda cortado e inalcanzable; en `short` todo se achica para entrar. */}
+      <div className="flex max-h-full flex-col items-center gap-6 overflow-y-auto px-8 py-8 text-center short:gap-3 short:py-4">
         <motion.div {...rise(0.05)}>
           <div
-            className="rounded-lg border-[3px] px-8 py-6"
+            className="rounded-lg border-[3px] px-8 py-6 short:px-5 short:py-3"
             style={{
               borderColor: WHITE,
               boxShadow: `0 0 16px ${WHITE}59, inset 0 0 10px ${WHITE}26`,
               background: 'rgba(10, 10, 10, 0.55)',
             }}
           >
-            <PicaLogo className="h-24 w-auto text-text-primary" />
+            <PicaLogo className="h-24 w-auto text-text-primary short:h-14" />
           </div>
         </motion.div>
 
