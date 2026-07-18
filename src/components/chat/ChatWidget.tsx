@@ -14,7 +14,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion, useMotionValue, useReducedMotion } from 'framer-motion';
 import PixelIcon from '@/components/shared/PixelIcon';
 import PicaLogo from '@/components/shared/PicaLogo';
 
@@ -70,6 +70,41 @@ export default function ChatWidget() {
   const inputRef = useRef<HTMLInputElement>(null);
   const shouldReduce = useReducedMotion();
 
+  // ── Botón ARRASTRABLE ──────────────────────────────────────────────────────
+  // Ancla por defecto: esquina inferior derecha (donde se despliega el panel).
+  // El usuario puede arrastrarlo a donde quiera; la posición (offset x/y desde
+  // el ancla) se recuerda en localStorage y se clampa al viewport al volver.
+  const dragAreaRef = useRef<HTMLDivElement>(null);
+  const draggingRef = useRef(false);
+  const posX = useMotionValue(0);
+  const posY = useMotionValue(0);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('pica-chat-pos');
+      if (!raw) return;
+      const { x, y } = JSON.parse(raw) as { x: number; y: number };
+      const xMin = -(window.innerWidth - 84);
+      const yMin = -(window.innerHeight - 84);
+      posX.set(Math.min(0, Math.max(xMin, x)));
+      posY.set(Math.min(0, Math.max(yMin, y)));
+    } catch {
+      /* posición corrupta → ancla por defecto */
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const savePos = () => {
+    try {
+      localStorage.setItem(
+        'pica-chat-pos',
+        JSON.stringify({ x: Math.round(posX.get()), y: Math.round(posY.get()) }),
+      );
+    } catch {
+      /* sin storage (modo privado) — no pasa nada */
+    }
+  };
+
   // Autoscroll al último mensaje
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight });
@@ -112,14 +147,44 @@ export default function ChatWidget() {
 
   return (
     <>
-      {/* Botón flotante */}
-      <button
+      {/* Límites de arrastre del botón = viewport completo */}
+      <div ref={dragAreaRef} aria-hidden="true" className="pointer-events-none fixed inset-0 z-40" />
+
+      {/* Botón flotante — position FIJA por style inline: .pica-sheen fuerza
+          position:relative y pisaría la clase `fixed` de Tailwind (ese era el
+          bug del botón cortado abajo a la izquierda que scrolleaba). */}
+      <motion.button
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        drag
+        dragConstraints={dragAreaRef}
+        dragElastic={0}
+        dragMomentum={false}
+        onDragStart={() => {
+          draggingRef.current = true;
+        }}
+        onDragEnd={() => {
+          savePos();
+          setTimeout(() => {
+            draggingRef.current = false;
+          }, 0);
+        }}
+        onClick={() => {
+          if (draggingRef.current) return; // un arrastre no abre/cierra
+          setOpen((o) => !o);
+        }}
+        whileHover={shouldReduce ? undefined : { scale: 1.05 }}
         aria-expanded={open}
-        aria-label={open ? 'Cerrar asistente de datos' : 'Abrir asistente de datos'}
-        className="pica-sheen fixed bottom-5 right-5 z-40 flex h-[52px] w-[52px] items-center justify-center border-2 border-white/25 transition-transform hover:scale-105"
-        style={{ backgroundColor: '#EBEBEB' }}
+        aria-label={open ? 'Cerrar asistente de datos' : 'Abrir asistente de datos (arrastrable)'}
+        className="pica-sheen z-40 flex h-[52px] w-[52px] cursor-grab items-center justify-center border-2 border-white/25 active:cursor-grabbing"
+        style={{
+          position: 'fixed',
+          bottom: 20,
+          right: 20,
+          x: posX,
+          y: posY,
+          backgroundColor: '#EBEBEB',
+          touchAction: 'none',
+        }}
       >
         {open ? (
           <span aria-hidden="true" className="font-display text-2xl font-bold" style={{ color: '#0A0A0A' }}>
@@ -128,7 +193,7 @@ export default function ChatWidget() {
         ) : (
           <PixelIcon name="chat" size={26} color="#0A0A0A" />
         )}
-      </button>
+      </motion.button>
 
       {/* Panel */}
       <AnimatePresence>

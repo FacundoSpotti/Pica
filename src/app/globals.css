@@ -177,7 +177,10 @@ img[data-pixelated='true'] {
 }
 
 /* Barrido de brillo en botones primarios (hover/focus): un destello diagonal
-   cruza el botón una vez. */
+   cruza el botón una vez.
+   OJO: fuerza position:relative y esta hoja carga DESPUÉS de las utilities de
+   Tailwind — pisa `fixed`/`absolute` de clases. Si el host necesita otra
+   posición, seteala INLINE (style={{position:'fixed'}}), como el ChatWidget. */
 .pica-sheen {
   position: relative;
   overflow: hidden;
