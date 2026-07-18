@@ -28,7 +28,7 @@ export const STORY_W = 1080;
 export const STORY_H = 1920;
 
 /** Titular de campaña (definido por Facundo). */
-export const CAMPAIGN_HEADLINE = '¿Y si también compartís nuestro wrapped?';
+export const CAMPAIGN_HEADLINE = 'Uruguay en números';
 
 const BG = '#0A0A0A';
 const PAD = 72;
