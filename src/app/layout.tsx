@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { VT323, Handjet } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
+import ChatWidget from '@/components/chat/ChatWidget';
 import { assetUrl, LOGOS } from '@/lib/assets';
 import './globals.css';
 
@@ -62,6 +63,8 @@ export default function RootLayout({
     <html lang="es" className={`${vt323.variable} ${handjet.variable}`}>
       <body>
         {children}
+        {/* Asistente de datos (TAREA 9) — flotante, disponible en todo el sitio */}
+        <ChatWidget />
         {/* Vercel Web Analytics — pageviews y visitantes (privacy-friendly) */}
         <Analytics />
       </body>
