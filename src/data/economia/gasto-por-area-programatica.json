@@ -1,0 +1,98 @@
+{
+  "id": "gasto-por-area-programatica",
+  "tematica": "economia",
+  "entidad": "Gasto público",
+  "caracteristica": "A dónde va el gasto público",
+  "tipoResultado": "B",
+  "presentacion": "lista",
+  "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 6.1.8 (fuente CGN)",
+  "anio": 2024,
+  "unidad": "millones de pesos",
+  "descripcion": "Gastos del Gobierno Central durante 2024 según área programática, a valores corrientes (total: 913.051 millones de pesos).",
+  "categorias": [
+    {
+      "label": "Administración de Justicia",
+      "valor": 12386
+    },
+    {
+      "label": "Asuntos Legislativos",
+      "valor": 6639
+    },
+    {
+      "label": "Ciencia, Tecnología e Innovación",
+      "valor": 3369
+    },
+    {
+      "label": "Regulación, Control y Transparencia",
+      "valor": 1462
+    },
+    {
+      "label": "Cultura y Deporte",
+      "valor": 4500
+    },
+    {
+      "label": "Defensa Nacional",
+      "valor": 22038
+    },
+    {
+      "label": "Desarrollo Productivo",
+      "valor": 10921
+    },
+    {
+      "label": "Educación",
+      "valor": 152646
+    },
+    {
+      "label": "Infraestructura, Transporte y Comunicaciones",
+      "valor": 28040
+    },
+    {
+      "label": "Medio Ambiente y Recursos Naturales",
+      "valor": 1277
+    },
+    {
+      "label": "Protección Social",
+      "valor": 41373
+    },
+    {
+      "label": "Registros e Información Oficial",
+      "valor": 3191
+    },
+    {
+      "label": "Salud",
+      "valor": 118254
+    },
+    {
+      "label": "Seguridad Pública",
+      "valor": 45866
+    },
+    {
+      "label": "Servicios Públicos Generales",
+      "valor": 125735
+    },
+    {
+      "label": "Trabajo y Empleo",
+      "valor": 3058
+    },
+    {
+      "label": "Vivienda",
+      "valor": 17014
+    },
+    {
+      "label": "Energía",
+      "valor": 1208
+    },
+    {
+      "label": "Seguridad Social",
+      "valor": 192730
+    },
+    {
+      "label": "Administración Financiera",
+      "valor": 92826
+    },
+    {
+      "label": "Transferencias a Gobiernos Subnacionales",
+      "valor": 28519
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "id": "ipc-montevideo-interior",
+  "tematica": "economia",
+  "entidad": "Precios",
+  "caracteristica": "Inflación: Montevideo vs Interior",
+  "tipoResultado": "D",
+  "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 9.1.3 y 9.1.4 (fuente INE)",
+  "anio": 2024,
+  "unidad": "%",
+  "descripcion": "Variación anual 2024 del Índice de Precios del Consumo por división de gasto, comparando Montevideo y el Interior del país. Base octubre 2022 = 100.",
+  "filas": [
+    "Alimentos y bebidas no alcohólicas",
+    "Bebidas alcohólicas, tabaco y narcóticos",
+    "Ropa y calzado",
+    "Vivienda, agua, electricidad, gas y otros combustibles",
+    "Mobiliario, enseres domésticos y demas articulos regulares de los hogares",
+    "Salud",
+    "Transporte",
+    "Información y comunicación",
+    "Recreación, deporte y cultura",
+    "Servicios de educación",
+    "Restaurantes y servicios de alojamiento",
+    "Seguros y servicios financieros",
+    "Cuidado personal, protección social y bienes diversos"
+  ],
+  "columnas": [
+    "Montevideo",
+    "Interior"
+  ],
+  "valores": [
+    [
+      5.3,
+      5.3
+    ],
+    [
+      3.7,
+      4.4
+    ],
+    [
+      -4,
+      -3
+    ],
+    [
+      5.3,
+      6.1
+    ],
+    [
+      4.9,
+      4.2
+    ],
+    [
+      6.7,
+      6.7
+    ],
+    [
+      7,
+      4.3
+    ],
+    [
+      5.1,
+      4.6
+    ],
+    [
+      7.3,
+      3.9
+    ],
+    [
+      7.9,
+      8.4
+    ],
+    [
+      6.7,
+      8.1
+    ],
+    [
+      8.2,
+      6.9
+    ],
+    [
+      5.3,
+      4.2
+    ]
+  ]
+}

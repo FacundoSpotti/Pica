@@ -9,13 +9,25 @@ import { parseDataset, type Dataset } from "@/schemas/base";
 import type { Tematica } from "@/types/sprites";
 
 import economia_consumo_electrico_por_region from "@/data/economia/consumo-electrico-por-region.json";
+import economia_gasto_por_area_programatica from "@/data/economia/gasto-por-area-programatica.json";
+import economia_gasto_por_clasificacion from "@/data/economia/gasto-por-clasificacion.json";
 import economia_inflacion_anual from "@/data/economia/inflacion-anual.json";
+import economia_ingresos_egresos_gobierno from "@/data/economia/ingresos-egresos-gobierno.json";
+import economia_ingresos_empresas_estado from "@/data/economia/ingresos-empresas-estado.json";
+import economia_ipc_montevideo_interior from "@/data/economia/ipc-montevideo-interior.json";
 import economia_ipc_por_division from "@/data/economia/ipc-por-division.json";
+import economia_pib_por_industria from "@/data/economia/pib-por-industria.json";
+import economia_precio_nafta_super from "@/data/economia/precio-nafta-super.json";
+import economia_recaudacion_por_impuesto from "@/data/economia/recaudacion-por-impuesto.json";
+import economia_visitantes_por_motivo from "@/data/economia/visitantes-por-motivo.json";
+import economia_visitantes_por_nacionalidad from "@/data/economia/visitantes-por-nacionalidad.json";
 import educacion_aprobacion_media_basica_por_departamento from "@/data/educacion/aprobacion-media-basica-por-departamento.json";
 import educacion_aprobacion_media_superior_por_departamento from "@/data/educacion/aprobacion-media-superior-por-departamento.json";
 import educacion_egresados_terciaria_por_area from "@/data/educacion/egresados-terciaria-por-area.json";
 import educacion_egreso_media_superior from "@/data/educacion/egreso-media-superior.json";
 import educacion_egreso_por_nivel_socioeconomico from "@/data/educacion/egreso-por-nivel-socioeconomico.json";
+import educacion_estudiantes_por_nivel from "@/data/educacion/estudiantes-por-nivel.json";
+import educacion_estudiantes_publico_privado from "@/data/educacion/estudiantes-publico-privado.json";
 import educacion_matriculados_terciaria_por_area from "@/data/educacion/matriculados-terciaria-por-area.json";
 import educacion_nivel_educativo from "@/data/educacion/nivel-educativo.json";
 import educacion_nivel_por_generacion from "@/data/educacion/nivel-por-generacion.json";
@@ -34,7 +46,12 @@ import salud_gasto_salud_por_habitante from "@/data/salud/gasto-salud-por-habita
 import salud_medicos_por_departamento from "@/data/salud/medicos-por-departamento.json";
 import salud_mortalidad_infantil from "@/data/salud/mortalidad-infantil.json";
 import salud_profesionales_por_profesion from "@/data/salud/profesionales-por-profesion.json";
+import salud_suicidios_por_anio from "@/data/salud/suicidios-por-anio.json";
+import salud_suicidios_por_departamento from "@/data/salud/suicidios-por-departamento.json";
 import salud_vacunacion from "@/data/salud/vacunacion.json";
+import salud_vih_diagnosticos_por_anio from "@/data/salud/vih-diagnosticos-por-anio.json";
+import salud_vih_por_departamento from "@/data/salud/vih-por-departamento.json";
+import seguridad_denuncias_propiedad_por_tipo from "@/data/seguridad/denuncias-propiedad-por-tipo.json";
 import seguridad_fallecidos_transito_por_departamento from "@/data/seguridad/fallecidos-transito-por-departamento.json";
 import seguridad_femicidios from "@/data/seguridad/femicidios.json";
 import seguridad_feminicidio_arma from "@/data/seguridad/feminicidio-arma.json";
@@ -44,6 +61,7 @@ import seguridad_feminicidios_por_anio from "@/data/seguridad/feminicidios-por-a
 import seguridad_feminicidios_tasa_departamento from "@/data/seguridad/feminicidios-tasa-departamento.json";
 import seguridad_hurtos_por_departamento from "@/data/seguridad/hurtos-por-departamento.json";
 import seguridad_procesamientos_por_delito from "@/data/seguridad/procesamientos-por-delito.json";
+import seguridad_rapinas_por_departamento from "@/data/seguridad/rapinas-por-departamento.json";
 import seguridad_siniestros_transito from "@/data/seguridad/siniestros-transito.json";
 import trabajo_actividad_por_departamento from "@/data/trabajo/actividad-por-departamento.json";
 import trabajo_actividad_por_edad from "@/data/trabajo/actividad-por-edad.json";
@@ -76,13 +94,25 @@ import trabajo_subempleo_por_sexo from "@/data/trabajo/subempleo-por-sexo.json";
 
 const RAW_DATASETS: unknown[] = [
   economia_consumo_electrico_por_region,
+  economia_gasto_por_area_programatica,
+  economia_gasto_por_clasificacion,
   economia_inflacion_anual,
+  economia_ingresos_egresos_gobierno,
+  economia_ingresos_empresas_estado,
+  economia_ipc_montevideo_interior,
   economia_ipc_por_division,
+  economia_pib_por_industria,
+  economia_precio_nafta_super,
+  economia_recaudacion_por_impuesto,
+  economia_visitantes_por_motivo,
+  economia_visitantes_por_nacionalidad,
   educacion_aprobacion_media_basica_por_departamento,
   educacion_aprobacion_media_superior_por_departamento,
   educacion_egresados_terciaria_por_area,
   educacion_egreso_media_superior,
   educacion_egreso_por_nivel_socioeconomico,
+  educacion_estudiantes_por_nivel,
+  educacion_estudiantes_publico_privado,
   educacion_matriculados_terciaria_por_area,
   educacion_nivel_educativo,
   educacion_nivel_por_generacion,
@@ -101,7 +131,12 @@ const RAW_DATASETS: unknown[] = [
   salud_medicos_por_departamento,
   salud_mortalidad_infantil,
   salud_profesionales_por_profesion,
+  salud_suicidios_por_anio,
+  salud_suicidios_por_departamento,
   salud_vacunacion,
+  salud_vih_diagnosticos_por_anio,
+  salud_vih_por_departamento,
+  seguridad_denuncias_propiedad_por_tipo,
   seguridad_fallecidos_transito_por_departamento,
   seguridad_femicidios,
   seguridad_feminicidio_arma,
@@ -111,6 +146,7 @@ const RAW_DATASETS: unknown[] = [
   seguridad_feminicidios_tasa_departamento,
   seguridad_hurtos_por_departamento,
   seguridad_procesamientos_por_delito,
+  seguridad_rapinas_por_departamento,
   seguridad_siniestros_transito,
   trabajo_actividad_por_departamento,
   trabajo_actividad_por_edad,

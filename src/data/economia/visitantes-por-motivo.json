@@ -1,0 +1,63 @@
+{
+  "id": "visitantes-por-motivo",
+  "tematica": "economia",
+  "entidad": "Visitantes",
+  "caracteristica": "Motivo de la visita",
+  "tipoResultado": "D",
+  "personas": true,
+  "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 4.8.2 (fuente Ministerio de Turismo)",
+  "anio": 2024,
+  "unidad": "visitantes",
+  "descripcion": "Visitantes ingresados a Uruguay por año según el motivo declarado del viaje.",
+  "filas": [
+    "Familiares o amigos",
+    "Recreación y paseo",
+    "Negocios y trabajo",
+    "Congresos y estudio",
+    "Salud",
+    "Tránsito",
+    "Otros / sin datos"
+  ],
+  "columnas": [
+    "2022",
+    "2023",
+    "2024"
+  ],
+  "valores": [
+    [
+      737219,
+      1082241,
+      879273
+    ],
+    [
+      1396921,
+      2148045,
+      1920277
+    ],
+    [
+      141085,
+      197444,
+      201338
+    ],
+    [
+      7758,
+      13966,
+      15303
+    ],
+    [
+      10756,
+      33671,
+      18526
+    ],
+    [
+      29430,
+      171197,
+      174574
+    ],
+    [
+      143761,
+      188476,
+      132539
+    ]
+  ]
+}

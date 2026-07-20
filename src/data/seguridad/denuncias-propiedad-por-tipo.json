@@ -1,0 +1,58 @@
+{
+  "id": "denuncias-propiedad-por-tipo",
+  "tematica": "seguridad",
+  "entidad": "Delitos",
+  "caracteristica": "Denuncias contra la propiedad",
+  "tipoResultado": "D",
+  "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.6.13 (fuente Ministerio del Interior)",
+  "anio": 2024,
+  "unidad": "denuncias",
+  "descripcion": "Denuncias de delitos consumados contra la propiedad por tipo y año, total país.",
+  "filas": [
+    "Hurtos",
+    "Rapiñas",
+    "Daños"
+  ],
+  "columnas": [
+    "2017",
+    "2018",
+    "2019",
+    "2020",
+    "2021",
+    "2022",
+    "2023",
+    "2024"
+  ],
+  "valores": [
+    [
+      115678,
+      145968,
+      140018,
+      118728,
+      112660,
+      115374,
+      108000,
+      103372
+    ],
+    [
+      19448,
+      29887,
+      30632,
+      28745,
+      24881,
+      23413,
+      20269,
+      15819
+    ],
+    [
+      19936,
+      24350,
+      24297,
+      23610,
+      22080,
+      21278,
+      20463,
+      20109
+    ]
+  ]
+}

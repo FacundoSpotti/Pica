@@ -1,0 +1,50 @@
+{
+  "id": "gasto-por-clasificacion",
+  "tematica": "economia",
+  "entidad": "Gasto público",
+  "caracteristica": "En qué se gasta",
+  "tipoResultado": "B",
+  "presentacion": "lista",
+  "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 6.1.7 (fuente CGN)",
+  "anio": 2024,
+  "unidad": "millones de pesos",
+  "descripcion": "Gastos del Gobierno Central durante 2024 según clasificación económica, a valores corrientes (total: 913.051 millones de pesos).",
+  "categorias": [
+    {
+      "label": "Inversiones",
+      "valor": 54603
+    },
+    {
+      "label": "Servicios personales",
+      "valor": 268704
+    },
+    {
+      "label": "Bienes de consumo",
+      "valor": 26004
+    },
+    {
+      "label": "Servicios no personales",
+      "valor": 56010
+    },
+    {
+      "label": "Bienes de uso",
+      "valor": 83
+    },
+    {
+      "label": "Transferencias",
+      "valor": 416346
+    },
+    {
+      "label": "Intereses y otros gastos",
+      "valor": 88507
+    },
+    {
+      "label": "Gastos no clasificados",
+      "valor": 2743
+    },
+    {
+      "label": "Gastos figurativos",
+      "valor": 51
+    }
+  ]
+}

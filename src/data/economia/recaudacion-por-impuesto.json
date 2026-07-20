@@ -1,0 +1,42 @@
+{
+  "id": "recaudacion-por-impuesto",
+  "tematica": "economia",
+  "entidad": "Impuestos",
+  "caracteristica": "Qué recauda cada impuesto",
+  "tipoResultado": "B",
+  "presentacion": "lista",
+  "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 6.1.5 (fuente MEF)",
+  "anio": 2024,
+  "unidad": "millones de pesos",
+  "descripcion": "Ingresos tributarios del Gobierno Central durante 2024, a valores corrientes (total: 693.937 millones de pesos). Agrupación propia sobre las líneas del cuadro; \"Otros impuestos\" completa el total.",
+  "categorias": [
+    {
+      "label": "IVA (ventas y cifra de negocios)",
+      "valor": 320818
+    },
+    {
+      "label": "IRPF (renta de las personas)",
+      "valor": 125980
+    },
+    {
+      "label": "IRAE (renta de las empresas)",
+      "valor": 86251
+    },
+    {
+      "label": "IMESI (selectivo sobre bienes)",
+      "valor": 59442
+    },
+    {
+      "label": "Patrimonio y propiedad",
+      "valor": 40551
+    },
+    {
+      "label": "Comercio exterior",
+      "valor": 19722
+    },
+    {
+      "label": "Otros impuestos",
+      "valor": 41173
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "visitantes-por-nacionalidad",
+  "tematica": "economia",
+  "entidad": "Visitantes",
+  "caracteristica": "Visitantes por nacionalidad",
+  "tipoResultado": "B",
+  "personas": true,
+  "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 4.8.1 (fuente Ministerio de Turismo)",
+  "anio": 2024,
+  "unidad": "visitantes",
+  "descripcion": "Visitantes ingresados a Uruguay durante 2024 según nacionalidad. Incluye a los uruguayos residentes en el exterior que visitan el país.",
+  "categorias": [
+    {
+      "label": "Uruguayos",
+      "valor": 580639
+    },
+    {
+      "label": "Argentinos",
+      "valor": 1705090
+    },
+    {
+      "label": "Brasileños",
+      "valor": 468027
+    },
+    {
+      "label": "Paraguayos",
+      "valor": 51886
+    },
+    {
+      "label": "Chilenos",
+      "valor": 69814
+    },
+    {
+      "label": "Norteamericanos",
+      "valor": 108172
+    },
+    {
+      "label": "Resto de América",
+      "valor": 181984
+    },
+    {
+      "label": "Europa",
+      "valor": 152216
+    },
+    {
+      "label": "Otros / sin datos",
+      "valor": 24002
+    }
+  ]
+}

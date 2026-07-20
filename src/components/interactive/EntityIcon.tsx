@@ -39,9 +39,14 @@ const ICON_BY_ENTITY: Record<string, PixelIconName> = {
   // Educación
   'Jóvenes de 21 a 23 años': 'gradCap',
   'Áreas de conocimiento': 'book',
+  Estudiantes: 'backpack',
   // Economía
   Precios: 'priceTag',
   Energía: 'bolt',
+  Visitantes: 'suitcase',
+  'Gasto público': 'bank',
+  Impuestos: 'taxPercent',
+  'Producción nacional': 'gears',
   // Seguridad
   'Violencia de género': 'ribbon',
   Delitos: 'shield',

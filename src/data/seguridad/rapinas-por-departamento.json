@@ -1,0 +1,108 @@
+{
+  "id": "rapinas-por-departamento",
+  "tematica": "seguridad",
+  "entidad": "Departamentos",
+  "caracteristica": "Denuncias de rapiñas",
+  "tipoResultado": "E",
+  "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.6.13 (fuente Ministerio del Interior)",
+  "anio": 2024,
+  "unidad": "denuncias",
+  "descripcion": "Denuncias de rapiñas (delitos consumados) durante 2024, por departamento.",
+  "departamentos": [
+    {
+      "id": "UY-MO",
+      "nombre": "Montevideo",
+      "valor": 12852
+    },
+    {
+      "id": "UY-AR",
+      "nombre": "Artigas",
+      "valor": 30
+    },
+    {
+      "id": "UY-CA",
+      "nombre": "Canelones",
+      "valor": 1697
+    },
+    {
+      "id": "UY-CL",
+      "nombre": "Cerro Largo",
+      "valor": 10
+    },
+    {
+      "id": "UY-CO",
+      "nombre": "Colonia",
+      "valor": 31
+    },
+    {
+      "id": "UY-DU",
+      "nombre": "Durazno",
+      "valor": 43
+    },
+    {
+      "id": "UY-FS",
+      "nombre": "Flores",
+      "valor": 7
+    },
+    {
+      "id": "UY-FD",
+      "nombre": "Florida",
+      "valor": 18
+    },
+    {
+      "id": "UY-LA",
+      "nombre": "Lavalleja",
+      "valor": 33
+    },
+    {
+      "id": "UY-MA",
+      "nombre": "Maldonado",
+      "valor": 238
+    },
+    {
+      "id": "UY-PA",
+      "nombre": "Paysandú",
+      "valor": 161
+    },
+    {
+      "id": "UY-RN",
+      "nombre": "Río Negro",
+      "valor": 15
+    },
+    {
+      "id": "UY-RV",
+      "nombre": "Rivera",
+      "valor": 92
+    },
+    {
+      "id": "UY-RO",
+      "nombre": "Rocha",
+      "valor": 73
+    },
+    {
+      "id": "UY-SA",
+      "nombre": "Salto",
+      "valor": 172
+    },
+    {
+      "id": "UY-SJ",
+      "nombre": "San José",
+      "valor": 255
+    },
+    {
+      "id": "UY-SO",
+      "nombre": "Soriano",
+      "valor": 27
+    },
+    {
+      "id": "UY-TA",
+      "nombre": "Tacuarembó",
+      "valor": 41
+    },
+    {
+      "id": "UY-TT",
+      "nombre": "Treinta y Tres",
+      "valor": 24
+    }
+  ]
+}

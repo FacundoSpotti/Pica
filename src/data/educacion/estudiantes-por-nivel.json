@@ -1,0 +1,30 @@
+{
+  "id": "estudiantes-por-nivel",
+  "tematica": "educacion",
+  "entidad": "Estudiantes",
+  "caracteristica": "Estudiantes por nivel educativo",
+  "tipoResultado": "B",
+  "personas": true,
+  "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.1.1, 3.1.2, 3.1.5 y 3.1.10 (fuente MEC)",
+  "anio": 2023,
+  "unidad": "estudiantes",
+  "descripcion": "Estudiantes matriculados en 2023 por nivel: Inicial suma DGEIP pública y privada, INAU y Centros de Primera Infancia; Media básica y superior suman modalidad General y Vocacional, públicas y privadas (celdas de los cuadros citados).",
+  "categorias": [
+    {
+      "label": "Educación inicial",
+      "valor": 167185
+    },
+    {
+      "label": "Primaria",
+      "valor": 287932
+    },
+    {
+      "label": "Media básica",
+      "valor": 164160
+    },
+    {
+      "label": "Media superior",
+      "valor": 182174
+    }
+  ]
+}

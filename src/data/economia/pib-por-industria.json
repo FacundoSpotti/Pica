@@ -1,0 +1,58 @@
+{
+  "id": "pib-por-industria",
+  "tematica": "economia",
+  "entidad": "Producción nacional",
+  "caracteristica": "PIB por industria",
+  "tipoResultado": "B",
+  "presentacion": "lista",
+  "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 8.1.3 (fuente BCU)",
+  "anio": 2024,
+  "unidad": "millones de pesos",
+  "descripcion": "Producto Interno Bruto 2024 por industria, a precios corrientes (total: 3.255.688 millones de pesos). \"Impuestos menos subvenciones\" completa el PIB junto al valor agregado de las industrias.",
+  "categorias": [
+    {
+      "label": "Agropecuario, Pesca y Minería",
+      "valor": 214340
+    },
+    {
+      "label": "Industria manufacturera",
+      "valor": 315517
+    },
+    {
+      "label": "Energía eléctrica, Gas y Agua",
+      "valor": 74839
+    },
+    {
+      "label": "Construcción",
+      "valor": 149945
+    },
+    {
+      "label": "Comercio, Alojamiento y Suministro de comidas y bebidas",
+      "valor": 458447
+    },
+    {
+      "label": "Transporte y almacenamiento, Información y Comunicaciones",
+      "valor": 268046
+    },
+    {
+      "label": "Servicios financieros",
+      "valor": 160188
+    },
+    {
+      "label": "Actividades profesionales y Arrendamiento",
+      "valor": 258249
+    },
+    {
+      "label": "Actividades de administración pública",
+      "valor": 167554
+    },
+    {
+      "label": "Salud, Educación, Actividades inmobiliarias y Otros servicios",
+      "valor": 812267
+    },
+    {
+      "label": "Impuestos menos subvenciones",
+      "valor": 376296
+    }
+  ]
+}

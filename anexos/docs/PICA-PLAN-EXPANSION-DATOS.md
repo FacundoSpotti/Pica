@@ -1,7 +1,10 @@
 # PICA — Plan de expansión de datos (fase 2)
 
-Estado: **PROPUESTA APROBADA EN SCOPING — SIN IMPLEMENTAR** (decisión de
-Facundo 2026-07-20: sumar a la tabla y analizar viabilidad, aún no hacerlo).
+Estado: **IMPLEMENTADO** (2026-07-20, "dale vamos con todos"): 18 datasets
+nuevos → 83 totales, generados por `scripts/gen-datos-fase2.mjs` (celdas
+reales + aserciones). Única pieza excluida: registro de cambios de tasas de
+impuestos (no viable, ver abajo). Entidades nuevas: Estudiantes, Visitantes,
+Gasto público, Impuestos, Producción nacional — con ícono pixel propio.
 
 Regla vigente para toda la expansión: generadores que leen las **celdas
 reales** de los cuadros (nunca transcripción manual), fuente + año en cada

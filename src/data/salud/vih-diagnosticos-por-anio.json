@@ -1,0 +1,50 @@
+{
+  "id": "vih-diagnosticos-por-anio",
+  "tematica": "salud",
+  "entidad": "Personas",
+  "caracteristica": "Nuevos diagnósticos de VIH",
+  "tipoResultado": "C",
+  "personas": true,
+  "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.2.6 (fuente MSP)",
+  "anio": 2024,
+  "unidad": "personas",
+  "descripcion": "Personas con nuevo diagnóstico de VIH notificado por año, total país. Un diagnóstico temprano permite tratamiento oportuno: hoy una persona con VIH en tratamiento puede tener carga viral indetectable e intransmisible.",
+  "puntos": [
+    {
+      "periodo": "2016",
+      "valor": 858
+    },
+    {
+      "periodo": "2017",
+      "valor": 797
+    },
+    {
+      "periodo": "2018",
+      "valor": 988
+    },
+    {
+      "periodo": "2019",
+      "valor": 993
+    },
+    {
+      "periodo": "2020",
+      "valor": 876
+    },
+    {
+      "periodo": "2021",
+      "valor": 764
+    },
+    {
+      "periodo": "2022",
+      "valor": 904
+    },
+    {
+      "periodo": "2023",
+      "valor": 887
+    },
+    {
+      "periodo": "2024",
+      "valor": 842
+    }
+  ]
+}

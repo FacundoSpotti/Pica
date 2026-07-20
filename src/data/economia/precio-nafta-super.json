@@ -1,0 +1,125 @@
+{
+  "id": "precio-nafta-super",
+  "tematica": "economia",
+  "entidad": "Precios",
+  "caracteristica": "Precio de la nafta Súper 95",
+  "tipoResultado": "C",
+  "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 9.1.8 (fuente MIEM)",
+  "anio": 2025,
+  "unidad": "$ por litro",
+  "descripcion": "Precio al público de la nafta Súper 95 30-S en cada fecha de vigencia fijada por el Poder Ejecutivo (pesos por litro). Cada punto es un cambio de precio administrado.",
+  "puntos": [
+    {
+      "periodo": "ene-23",
+      "valor": 71.89
+    },
+    {
+      "periodo": "feb-23",
+      "valor": 71.89
+    },
+    {
+      "periodo": "mar-23",
+      "valor": 71.89
+    },
+    {
+      "periodo": "abr-23",
+      "valor": 71.89
+    },
+    {
+      "periodo": "jun-23",
+      "valor": 69.89
+    },
+    {
+      "periodo": "ago-23",
+      "valor": 71.39
+    },
+    {
+      "periodo": "set-23",
+      "valor": 74.39
+    },
+    {
+      "periodo": "oct-23",
+      "valor": 77.54
+    },
+    {
+      "periodo": "dic-23",
+      "valor": 75.54
+    },
+    {
+      "periodo": "ene-24",
+      "valor": 75.54
+    },
+    {
+      "periodo": "feb-24",
+      "valor": 75.54
+    },
+    {
+      "periodo": "mar-24",
+      "valor": 76.54
+    },
+    {
+      "periodo": "may-24",
+      "valor": 78.04
+    },
+    {
+      "periodo": "jun-24",
+      "valor": 77.54
+    },
+    {
+      "periodo": "oct-24",
+      "valor": 75.04
+    },
+    {
+      "periodo": "dic-24",
+      "valor": 75.04
+    },
+    {
+      "periodo": "ene-25",
+      "valor": 78.54
+    },
+    {
+      "periodo": "feb-25",
+      "valor": 78.54
+    },
+    {
+      "periodo": "mar-25",
+      "valor": 78.54
+    },
+    {
+      "periodo": "abr-25",
+      "valor": 78.54
+    },
+    {
+      "periodo": "may-25",
+      "valor": 78.54
+    },
+    {
+      "periodo": "jun-25",
+      "valor": 78.47
+    },
+    {
+      "periodo": "jul-25",
+      "valor": 78.72
+    },
+    {
+      "periodo": "ago-25",
+      "valor": 78.72
+    },
+    {
+      "periodo": "set-25",
+      "valor": 78.2
+    },
+    {
+      "periodo": "oct-25",
+      "valor": 78.2
+    },
+    {
+      "periodo": "nov-25",
+      "valor": 78.02
+    },
+    {
+      "periodo": "dic-25",
+      "valor": 78.02
+    }
+  ]
+}

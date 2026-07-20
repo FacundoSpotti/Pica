@@ -1,0 +1,21 @@
+{
+  "id": "ingresos-egresos-gobierno",
+  "tematica": "economia",
+  "entidad": "Gasto público",
+  "caracteristica": "Ingresos vs egresos del Estado",
+  "tipoResultado": "B",
+  "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 6.1.2 (fuente MEF)",
+  "anio": 2024,
+  "unidad": "millones de pesos",
+  "descripcion": "Ingresos y egresos del Gobierno Central consolidado durante 2024, a valores corrientes. El resultado fue deficitario: -103.981 millones de pesos (criterio caja).",
+  "categorias": [
+    {
+      "label": "Ingresos",
+      "valor": 888387
+    },
+    {
+      "label": "Egresos",
+      "valor": 992368
+    }
+  ]
+}

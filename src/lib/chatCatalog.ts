@@ -40,6 +40,16 @@ const SINONIMOS: Record<string, string[]> = {
   transito: ['siniestro', 'siniestros', 'accidente', 'accidentes', 'choque', 'choques'],
   departamento: ['departamentos', 'montevideo', 'interior', 'canelones'],
   niño: ['niños', 'ninos', 'nino', 'infantil', 'bebe', 'bebes'],
+  // Fase 2 (2026-07): salud sensible, turismo, finanzas públicas
+  vih: ['sida', 'diagnostico', 'diagnosticos'],
+  suicidio: ['suicidios', 'autoeliminacion'],
+  visitantes: ['turista', 'turistas', 'turismo', 'visitante', 'viaje', 'viajes'],
+  impuesto: ['impuestos', 'iva', 'irpf', 'irae', 'imesi', 'recaudacion', 'tributario', 'tributarios', 'tributos'],
+  gasto: ['gastos', 'presupuesto', 'deficit', 'egresos', 'estatal', 'estado', 'gobierno'],
+  pib: ['producto interno', 'producto bruto', 'industrias'],
+  combustible: ['nafta', 'gasoil', 'supergas', 'combustibles', 'litro', 'super'],
+  estudiante: ['estudiantes', 'alumno', 'alumnos', 'matriculados', 'primaria', 'liceo'],
+  rapina: ['rapinas', 'rapiña', 'rapiñas', 'robo', 'robos'],
 };
 
 /** Expande la consulta con los canónicos de sus sinónimos. */

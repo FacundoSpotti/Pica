@@ -1,0 +1,109 @@
+{
+  "id": "suicidios-por-departamento",
+  "tematica": "salud",
+  "entidad": "Departamentos",
+  "caracteristica": "Muertes por suicidio",
+  "tipoResultado": "E",
+  "personas": true,
+  "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.2.7 (fuente MSP)",
+  "anio": 2024,
+  "unidad": "personas",
+  "descripcion": "Personas fallecidas por suicidio durante 2024, por departamento de residencia. Si vos o alguien que conocés está pasando un momento difícil, la Línea de Prevención del Suicidio atiende las 24 horas: 0800 0767 (*0767 desde el celular).",
+  "departamentos": [
+    {
+      "id": "UY-MO",
+      "nombre": "Montevideo",
+      "valor": 247
+    },
+    {
+      "id": "UY-AR",
+      "nombre": "Artigas",
+      "valor": 20
+    },
+    {
+      "id": "UY-CA",
+      "nombre": "Canelones",
+      "valor": 126
+    },
+    {
+      "id": "UY-CL",
+      "nombre": "Cerro Largo",
+      "valor": 20
+    },
+    {
+      "id": "UY-CO",
+      "nombre": "Colonia",
+      "valor": 32
+    },
+    {
+      "id": "UY-DU",
+      "nombre": "Durazno",
+      "valor": 17
+    },
+    {
+      "id": "UY-FS",
+      "nombre": "Flores",
+      "valor": 8
+    },
+    {
+      "id": "UY-FD",
+      "nombre": "Florida",
+      "valor": 18
+    },
+    {
+      "id": "UY-LA",
+      "nombre": "Lavalleja",
+      "valor": 14
+    },
+    {
+      "id": "UY-MA",
+      "nombre": "Maldonado",
+      "valor": 41
+    },
+    {
+      "id": "UY-PA",
+      "nombre": "Paysandú",
+      "valor": 26
+    },
+    {
+      "id": "UY-RN",
+      "nombre": "Río Negro",
+      "valor": 21
+    },
+    {
+      "id": "UY-RV",
+      "nombre": "Rivera",
+      "valor": 25
+    },
+    {
+      "id": "UY-RO",
+      "nombre": "Rocha",
+      "valor": 26
+    },
+    {
+      "id": "UY-SA",
+      "nombre": "Salto",
+      "valor": 28
+    },
+    {
+      "id": "UY-SJ",
+      "nombre": "San José",
+      "valor": 32
+    },
+    {
+      "id": "UY-SO",
+      "nombre": "Soriano",
+      "valor": 18
+    },
+    {
+      "id": "UY-TA",
+      "nombre": "Tacuarembó",
+      "valor": 25
+    },
+    {
+      "id": "UY-TT",
+      "nombre": "Treinta y Tres",
+      "valor": 19
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "id": "estudiantes-publico-privado",
+  "tematica": "educacion",
+  "entidad": "Estudiantes",
+  "caracteristica": "Educación pública vs privada",
+  "tipoResultado": "D",
+  "personas": true,
+  "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.1.2, 3.1.5 y 3.1.10 (fuente MEC)",
+  "anio": 2023,
+  "unidad": "estudiantes",
+  "descripcion": "Estudiantes matriculados en 2023 según forma de administración. Media básica y superior suman las modalidades General y Vocacional de los cuadros citados.",
+  "filas": [
+    "Primaria",
+    "Media básica",
+    "Media superior"
+  ],
+  "columnas": [
+    "Pública",
+    "Privada"
+  ],
+  "valores": [
+    [
+      242374,
+      45558
+    ],
+    [
+      140018,
+      24142
+    ],
+    [
+      164528,
+      17646
+    ]
+  ]
+}

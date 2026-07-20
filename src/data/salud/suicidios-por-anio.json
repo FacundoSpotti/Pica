@@ -1,0 +1,50 @@
+{
+  "id": "suicidios-por-anio",
+  "tematica": "salud",
+  "entidad": "Personas",
+  "caracteristica": "Muertes por suicidio",
+  "tipoResultado": "C",
+  "personas": true,
+  "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.2.7 (fuente MSP)",
+  "anio": 2024,
+  "unidad": "personas",
+  "descripcion": "Personas fallecidas por suicidio por año, total país. Si vos o alguien que conocés está pasando un momento difícil, la Línea de Prevención del Suicidio atiende las 24 horas: 0800 0767 (*0767 desde el celular).",
+  "puntos": [
+    {
+      "periodo": "2016",
+      "valor": 715
+    },
+    {
+      "periodo": "2017",
+      "valor": 688
+    },
+    {
+      "periodo": "2018",
+      "valor": 710
+    },
+    {
+      "periodo": "2019",
+      "valor": 723
+    },
+    {
+      "periodo": "2020",
+      "valor": 718
+    },
+    {
+      "periodo": "2021",
+      "valor": 765
+    },
+    {
+      "periodo": "2022",
+      "valor": 823
+    },
+    {
+      "periodo": "2023",
+      "valor": 763
+    },
+    {
+      "periodo": "2024",
+      "valor": 764
+    }
+  ]
+}

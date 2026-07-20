@@ -1,0 +1,42 @@
+{
+  "id": "ingresos-empresas-estado",
+  "tematica": "economia",
+  "entidad": "Gasto público",
+  "caracteristica": "Ingresos de las empresas del Estado",
+  "tipoResultado": "B",
+  "presentacion": "lista",
+  "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 6.1.11 (fuente empresas públicas)",
+  "anio": 2024,
+  "unidad": "millones de pesos",
+  "descripcion": "Ingresos de las empresas del Estado durante 2024, a valores corrientes (ANCAP, UTE, ANTEL, OSE, ANP, ANV y AFE).",
+  "categorias": [
+    {
+      "label": "ANCAP",
+      "valor": 136950
+    },
+    {
+      "label": "UTE",
+      "valor": 93800
+    },
+    {
+      "label": "ANTEL",
+      "valor": 53779
+    },
+    {
+      "label": "OSE",
+      "valor": 22673
+    },
+    {
+      "label": "ANP",
+      "valor": 9331
+    },
+    {
+      "label": "ANV",
+      "valor": 895
+    },
+    {
+      "label": "AFE",
+      "valor": 75
+    }
+  ]
+}

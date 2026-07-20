@@ -1,0 +1,109 @@
+{
+  "id": "vih-por-departamento",
+  "tematica": "salud",
+  "entidad": "Departamentos",
+  "caracteristica": "Nuevos diagnósticos de VIH",
+  "tipoResultado": "E",
+  "personas": true,
+  "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 3.2.6 (fuente MSP)",
+  "anio": 2024,
+  "unidad": "personas",
+  "descripcion": "Personas con nuevo diagnóstico de VIH notificado durante 2024, por departamento de residencia.",
+  "departamentos": [
+    {
+      "id": "UY-MO",
+      "nombre": "Montevideo",
+      "valor": 475
+    },
+    {
+      "id": "UY-AR",
+      "nombre": "Artigas",
+      "valor": 13
+    },
+    {
+      "id": "UY-CA",
+      "nombre": "Canelones",
+      "valor": 94
+    },
+    {
+      "id": "UY-CL",
+      "nombre": "Cerro Largo",
+      "valor": 9
+    },
+    {
+      "id": "UY-CO",
+      "nombre": "Colonia",
+      "valor": 19
+    },
+    {
+      "id": "UY-DU",
+      "nombre": "Durazno",
+      "valor": 7
+    },
+    {
+      "id": "UY-FS",
+      "nombre": "Flores",
+      "valor": 3
+    },
+    {
+      "id": "UY-FD",
+      "nombre": "Florida",
+      "valor": 3
+    },
+    {
+      "id": "UY-LA",
+      "nombre": "Lavalleja",
+      "valor": 8
+    },
+    {
+      "id": "UY-MA",
+      "nombre": "Maldonado",
+      "valor": 56
+    },
+    {
+      "id": "UY-PA",
+      "nombre": "Paysandú",
+      "valor": 33
+    },
+    {
+      "id": "UY-RN",
+      "nombre": "Río Negro",
+      "valor": 10
+    },
+    {
+      "id": "UY-RV",
+      "nombre": "Rivera",
+      "valor": 26
+    },
+    {
+      "id": "UY-RO",
+      "nombre": "Rocha",
+      "valor": 8
+    },
+    {
+      "id": "UY-SA",
+      "nombre": "Salto",
+      "valor": 15
+    },
+    {
+      "id": "UY-SJ",
+      "nombre": "San José",
+      "valor": 21
+    },
+    {
+      "id": "UY-SO",
+      "nombre": "Soriano",
+      "valor": 15
+    },
+    {
+      "id": "UY-TA",
+      "nombre": "Tacuarembó",
+      "valor": 16
+    },
+    {
+      "id": "UY-TT",
+      "nombre": "Treinta y Tres",
+      "valor": 11
+    }
+  ]
+}
