@@ -14,6 +14,20 @@ const CELL_H = 48;
 const HEAD_H = 28;
 const GAP = 4;
 
+/**
+ * Texto negro o blanco según la LUMINANCIA real del color de la celda.
+ * (El umbral por posición en la escala `t(v)` quedaba invertido en escalas
+ * claro→oscuro: celdas rosadas con texto blanco ilegible — bug de contraste
+ * reportado en Delitos e IPC.)
+ */
+function textOn(cssColor: string): string {
+  const m = cssColor.match(/\d+/g);
+  if (!m) return '#EBEBEB';
+  const [r = 0, g = 0, b = 0] = m.map(Number);
+  const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  return lum > 140 ? '#0A0A0A' : '#FFFFFF';
+}
+
 export default function MatrixViz({ data }: { data: DatasetMatriz }) {
   const [lo, hi] = TEMA_SCALE[data.tematica];
   const flat = data.valores.flat();
@@ -73,7 +87,7 @@ export default function MatrixViz({ data }: { data: DatasetMatriz }) {
             </text>
             {data.columnas.map((col, j) => {
               const v = data.valores[i]![j]!;
-              const dark = t(v) > 0.55;
+              const bg = colorOf(v);
               return (
                 <g key={col}>
                   <rect
@@ -81,13 +95,13 @@ export default function MatrixViz({ data }: { data: DatasetMatriz }) {
                     y={HEAD_H + i * (CELL_H + GAP)}
                     width={CELL_W}
                     height={CELL_H}
-                    fill={colorOf(v)}
+                    fill={bg}
                   />
                   <text
                     x={LABEL_W + j * (CELL_W + GAP) + CELL_W / 2}
                     y={HEAD_H + i * (CELL_H + GAP) + CELL_H / 2 + 6}
                     textAnchor="middle"
-                    fill={dark ? '#0A0A0A' : '#EBEBEB'}
+                    fill={textOn(bg)}
                     style={{ fontFamily: 'var(--font-handjet)', fontWeight: 700, fontSize: 17 }}
                   >
                     {v.toLocaleString('es-UY')}

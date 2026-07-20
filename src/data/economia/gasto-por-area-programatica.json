@@ -4,7 +4,7 @@
   "entidad": "Gasto público",
   "caracteristica": "A dónde va el gasto público",
   "tipoResultado": "B",
-  "presentacion": "lista",
+  "glifo": "coins",
   "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 6.1.8 (fuente CGN)",
   "anio": 2024,
   "unidad": "millones de pesos",

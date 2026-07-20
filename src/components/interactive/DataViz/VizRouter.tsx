@@ -15,7 +15,7 @@ import IsotypeDistributionViz from './IsotypeDistributionViz';
 import IsotypeGlyphViz from './IsotypeGlyphViz';
 import IconGridViz from './IconGridViz';
 import PerCapitaViz from './PerCapitaViz';
-import TimeSeriesViz from './TimeSeriesViz';
+import PixelBarsViz from './PixelBarsViz';
 import IsotypeTimeSeriesViz from './IsotypeTimeSeriesViz';
 import MatrixViz from './MatrixViz';
 import IsotypeMatrixViz from './IsotypeMatrixViz';
@@ -39,7 +39,9 @@ export default function VizRouter({ dataset }: { dataset: Dataset }) {
       if (dataset.presentacion === 'grilla') return <IconGridViz data={dataset} />;
       return <DistributionViz data={dataset} />;
     case 'C':
-      return persons ? <IsotypeTimeSeriesViz data={dataset} /> : <TimeSeriesViz data={dataset} />;
+      // No-personas: torres de bloques pixel (la línea D3 desentonaba con la
+      // estética — feedback de Facundo sobre nafta e inflación)
+      return persons ? <IsotypeTimeSeriesViz data={dataset} /> : <PixelBarsViz data={dataset} />;
     case 'D':
       return persons ? <IsotypeMatrixViz data={dataset} /> : <MatrixViz data={dataset} />;
     case 'E':

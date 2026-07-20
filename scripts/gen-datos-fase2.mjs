@@ -304,7 +304,7 @@ function pib() {
   assertClose(sumaInd + impuestosNetos, pibTotal, 0.01, 'PIB = industrias + impuestos netos');
   save('economia', {
     id: 'pib-por-industria', tematica: 'economia', entidad: 'Producción nacional',
-    caracteristica: 'PIB por industria', tipoResultado: 'B', presentacion: 'lista',
+    caracteristica: 'PIB por industria', tipoResultado: 'B', glifo: 'coins',
     fuente: FUENTE('8.1.3', 'BCU'), anio: 2024, unidad: 'millones de pesos',
     descripcion: `Producto Interno Bruto 2024 por industria, a precios corrientes (total: ${pibTotal.toLocaleString('es-UY')} millones de pesos). "Impuestos menos subvenciones" completa el PIB junto al valor agregado de las industrias.`,
     categorias: [...industrias, { label: 'Impuestos menos subvenciones', valor: impuestosNetos }],
@@ -388,7 +388,7 @@ function gastoPublico() {
   assertClose(sumaA, totalA, 0.001, 'áreas vs total');
   save('economia', {
     id: 'gasto-por-area-programatica', tematica: 'economia', entidad: 'Gasto público',
-    caracteristica: 'A dónde va el gasto público', tipoResultado: 'B', presentacion: 'lista',
+    caracteristica: 'A dónde va el gasto público', tipoResultado: 'B', glifo: 'coins',
     fuente: FUENTE('6.1.8', 'CGN'), anio: 2024, unidad: 'millones de pesos',
     descripcion: `Gastos del Gobierno Central durante 2024 según área programática, a valores corrientes (total: ${totalA.toLocaleString('es-UY')} millones de pesos).`,
     categorias,
@@ -408,7 +408,7 @@ function gastoPublico() {
   assertClose(sumaC, totalC, 0.001, 'clasificación vs total');
   save('economia', {
     id: 'gasto-por-clasificacion', tematica: 'economia', entidad: 'Gasto público',
-    caracteristica: 'En qué se gasta', tipoResultado: 'B', presentacion: 'lista',
+    caracteristica: 'En qué se gasta', tipoResultado: 'B', glifo: 'coins',
     fuente: FUENTE('6.1.7', 'CGN'), anio: 2024, unidad: 'millones de pesos',
     descripcion: `Gastos del Gobierno Central durante 2024 según clasificación económica, a valores corrientes (total: ${totalC.toLocaleString('es-UY')} millones de pesos).`,
     categorias: catsC,
@@ -423,7 +423,7 @@ function gastoPublico() {
   assertClose(ingresos - egresos, resultado, 0.01, 'resultado fiscal');
   save('economia', {
     id: 'ingresos-egresos-gobierno', tematica: 'economia', entidad: 'Gasto público',
-    caracteristica: 'Ingresos vs egresos del Estado', tipoResultado: 'B',
+    caracteristica: 'Ingresos vs egresos del Estado', tipoResultado: 'B', glifo: 'coins',
     fuente: FUENTE('6.1.2', 'MEF'), anio: 2024, unidad: 'millones de pesos',
     descripcion: `Ingresos y egresos del Gobierno Central consolidado durante 2024, a valores corrientes. El resultado fue deficitario: ${resultado.toLocaleString('es-UY')} millones de pesos (criterio caja).`,
     categorias: [
@@ -448,7 +448,7 @@ function gastoPublico() {
   assertClose(sumaE, int(ingRow[1], 'empresas total'), 0.001, 'empresas vs total');
   save('economia', {
     id: 'ingresos-empresas-estado', tematica: 'economia', entidad: 'Gasto público',
-    caracteristica: 'Ingresos de las empresas del Estado', tipoResultado: 'B', presentacion: 'lista',
+    caracteristica: 'Ingresos de las empresas del Estado', tipoResultado: 'B', glifo: 'coins',
     fuente: FUENTE('6.1.11', 'empresas públicas'), anio: 2024, unidad: 'millones de pesos',
     descripcion: 'Ingresos de las empresas del Estado durante 2024, a valores corrientes (ANCAP, UTE, ANTEL, OSE, ANP, ANV y AFE).',
     categorias: catsE,
@@ -474,7 +474,7 @@ function impuestos() {
   categorias.push({ label: 'Otros impuestos', valor: otros });
   save('economia', {
     id: 'recaudacion-por-impuesto', tematica: 'economia', entidad: 'Impuestos',
-    caracteristica: 'Qué recauda cada impuesto', tipoResultado: 'B', presentacion: 'lista',
+    caracteristica: 'Qué recauda cada impuesto', tipoResultado: 'B', glifo: 'coins',
     fuente: FUENTE('6.1.5', 'MEF'), anio: 2024, unidad: 'millones de pesos',
     descripcion: `Ingresos tributarios del Gobierno Central durante 2024, a valores corrientes (total: ${total.toLocaleString('es-UY')} millones de pesos). Agrupación propia sobre las líneas del cuadro; "Otros impuestos" completa el total.`,
     categorias,

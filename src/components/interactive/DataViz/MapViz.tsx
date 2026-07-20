@@ -66,6 +66,7 @@ function DeptPanel({
   maxW,
   hint,
   compareTo,
+  crowd = true,
 }: {
   dept: Dept;
   colorOf: (v: number) => string;
@@ -78,11 +79,14 @@ function DeptPanel({
   maxW: number;
   hint?: string;
   compareTo?: Dept | null;
+  /** false = sin multitud (datos que no son personas): solo nombre + número */
+  crowd?: boolean;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const CAP = CROWD_COLS * CROWD_ROWS; // techo de figuras por panel (200)
 
   const { targets, panelW, panelH } = useMemo(() => {
+    if (!crowd) return { targets: [] as WalkerTarget[], panelW: 0, panelH: 0 };
     const colored = Math.min(CAP, figureCount(dept.valor, per));
     // Proporción: `base/per` figuras con el resto en gris. Magnitud: solo coloreadas.
     const total = mode === 'proporcion' ? Math.min(CAP, Math.round(base / per)) : colored;
@@ -106,7 +110,7 @@ function DeptPanel({
     }
     return { targets: out, panelW, panelH };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dept.id, dept.valor, per, mode, base]);
+  }, [dept.id, dept.valor, per, mode, base, crowd]);
 
   // layoutKey con panelW: si cambia la densidad (mobile), el enjambre se reconstruye
   useSpriteWalkers(canvasRef, targets, { scale: SCALE, layoutKey: `map:${dept.id}:${panelW}` });
@@ -148,22 +152,28 @@ function DeptPanel({
           {deltaSuffix} vs {compareTo!.nombre}
         </p>
       )}
-      <canvas
-        ref={canvasRef}
-        width={panelW}
-        height={panelH}
-        role="img"
-        aria-label={`${dept.nombre}: ${dept.valor}${unidad ? ` ${unidad}` : ''}${mode === 'proporcion' ? ' representado con figuras sobre el total de referencia.' : ' — una figura por caso.'}`}
-        className="mt-2"
-        style={{
-          imageRendering: 'pixelated',
-          width: 'auto',
-          height: 'auto',
-          maxWidth: '100%',
-          // proporción: llena el panel como antes; magnitud: tamaño acorde
-          minWidth: mode === 'proporcion' ? '100%' : undefined,
-        }}
-      />
+      {crowd && (
+        <canvas
+          ref={canvasRef}
+          width={panelW}
+          height={panelH}
+          role="img"
+          aria-label={`${dept.nombre}: ${dept.valor}${unidad ? ` ${unidad}` : ''}${mode === 'proporcion' ? ' representado con figuras sobre el total de referencia.' : ' — una figura por caso.'}`}
+          className="mt-2"
+          style={{
+            imageRendering: 'pixelated',
+            width: 'auto',
+            height: 'auto',
+            maxWidth: '100%',
+            // proporción: llena el panel como antes; magnitud: tamaño acorde
+            minWidth: mode === 'proporcion' ? '100%' : undefined,
+          }}
+        />
+      )}
+      {/* Sin multitud (no-personas): la unidad debajo del número, legible */}
+      {!crowd && unidad && (
+        <p className="font-sans text-pica-subtitle text-text-muted">{unidad}</p>
+      )}
     </div>
   );
 }
@@ -247,21 +257,22 @@ export default function MapViz({ data }: { data: DatasetEspacial }) {
         ref={rowRef}
         className="grid grid-cols-1 items-start gap-6 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]"
       >
-        {/* IZQUIERDA — panel del departamento seleccionado */}
-        {showCrowd && (
-          <div className="min-w-0 justify-self-center md:justify-self-end">
-            <DeptPanel
-              dept={active}
-              colorOf={colorOf}
-              unidad={data.unidad}
-              per={per}
-              mode={mode}
-              base={proporcionBase ?? 100}
-              maxW={fit.panelW}
-              hint="(click en el mapa para cambiar)"
-            />
-          </div>
-        )}
+        {/* IZQUIERDA — panel del departamento seleccionado (SIEMPRE: si el dato
+            no es de personas va sin multitud, solo nombre + número — el mapa
+            de rapiñas quedaba mudo al click/hover sin esto) */}
+        <div className="min-w-0 justify-self-center md:justify-self-end">
+          <DeptPanel
+            dept={active}
+            colorOf={colorOf}
+            unidad={data.unidad}
+            per={per}
+            mode={mode}
+            base={proporcionBase ?? 100}
+            maxW={fit.panelW}
+            hint="(click en el mapa para cambiar)"
+            crowd={showCrowd}
+          />
+        </div>
 
         {/* CENTRO — mapa (dimensionado al alto disponible) */}
         <div
@@ -323,16 +334,18 @@ export default function MapViz({ data }: { data: DatasetEspacial }) {
               {data.unidad === '%' ? '%' : ''}
             </span>
           </div>
-          <p className="mt-1 text-center font-sans text-pica-subtitle text-text-muted">
-            {perLabel(per, proportional ? baseLabel : data.unidad)}
-          </p>
+          {/* La escala de figuras solo aplica cuando HAY multitud */}
+          {showCrowd && (
+            <p className="mt-1 text-center font-sans text-pica-subtitle text-text-muted">
+              {perLabel(per, proportional ? baseLabel : data.unidad)}
+            </p>
+          )}
         </div>
 
         {/* DERECHA — comparador al hover (placeholder mantiene la composición).
             En MOBILE no existe el hover → se quita la comparación: solo se ve
             el departamento seleccionado. */}
-        {showCrowd && (
-          <div className="min-w-0 justify-self-center max-md:hidden md:justify-self-start">
+        <div className="min-w-0 justify-self-center max-md:hidden md:justify-self-start">
             {compare ? (
               <DeptPanel
                 dept={compare}
@@ -343,6 +356,7 @@ export default function MapViz({ data }: { data: DatasetEspacial }) {
                 base={proporcionBase ?? 100}
                 maxW={fit.panelW}
                 compareTo={active}
+                crowd={showCrowd}
               />
             ) : (
               <div
@@ -352,8 +366,7 @@ export default function MapViz({ data }: { data: DatasetEspacial }) {
                 Pasá el cursor por otro departamento para compararlo con {active.nombre}
               </div>
             )}
-          </div>
-        )}
+        </div>
       </div>
 
       <DataTable
