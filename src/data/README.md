@@ -2,30 +2,15 @@
 
 ## Estado de los datasets
 
+**El inventario completo y actualizado (83 datasets, fuentes, tipos y
+pendientes) vive en el [README principal](../../README.md#2-datos).**
+Los provisorios de la etapa inicial fueron reemplazados por microdatos
+reales de la ECH (enero 2024) o retirados; solo `mortalidad-infantil`
+declara "2024 preliminar" (estado del propio MSP).
+
 Los archivos descargados de las fuentes están en `anexos/datos-fuente/`,
-con su manifiesto. Cada dataset lleva `fuente` y `fuenteUrl` exactas.
-
-| Dataset | Tipo | Estado |
-|---|---|---|
-| `educacion/egreso-media-superior` | C | ✅ REAL — INEEd Mirador (Excel descargado), serie 2006-2025 |
-| `educacion/egreso-por-nivel-socioeconomico` | D | ✅ REAL — INEEd Mirador (mismo Excel) |
-| `salud/vacunacion` | C | ✅ REAL — MSP PAI oct-2024 (PDF descargado), serie 2018-2023 |
-| `salud/mortalidad-infantil` | C | ✅ REAL — MSP Estadísticas Vitales 2024 (PDF descargado), 2024 preliminar |
-| `trabajo/salarios` (ingreso-medio-hogares) | A | ✅ REAL — INE ECH 4T-2024 (vía prensa) |
-| `trabajo/informalidad` | E | ⚠️ MIXTO — 7 departamentos verificados (INE 2024), 12 provisorios |
-| `trabajo/empleo-desempleo` | C | ⚠️ PROVISORIO — anclas verificadas dic-23/24/25; falta la serie anual oficial |
-| `educacion/nivel-educativo` | B | ⚠️ PROVISORIO — reemplazar con ECH 2024 / Censo 2023 |
-| `educacion/asistencia-por-departamento` | E | ⚠️ PROVISORIO — reemplazar con ECH 2024 |
-| `salud/cobertura-salud` | B | ⚠️ PROVISORIO — reemplazar con ECH 2024 |
-
-Todo dataset ⚠️ lo declara también en su campo `descripcion`.
-
-## Fuentes oficiales para completar los pendientes
-
-- ECH 2024 (microdatos): https://www4.ine.gub.uy/Anda5/index.php/catalog/767
-- Visualizador mercado laboral INE: https://www7.ine.gub.uy/Dashboard-%20ML-ECH/MercadoLaboral/
-- Mortalidad por departamento: https://uins.msp.gub.uy/ y https://otu.opp.gub.uy (en mantenimiento al 2/7/2026)
-- Catálogo de datos abiertos: https://catalogodatos.gub.uy
+con su manifiesto. Cada dataset lleva `fuente` (y `fuenteUrl` cuando existe
+link profundo real).
 
 ## Cómo agregar un dataset
 
