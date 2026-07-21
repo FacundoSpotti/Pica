@@ -31,17 +31,21 @@ interface Card {
   contenido: string[];
   /** true → al expandir muestra el formulario de feedback en vez de texto */
   form?: boolean;
+  /** Valores: se muestran como tags en vez de párrafos */
+  tags?: string[];
+  /** ¿Por qué? — card visualmente dominante (mayor tamaño y peso) */
+  dominant?: boolean;
 }
 
 const CARDS: Card[] = [
   {
     id: 'que',
-    titulo: '¿Qué hacemos?',
+    titulo: '¿Qué hace Pica?',
     color: picaColors.blue[400],
     cell: 'col-start-1 row-start-1 justify-self-start self-start',
     contenido: [
-      'Transformamos datos oficiales de Uruguay en experiencias visuales que se pueden explorar, entender y compartir.',
-      'Pica no es un dashboard: es un explorador editorial. Las personas se representan con personas — cada figura pixel que ves caminar es una porción real de la población.',
+      'Pica democratiza la información que nos dan pero no nos explican. No buscamos dar respuestas ni imponer una visión positiva o negativa de las cosas — buscamos que cada persona pueda acceder a los datos que describen cómo es este país, desde los que nos involucran directamente hasta los que creemos que no.',
+      'En un mundo saturado de información, no podemos desconocer aquella que verdaderamente debería importarnos. No existe empatía ni solución posible en el desconocimiento.',
     ],
   },
   {
@@ -49,9 +53,9 @@ const CARDS: Card[] = [
     titulo: '¿Por qué lo hacemos?',
     color: picaColors.green[400],
     cell: 'col-start-3 row-start-1 justify-self-end self-start',
+    dominant: true,
     contenido: [
-      'Los datos públicos estaban escondidos en PDFs y planillas. Pica viene del juego del escondite: "¡Pica! te encontré".',
-      'Creemos que entender la información pública es un derecho — y que un dato que no se entiende es un dato que no existe.',
+      'En un mundo con tantos estímulos, Pica propone una solución adaptada al lenguaje de hoy: insertar contenido relevante en el medio correcto para llegar a todos, y principalmente a quienes son ajenos a gran parte de las realidades que aquí se describen.',
     ],
   },
   {
@@ -60,8 +64,24 @@ const CARDS: Card[] = [
     color: picaColors.yellow[400],
     cell: 'col-start-3 row-start-2 justify-self-end self-center',
     contenido: [
-      'Tomamos datos de organismos oficiales, los procesamos a datasets abiertos y validados, y los contamos con pixel art: multitudes de figuras que caminan hasta formar cada cifra.',
-      'Referencias: The Pudding y el periodismo visual de datos. Stack: Next.js, Canvas y muchos sprites.',
+      'Buscamos visibilizar toda situación que merezca atención, sea por razones positivas o negativas. La imparcialidad es central, y por eso la transparencia y el sustento de cada dato son innegociables.',
+      'Recolectamos información de fuentes oficiales y la exhibimos siempre con su crédito. Los datos se muestran tal cual. Las interpretaciones las hace cada usuario — ese no es nuestro fin.',
+    ],
+  },
+  {
+    id: 'mision',
+    titulo: 'Misión',
+    color: picaColors.purple[400],
+    cell: 'col-start-2 row-start-1 justify-self-center self-start',
+    contenido: ['Democratizar y dar accesibilidad a la información que nos ilustra.'],
+  },
+  {
+    id: 'vision',
+    titulo: 'Visión',
+    color: picaColors.pink[400],
+    cell: 'col-start-3 row-start-3 justify-self-end self-end',
+    contenido: [
+      'Dar herramientas a todos los uruguayos para que puedan detenerse y tomar conciencia de las realidades de su país.',
     ],
   },
   {
@@ -79,10 +99,8 @@ const CARDS: Card[] = [
     titulo: 'Valores',
     color: picaColors.orange[400],
     cell: 'col-start-2 row-start-3 justify-self-center self-end',
-    contenido: [
-      'Accesibilidad: contraste AA, movimiento reducido respetado, y toda visualización tiene su tabla de datos alternativa.',
-      'Transparencia: fuentes citadas, datos abiertos, código legible. Estética con propósito: el pixel art no decora — representa.',
-    ],
+    contenido: [],
+    tags: ['Transparencia', 'Accesibilidad', 'Imparcialidad', 'Diseño', 'Cultura', 'Comunidad'],
   },
   {
     id: 'feedback',
@@ -253,9 +271,13 @@ export default function NosotrosPage() {
                     : { duration: 6.5 + i * 0.9, repeat: Infinity, ease: 'easeInOut', delay: i * 0.6 }
                 }
               >
-                {/* Capa 3: la card — click expande hacia abajo */}
+                {/* Capa 3: la card — click expande hacia abajo.
+                    "¿Por qué?" es la card dominante: más ancha, borde más
+                    grueso y título más grande (mismo sistema tipográfico,
+                    solo un escalón más arriba: pica-title en vez de
+                    pica-button) — nada de layout ni color cambia. */}
                 <div
-                  className="w-72 border-2 bg-gradient-to-b from-black/80 to-black/60 max-md:w-[82vw]"
+                  className={`${card.dominant ? 'w-80 border-[3px] md:w-96' : 'w-72 border-2'} bg-gradient-to-b from-black/80 to-black/60 max-md:w-[82vw]`}
                   style={{
                     borderColor: card.color,
                     // Sombra tenue del color de la card — la "despega" del fondo
@@ -269,7 +291,7 @@ export default function NosotrosPage() {
                       if (draggingRef.current) return;
                       setOpen((o) => (o === card.id ? null : card.id));
                     }}
-                    className="flex w-full items-center justify-between gap-3 px-5 py-3 text-left font-display text-pica-button font-bold uppercase"
+                    className={`flex w-full items-center justify-between gap-3 px-5 py-3 text-left font-display font-bold uppercase ${card.dominant ? 'text-pica-title' : 'text-pica-button'}`}
                     style={{ color: card.color, letterSpacing: '0.08em' }}
                   >
                     {card.titulo}
@@ -288,6 +310,18 @@ export default function NosotrosPage() {
                           {card.form ? (
                             <div className="mt-3">
                               <FeedbackForm color={card.color} />
+                            </div>
+                          ) : card.tags ? (
+                            <div className="mt-3 flex flex-wrap gap-2">
+                              {card.tags.map((t) => (
+                                <span
+                                  key={t}
+                                  className="border px-3 py-1 font-display text-pica-subtitle font-bold uppercase tracking-wide"
+                                  style={{ borderColor: card.color, color: card.color }}
+                                >
+                                  {t}
+                                </span>
+                              ))}
                             </div>
                           ) : (
                             card.contenido.map((p) => (
