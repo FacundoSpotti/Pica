@@ -19,7 +19,8 @@ import { VizHeader, VizMeta } from './VizShared';
 const BLOCK_H = 9; // alto de cada bloque (px)
 const BLOCK_GAP = 2;
 const TARGET_BLOCKS = 16; // altura objetivo de la torre más alta
-const COL_MAX_W = 26;
+const COL_MAX_W = 40; // ancho máx. de columna (series largas llenan el panel)
+const COL_PITCH = 46; // ancho objetivo por período (columna + aire) para el ancho del gráfico
 
 const fmt = (n: number) => n.toLocaleString('es-UY', { maximumFractionDigits: 2 });
 
@@ -46,6 +47,10 @@ export default function PixelBarsViz({ data }: { data: DatasetSerie }) {
 
   const first = data.puntos[0]!;
   const last = data.puntos[lastIdx]!;
+  // Ancho del gráfico proporcional a la cantidad de períodos: series largas
+  // (nafta, ~36 cambios) llenan el panel de margen a margen; series cortas no
+  // se estiran de más (quedan a un ancho natural, centradas).
+  const chartMaxW = n * COL_PITCH;
 
   return (
     <div className="flex flex-col items-center">
@@ -62,8 +67,8 @@ export default function PixelBarsViz({ data }: { data: DatasetSerie }) {
       <div
         role="img"
         aria-label={`${data.caracteristica}: de ${first.valor}${unidadSufijo} en ${first.periodo} a ${last.valor}${unidadSufijo} en ${last.periodo}. Detalle completo en la tabla de datos.`}
-        className="flex w-full max-w-xl items-end justify-center gap-1"
-        style={{ height: towersH }}
+        className="flex w-full items-end justify-center gap-1"
+        style={{ height: towersH, maxWidth: chartMaxW }}
       >
         {data.puntos.map((p, i) => {
           const blocks = blocksOf(p.valor);
@@ -116,7 +121,11 @@ export default function PixelBarsViz({ data }: { data: DatasetSerie }) {
       </div>
 
       {/* Eje X: períodos (cada k, siempre el último) */}
-      <div aria-hidden="true" className="mt-1 flex w-full max-w-xl justify-center gap-1">
+      <div
+        aria-hidden="true"
+        className="mt-1 flex w-full justify-center gap-1"
+        style={{ maxWidth: chartMaxW }}
+      >
         {data.puntos.map((p, i) => (
           <div key={p.periodo + i} className="min-w-0 flex-1 text-center" style={{ maxWidth: COL_MAX_W }}>
             {showPeriod(i) && (

@@ -44,6 +44,27 @@ const GRIDS: Record<string, string[]> = {
     '.#++++++++++++#.',
     '..############..',
   ],
+  // Bloque sólido (unidad NEUTRA para magnitudes que NO son personas:
+  // dinero/gasto/PIB). Regla del proyecto: la figura humana es solo para
+  // personas; el resto usa una forma geométrica sin literalidad ambigua.
+  block: [
+    '................',
+    '................',
+    '..############..',
+    '.#++++++++++++#.',
+    '.#++++++++++++#.',
+    '.#++++++++++++#.',
+    '.#++++++++++++#.',
+    '.#++++++++++++#.',
+    '.#++++++++++++#.',
+    '.#++++++++++++#.',
+    '.#++++++++++++#.',
+    '.#++++++++++++#.',
+    '.#++++++++++++#.',
+    '..############..',
+    '................',
+    '................',
+  ],
   // Pin de mapa (departamentos)
   mapPin: [
     '....########....',

@@ -16,7 +16,7 @@ import { niceClosest } from '@/lib/isotype';
 import type { DatasetDistribucion } from '@/types/data';
 import { VizHeader, VizMeta } from './VizShared';
 
-const GLYPH = 22; // px por glifo
+const GLYPH = 18; // px por glifo (compacto: 7 categorías de glifos entran sin scroll)
 const TARGET = 90; // glifos totales apuntados (multitud legible, no miles)
 const MAX_PER_CAT = 120; // techo por categoría para no reventar el DOM
 const GRAY = '#4B4B46'; // resto en gris (remanente hasta 100% / contexto)
@@ -24,7 +24,8 @@ const GRAY = '#4B4B46'; // resto en gris (remanente hasta 100% / contexto)
 export default function IsotypeGlyphViz({ data }: { data: DatasetDistribucion }) {
   const shouldReduce = useReducedMotion();
   const color = TEMA_COLOR[data.tematica];
-  const glyph = resolvePixelIcon(data.glifo, 'coins');
+  // Glifo NEUTRO por defecto (no-personas): un bloque, nunca la figura humana.
+  const glyph = resolvePixelIcon(data.glifo, 'block');
 
   // % → cada categoría es un bloque de 100 glifos: el valor en color y el
   // RESTO en gris (facilita comparar la proporción). Magnitud → 1 glifo = X.
@@ -48,7 +49,7 @@ export default function IsotypeGlyphViz({ data }: { data: DatasetDistribucion })
         {escala}
       </p>
 
-      <ul className="flex w-full max-w-2xl flex-col gap-4 short:gap-2">
+      <ul className="flex w-full max-w-3xl flex-col gap-4 short:gap-2">
         {data.categorias.map((cat, ci) => {
           const c = cat.color ?? color;
           // % → 100 glifos (coloreados = valor, resto gris). Magnitud → valor/per.
