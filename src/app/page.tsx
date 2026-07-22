@@ -113,13 +113,21 @@ export default function HomePage() {
         <Link href="/" aria-label="Pica — inicio" className="pica-logo-hover">
           <PicaLogo className="h-16 w-auto text-text-primary" />
         </Link>
-        <Link
-          href="/nosotros"
-          className="flex items-center gap-2 font-display text-pica-button text-text-primary underline-offset-4 hover:underline"
-        >
-          <PixelIcon name="users" size={20} />
-          Nosotros
-        </Link>
+        <nav className="flex items-center gap-5 max-md:gap-4">
+          <Link
+            href="/detras"
+            className="font-display text-pica-button text-text-secondary underline-offset-4 hover:underline"
+          >
+            Detrás de Pica
+          </Link>
+          <Link
+            href="/nosotros"
+            className="flex items-center gap-2 font-display text-pica-button text-text-primary underline-offset-4 hover:underline"
+          >
+            <PixelIcon name="users" size={20} />
+            Nosotros
+          </Link>
+        </nav>
       </header>
 
       {/* Stage: landscape CONTENIDO (no full-bleed), centrado con margen oscuro.
