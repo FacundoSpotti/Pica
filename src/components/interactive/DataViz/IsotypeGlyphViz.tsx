@@ -58,19 +58,17 @@ export default function IsotypeGlyphViz({ data }: { data: DatasetDistribucion })
             : Math.min(MAX_PER_CAT, cat.valor === 0 ? 0 : Math.max(1, Math.round(cat.valor / per)));
           const totalGlyphs = esPorcentaje ? 100 : colored;
           return (
-            <li key={cat.label}>
-              <div className="mb-1 flex items-baseline justify-between gap-3">
-                <span
-                  className="font-sans text-pica-subtitle uppercase tracking-wide text-text-secondary"
-                >
-                  {cat.label}
-                </span>
-                <span className="font-display text-pica-button font-bold" style={{ color: c }}>
-                  {cat.valor.toLocaleString('es-UY')}
-                  {esPorcentaje ? '%' : ''}
-                </span>
-              </div>
-              <div className="flex flex-wrap gap-[3px]" aria-hidden="true">
+            // Fila horizontal: ETIQUETA (izquierda, jerarquía alta) · barra de
+            // glifos · VALOR — todo en la misma línea, para leer de un vistazo a
+            // qué refiere cada barra.
+            <li key={cat.label} className="flex items-center gap-4 max-md:gap-2">
+              <span
+                className="w-40 shrink-0 font-display text-pica-button font-bold uppercase leading-tight md:w-52"
+                style={{ color: c }}
+              >
+                {cat.label}
+              </span>
+              <div className="flex min-w-0 flex-1 flex-wrap gap-[3px]" aria-hidden="true">
                 {Array.from({ length: totalGlyphs }).map((_, gi) => (
                   <motion.span
                     key={gi}
@@ -86,6 +84,13 @@ export default function IsotypeGlyphViz({ data }: { data: DatasetDistribucion })
                   </motion.span>
                 ))}
               </div>
+              <span
+                className="shrink-0 font-display text-pica-title font-bold tabular-nums"
+                style={{ color: c }}
+              >
+                {cat.valor.toLocaleString('es-UY')}
+                {esPorcentaje ? '%' : ''}
+              </span>
             </li>
           );
         })}

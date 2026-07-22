@@ -54,5 +54,6 @@
       "label": "Impuestos menos subvenciones",
       "valor": 376296
     }
-  ]
+  ],
+  "presentacion": "grilla"
 }

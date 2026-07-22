@@ -32,11 +32,14 @@ export default function VizRouter({ dataset }: { dataset: Dataset }) {
       return <ScalarViz data={dataset} />;
     case 'B':
       if (persons) return <IsotypeDistributionViz data={dataset} />;
-      // No-personas: per-cápita (persona + glifos) · glifo de dominio (N1) ·
-      // grilla de íconos (N5) · barras/lista
+      // No-personas: per-cápita (persona + glifos) · grilla de íconos (N5, para
+      // MUCHAS categorías) · glifo de dominio (N1) · barras/lista.
+      // La grilla se evalúa ANTES que el glifo: un dataset con muchas categorías
+      // (ej. gasto por área, 21) usa la grilla aunque declare un glifo — la lista
+      // de glifos no entra en pantalla con tantas filas.
       if (dataset.presentacion === 'per-capita') return <PerCapitaViz data={dataset} />;
-      if (dataset.glifo) return <IsotypeGlyphViz data={dataset} />;
       if (dataset.presentacion === 'grilla') return <IconGridViz data={dataset} />;
+      if (dataset.glifo) return <IsotypeGlyphViz data={dataset} />;
       return <DistributionViz data={dataset} />;
     case 'C':
       // No-personas: torres de bloques pixel (la línea D3 desentonaba con la
