@@ -33,8 +33,6 @@ interface Card {
   form?: boolean;
   /** Valores: se muestran como tags en vez de párrafos */
   tags?: string[];
-  /** ¿Por qué? — card visualmente dominante (mayor tamaño y peso) */
-  dominant?: boolean;
 }
 
 const CARDS: Card[] = [
@@ -50,17 +48,16 @@ const CARDS: Card[] = [
   },
   {
     id: 'porque',
-    titulo: '¿Por qué lo hacemos?',
+    titulo: '¿Por qué?',
     color: picaColors.green[400],
     cell: 'col-start-3 row-start-1 justify-self-end self-start',
-    dominant: true,
     contenido: [
       'En un mundo con tantos estímulos, Pica propone una solución adaptada al lenguaje de hoy: insertar contenido relevante en el medio correcto para llegar a todos, y principalmente a quienes son ajenos a gran parte de las realidades que aquí se describen.',
     ],
   },
   {
     id: 'como',
-    titulo: '¿Cómo lo hacemos?',
+    titulo: '¿Cómo?',
     color: picaColors.yellow[400],
     cell: 'col-start-3 row-start-2 justify-self-end self-center',
     contenido: [
@@ -271,13 +268,9 @@ export default function NosotrosPage() {
                     : { duration: 6.5 + i * 0.9, repeat: Infinity, ease: 'easeInOut', delay: i * 0.6 }
                 }
               >
-                {/* Capa 3: la card — click expande hacia abajo.
-                    "¿Por qué?" es la card dominante: más ancha, borde más
-                    grueso y título más grande (mismo sistema tipográfico,
-                    solo un escalón más arriba: pica-title en vez de
-                    pica-button) — nada de layout ni color cambia. */}
+                {/* Capa 3: la card — click expande hacia abajo. */}
                 <div
-                  className={`${card.dominant ? 'w-80 border-[3px] md:w-96' : 'w-72 border-2'} bg-gradient-to-b from-black/80 to-black/60 max-md:w-[82vw]`}
+                  className="w-72 border-2 bg-gradient-to-b from-black/80 to-black/60 max-md:w-[82vw]"
                   style={{
                     borderColor: card.color,
                     // Sombra tenue del color de la card — la "despega" del fondo
@@ -291,7 +284,7 @@ export default function NosotrosPage() {
                       if (draggingRef.current) return;
                       setOpen((o) => (o === card.id ? null : card.id));
                     }}
-                    className={`flex w-full items-center justify-between gap-3 px-5 py-3 text-left font-display font-bold uppercase ${card.dominant ? 'text-pica-title' : 'text-pica-button'}`}
+                    className="flex w-full items-center justify-between gap-3 px-5 py-3 text-left font-display text-pica-button font-bold uppercase"
                     style={{ color: card.color, letterSpacing: '0.08em' }}
                   >
                     {card.titulo}
