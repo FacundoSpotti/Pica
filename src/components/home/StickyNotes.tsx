@@ -103,7 +103,7 @@ export default function StickyNotes({ flow = false }: { flow?: boolean }) {
         <p className="font-sans text-pica-subtitle leading-tight text-text-muted">
           pica v0.1
           <br />
-          ORT Uruguay
+          por Facundo Spotti
         </p>
       </Note>
     </>

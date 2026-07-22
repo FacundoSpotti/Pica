@@ -6,8 +6,7 @@ multitudes de figuras pixel que caminan hasta formar cada cifra. Como en el
 juego del escondite: *«¡pica!» es encontrar al que estaba escondido* — acá
 los escondidos son los datos.
 
-Proyecto académico — Diseño Interactivo, Universidad ORT Uruguay ·
-**Facundo Spotti** · 2026.
+Un proyecto de **Facundo Spotti** · Uruguay · 2026.
 
 > *El pixel art no decora — representa.*
 
