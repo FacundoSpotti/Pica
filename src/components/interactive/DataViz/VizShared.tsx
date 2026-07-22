@@ -76,7 +76,9 @@ export function VizHeader({
 
 export function VizFooter({ dataset }: { dataset: Dataset }) {
   return (
-    <footer className="mt-6 font-sans text-pica-subtitle text-text-muted">
+    // Sin margen propio: el espaciado lo pone VizMeta (la fuente va INMEDIATAMENTE
+    // debajo del link "Ver datos en tabla").
+    <footer className="mt-2 font-sans text-pica-subtitle text-text-muted">
       Fuente: {dataset.fuente}
       {dataset.fuenteUrl && (
         <>
@@ -95,6 +97,22 @@ export function VizFooter({ dataset }: { dataset: Dataset }) {
   );
 }
 
+/**
+ * Pie unificado de TODA visualización: "Ver datos en tabla" (si hay tabla) +
+ * la fuente inmediatamente debajo. SIEMPRE alineado a la izquierda y a ancho
+ * completo (nunca centrado) — antes cada device lo colocaba a su manera y
+ * quedaba centrado en unas pantallas y a la izquierda en otras.
+ * Usar esto en lugar de <DataTable/> + <VizFooter/> sueltos.
+ */
+export function VizMeta({ dataset, table }: { dataset: Dataset; table?: DataTableProps }) {
+  return (
+    <div className="mt-6 w-full text-left short:mt-3">
+      {table && <DataTable {...table} />}
+      <VizFooter dataset={dataset} />
+    </div>
+  );
+}
+
 interface DataTableProps {
   caption: string;
   head: string[];
@@ -103,7 +121,7 @@ interface DataTableProps {
 
 export function DataTable({ caption, head, rows }: DataTableProps) {
   return (
-    <details className="mt-4">
+    <details>
       <summary className="cursor-pointer font-sans text-pica-subtitle text-text-secondary underline-offset-2 hover:underline">
         Ver datos en tabla
       </summary>

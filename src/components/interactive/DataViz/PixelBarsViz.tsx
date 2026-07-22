@@ -14,7 +14,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { TEMA_COLOR } from '@/lib/colors';
 import { niceClosest } from '@/lib/isotype';
 import type { DatasetSerie } from '@/types/data';
-import { DataTable, VizFooter, VizHeader } from './VizShared';
+import { VizHeader, VizMeta } from './VizShared';
 
 const BLOCK_H = 9; // alto de cada bloque (px)
 const BLOCK_GAP = 2;
@@ -131,12 +131,14 @@ export default function PixelBarsViz({ data }: { data: DatasetSerie }) {
         ))}
       </div>
 
-      <DataTable
-        caption={data.caracteristica}
-        head={['Período', `Valor${data.unidad ? ` (${data.unidad})` : ''}`]}
-        rows={data.puntos.map((p) => [p.label ? `${p.periodo} (${p.label})` : p.periodo, p.valor])}
+      <VizMeta
+        dataset={data}
+        table={{
+          caption: data.caracteristica,
+          head: ['Período', `Valor${data.unidad ? ` (${data.unidad})` : ''}`],
+          rows: data.puntos.map((p) => [p.label ? `${p.periodo} (${p.label})` : p.periodo, p.valor]),
+        }}
       />
-      <VizFooter dataset={data} />
     </div>
   );
 }

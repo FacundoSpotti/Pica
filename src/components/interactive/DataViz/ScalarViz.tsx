@@ -15,7 +15,7 @@ import { TEMA_COLOR } from '@/lib/colors';
 import { niceClosest, perLabel } from '@/lib/isotype';
 import { useSpriteWalkers, type SpritePool, type WalkerTarget } from '@/hooks/useSpriteWalkers';
 import type { DatasetEscalar } from '@/types/data';
-import { VizFooter } from './VizShared';
+import { VizMeta } from './VizShared';
 
 const COUNT_MS = 1400;
 
@@ -196,7 +196,7 @@ export default function ScalarViz({ data }: { data: DatasetEscalar }) {
         {data.descripcion}
       </p>
 
-      <VizFooter dataset={data} />
+      <VizMeta dataset={data} />
     </div>
   );
 }

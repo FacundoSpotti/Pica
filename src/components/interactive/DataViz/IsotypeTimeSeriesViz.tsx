@@ -20,7 +20,7 @@ import { figureCount, perLabel, seriesScale } from '@/lib/isotype';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useSpriteWalkers, type WalkerTarget } from '@/hooks/useSpriteWalkers';
 import type { DatasetSerie } from '@/types/data';
-import { DataTable, VizFooter, VizHeader } from './VizShared';
+import { VizHeader, VizMeta } from './VizShared';
 
 const SCALE = 2;
 // Bounding box real del contenido dentro del frame 17×43 (ver IsotypeDistributionViz)
@@ -550,16 +550,18 @@ export default function IsotypeTimeSeriesViz({ data }: { data: DatasetSerie }) {
         </div>
       </div>
 
-      <DataTable
-        caption={data.caracteristica}
-        head={['Período', `Valor${data.unidad ? ` (${data.unidad})` : ''}`, 'Figuras']}
-        rows={data.puntos.map((p, i) => [
-          p.label ? `${p.periodo} (${p.label})` : p.periodo,
-          p.valor,
-          single.counts[i]!,
-        ])}
+      <VizMeta
+        dataset={data}
+        table={{
+          caption: data.caracteristica,
+          head: ['Período', `Valor${data.unidad ? ` (${data.unidad})` : ''}`, 'Figuras'],
+          rows: data.puntos.map((p, i) => [
+            p.label ? `${p.periodo} (${p.label})` : p.periodo,
+            p.valor,
+            single.counts[i]!,
+          ]),
+        }}
       />
-      <VizFooter dataset={data} />
     </div>
   );
 }

@@ -20,7 +20,7 @@ import { figureCount, perLabel, seriesScale } from '@/lib/isotype';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useSpriteWalkers, type WalkerTarget } from '@/hooks/useSpriteWalkers';
 import type { DatasetEspacial } from '@/types/data';
-import { DataTable, VizFooter, VizHeader } from './VizShared';
+import { VizHeader, VizMeta } from './VizShared';
 
 const GEO_URL = '/geo/uruguay-departamentos.json';
 
@@ -369,14 +369,16 @@ export default function MapViz({ data }: { data: DatasetEspacial }) {
         </div>
       </div>
 
-      <DataTable
-        caption={data.caracteristica}
-        head={['Departamento', `Valor${data.unidad ? ` (${data.unidad})` : ''}`]}
-        rows={[...data.departamentos]
-          .sort((a, b) => b.valor - a.valor)
-          .map((d) => [d.nombre, d.valor])}
+      <VizMeta
+        dataset={data}
+        table={{
+          caption: data.caracteristica,
+          head: ['Departamento', `Valor${data.unidad ? ` (${data.unidad})` : ''}`],
+          rows: [...data.departamentos]
+            .sort((a, b) => b.valor - a.valor)
+            .map((d) => [d.nombre, d.valor]),
+        }}
       />
-      <VizFooter dataset={data} />
     </div>
   );
 }

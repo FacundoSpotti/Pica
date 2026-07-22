@@ -14,7 +14,7 @@ import PixelIcon, { resolvePixelIcon } from '@/components/shared/PixelIcon';
 import { TEMA_COLOR } from '@/lib/colors';
 import { niceClosest } from '@/lib/isotype';
 import type { DatasetDistribucion } from '@/types/data';
-import { DataTable, VizFooter, VizHeader } from './VizShared';
+import { VizHeader, VizMeta } from './VizShared';
 
 const GLYPH = 22; // px por glifo
 const TARGET = 90; // glifos totales apuntados (multitud legible, no miles)
@@ -41,12 +41,14 @@ export default function IsotypeGlyphViz({ data }: { data: DatasetDistribucion })
   return (
     <div className="flex flex-col items-center">
       <div className="w-full">
-        <VizHeader dataset={data} center />
+        <VizHeader dataset={data} compact center />
       </div>
 
-      <p className="mb-4 text-center font-sans text-pica-subtitle text-text-muted">{escala}</p>
+      <p className="mb-3 text-center font-sans text-pica-subtitle text-text-muted short:mb-1">
+        {escala}
+      </p>
 
-      <ul className="flex w-full max-w-2xl flex-col gap-5">
+      <ul className="flex w-full max-w-2xl flex-col gap-4 short:gap-2">
         {data.categorias.map((cat, ci) => {
           const c = cat.color ?? color;
           // % → 100 glifos (coloreados = valor, resto gris). Magnitud → valor/per.
@@ -88,14 +90,14 @@ export default function IsotypeGlyphViz({ data }: { data: DatasetDistribucion })
         })}
       </ul>
 
-      <div className="w-full">
-        <DataTable
-          caption={data.caracteristica}
-          head={['Categoría', `Valor${data.unidad ? ` (${data.unidad})` : ''}`]}
-          rows={data.categorias.map((c) => [c.label, c.valor])}
-        />
-        <VizFooter dataset={data} />
-      </div>
+      <VizMeta
+        dataset={data}
+        table={{
+          caption: data.caracteristica,
+          head: ['Categoría', `Valor${data.unidad ? ` (${data.unidad})` : ''}`],
+          rows: data.categorias.map((c) => [c.label, c.valor]),
+        }}
+      />
     </div>
   );
 }

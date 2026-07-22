@@ -13,7 +13,7 @@ import PixelIcon, { resolvePixelIcon } from '@/components/shared/PixelIcon';
 import SpriteBadge from '@/components/shared/SpriteBadge';
 import { TEMA_COLOR } from '@/lib/colors';
 import type { DatasetDistribucion } from '@/types/data';
-import { DataTable, VizFooter, VizHeader } from './VizShared';
+import { VizHeader, VizMeta } from './VizShared';
 
 const GLYPH = 20;
 const MAX_GLYPHS = 40;
@@ -74,14 +74,14 @@ export default function PerCapitaViz({ data }: { data: DatasetDistribucion }) {
         })}
       </ul>
 
-      <div className="w-full">
-        <DataTable
-          caption={data.caracteristica}
-          head={['Categoría', `Valor${data.unidad ? ` (${data.unidad})` : ''}`]}
-          rows={data.categorias.map((c) => [c.label, c.valor])}
-        />
-        <VizFooter dataset={data} />
-      </div>
+      <VizMeta
+        dataset={data}
+        table={{
+          caption: data.caracteristica,
+          head: ['Categoría', `Valor${data.unidad ? ` (${data.unidad})` : ''}`],
+          rows: data.categorias.map((c) => [c.label, c.valor]),
+        }}
+      />
     </div>
   );
 }

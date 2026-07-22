@@ -15,7 +15,7 @@ import PixelIcon, { resolvePixelIcon } from '@/components/shared/PixelIcon';
 import { TEMA_COLOR } from '@/lib/colors';
 import type { Tematica } from '@/types/sprites';
 import type { DatasetDistribucion } from '@/types/data';
-import { DataTable, VizFooter, VizHeader } from './VizShared';
+import { VizHeader, VizMeta } from './VizShared';
 
 export default function IconGridViz({ data }: { data: DatasetDistribucion }) {
   const shouldReduce = useReducedMotion();
@@ -57,14 +57,14 @@ export default function IconGridViz({ data }: { data: DatasetDistribucion }) {
         })}
       </ul>
 
-      <div className="w-full">
-        <DataTable
-          caption={data.caracteristica}
-          head={['Categoría', `Valor${data.unidad ? ` (${data.unidad})` : ''}`]}
-          rows={data.categorias.map((c) => [c.label, c.valor])}
-        />
-        <VizFooter dataset={data} />
-      </div>
+      <VizMeta
+        dataset={data}
+        table={{
+          caption: data.caracteristica,
+          head: ['Categoría', `Valor${data.unidad ? ` (${data.unidad})` : ''}`],
+          rows: data.categorias.map((c) => [c.label, c.valor]),
+        }}
+      />
     </div>
   );
 }

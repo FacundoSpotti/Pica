@@ -1,18 +1,19 @@
 'use client';
 
-// Tipo D — Matriz Comparativa: heatmap con la escala de color de la temática.
-// El color NUNCA es el único indicador: cada celda muestra su valor (pica-accessibility).
+// Tipo D — Matriz Comparativa (no-personas): heatmap con la escala de color de
+// la temática. El color NUNCA es el único indicador: cada celda muestra su valor
+// (pica-accessibility).
+//
+// Se dibuja como GRILLA HTML (no SVG): las etiquetas de fila pueden ser largas
+// (ej. "Vivienda, agua, electricidad, gas y otros combustibles") y en el SVG de
+// viewBox fijo se dibujaban en x negativa y quedaban CORTADAS por la izquierda,
+// además de crecer sin tope y disparar scroll interno. En HTML la etiqueta
+// reflowea (varias líneas), la grilla se adapta al ancho y el alto fluye.
 
 import { interpolateRgb, max, min, scaleLinear } from 'd3';
 import { TEMA_SCALE } from '@/lib/colors';
 import type { DatasetMatriz } from '@/types/data';
-import { DataTable, VizFooter, VizHeader } from './VizShared';
-
-const LABEL_W = 130;
-const CELL_W = 104;
-const CELL_H = 48;
-const HEAD_H = 28;
-const GAP = 4;
+import { VizHeader, VizMeta } from './VizShared';
 
 /**
  * Texto negro o blanco según la LUMINANCIA real del color de la celda.
@@ -35,91 +36,76 @@ export default function MatrixViz({ data }: { data: DatasetMatriz }) {
   const maxV = max(flat) ?? 1;
   const t = scaleLinear().domain([minV, maxV]).range([0, 1]).clamp(true);
   const colorOf = (v: number) => interpolateRgb(lo, hi)(t(v));
+  const suffix = data.unidad === '%' ? '%' : '';
 
-  const W = LABEL_W + data.columnas.length * (CELL_W + GAP);
-  const H = HEAD_H + data.filas.length * (CELL_H + GAP);
-  const titleId = `${data.id}-title`;
-  const descId = `${data.id}-desc`;
+  // Ancho de la columna de etiquetas: más angosta con pocas columnas de datos,
+  // para que la matriz de 2 columnas (IPC) no se estire de más.
+  const nCols = data.columnas.length;
+  const gridCols = `minmax(7rem, 15rem) repeat(${nCols}, minmax(0, 1fr))`;
+  // Muchas columnas (ej. denuncias 8) necesitan más ancho total.
+  const maxW = nCols >= 6 ? 'max-w-3xl' : nCols >= 4 ? 'max-w-2xl' : 'max-w-xl';
+
+  const ariaLabel = `${data.caracteristica}: matriz de ${data.filas.join(', ')} según ${data.columnas.join(
+    ', ',
+  )}; valores de ${minV} a ${maxV} ${data.unidad ?? ''}. Detalle completo en la tabla de datos.`;
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex w-full flex-col items-center">
       <div className="w-full">
-        <VizHeader dataset={data} center />
+        <VizHeader dataset={data} compact center />
       </div>
 
-      <svg
-        viewBox={`0 0 ${W} ${H}`}
-        className="w-full max-w-xl"
+      <div
         role="img"
-        aria-labelledby={`${titleId} ${descId}`}
-        focusable="false"
+        aria-label={ariaLabel}
+        className={`grid w-full ${maxW} gap-1`}
+        style={{ gridTemplateColumns: gridCols }}
       >
-        <title id={titleId}>{data.caracteristica}</title>
-        <desc id={descId}>
-          Matriz de {data.filas.join(', ')} según {data.columnas.join(', ')}; valores de {minV} a{' '}
-          {maxV} {data.unidad ?? ''}.
-        </desc>
-
-        {/* Encabezados de columna */}
-        {data.columnas.map((col, j) => (
-          <text
+        {/* Cabecera: esquina vacía + nombres de columna */}
+        <span aria-hidden="true" />
+        {data.columnas.map((col) => (
+          <span
             key={col}
-            x={LABEL_W + j * (CELL_W + GAP) + CELL_W / 2}
-            y={HEAD_H - 10}
-            textAnchor="middle"
-            fill="#A0A09A"
-            style={{ fontFamily: 'var(--font-vt323)', fontSize: 15 }}
+            aria-hidden="true"
+            className="self-end pb-1 text-center font-sans text-pica-subtitle leading-tight text-text-secondary"
           >
             {col}
-          </text>
+          </span>
         ))}
 
+        {/* Filas: etiqueta (reflowea, nunca se corta) + celdas coloreadas */}
         {data.filas.map((fila, i) => (
-          <g key={fila}>
-            <text
-              x={LABEL_W - 12}
-              y={HEAD_H + i * (CELL_H + GAP) + CELL_H / 2 + 5}
-              textAnchor="end"
-              fill="#A0A09A"
-              style={{ fontFamily: 'var(--font-vt323)', fontSize: 15 }}
-            >
+          <div key={fila} className="contents">
+            <span className="self-center pr-3 text-right font-sans text-pica-subtitle leading-tight text-text-secondary">
               {fila}
-            </text>
+            </span>
             {data.columnas.map((col, j) => {
               const v = data.valores[i]![j]!;
               const bg = colorOf(v);
               return (
-                <g key={col}>
-                  <rect
-                    x={LABEL_W + j * (CELL_W + GAP)}
-                    y={HEAD_H + i * (CELL_H + GAP)}
-                    width={CELL_W}
-                    height={CELL_H}
-                    fill={bg}
-                  />
-                  <text
-                    x={LABEL_W + j * (CELL_W + GAP) + CELL_W / 2}
-                    y={HEAD_H + i * (CELL_H + GAP) + CELL_H / 2 + 6}
-                    textAnchor="middle"
-                    fill={textOn(bg)}
-                    style={{ fontFamily: 'var(--font-handjet)', fontWeight: 700, fontSize: 17 }}
-                  >
-                    {v.toLocaleString('es-UY')}
-                    {data.unidad === '%' ? '%' : ''}
-                  </text>
-                </g>
+                <span
+                  key={col}
+                  aria-hidden="true"
+                  className="flex min-h-[36px] items-center justify-center font-display text-[17px] font-bold short:min-h-[30px]"
+                  style={{ background: bg, color: textOn(bg) }}
+                >
+                  {v.toLocaleString('es-UY')}
+                  {suffix}
+                </span>
               );
             })}
-          </g>
+          </div>
         ))}
-      </svg>
+      </div>
 
-      <DataTable
-        caption={data.caracteristica}
-        head={['', ...data.columnas]}
-        rows={data.filas.map((f, i) => [f, ...data.valores[i]!])}
+      <VizMeta
+        dataset={data}
+        table={{
+          caption: data.caracteristica,
+          head: ['', ...data.columnas],
+          rows: data.filas.map((f, i) => [f, ...data.valores[i]!]),
+        }}
       />
-      <VizFooter dataset={data} />
     </div>
   );
 }

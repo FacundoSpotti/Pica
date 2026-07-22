@@ -20,7 +20,7 @@ import { figureCount, figureScale, niceClosest, perLabel } from '@/lib/isotype';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useSpriteWalkers, type SpritePool, type WalkerTarget } from '@/hooks/useSpriteWalkers';
 import type { DatasetDistribucion } from '@/types/data';
-import { DataTable, VizFooter, VizHeader } from './VizShared';
+import { VizHeader, VizMeta } from './VizShared';
 
 const SCALE = 2;
 // Bounding box real de la figura dentro del frame 17×43 (contenido, no frame)
@@ -217,14 +217,14 @@ export default function IsotypeDistributionViz({ data }: { data: DatasetDistribu
         />
       </div>
 
-      <div className="w-full">
-        <DataTable
-          caption={data.caracteristica}
-          head={['Categoría', `Valor${data.unidad ? ` (${data.unidad})` : ''}`]}
-          rows={cats.map((c) => [c.label, c.valor])}
-        />
-        <VizFooter dataset={data} />
-      </div>
+      <VizMeta
+        dataset={data}
+        table={{
+          caption: data.caracteristica,
+          head: ['Categoría', `Valor${data.unidad ? ` (${data.unidad})` : ''}`],
+          rows: cats.map((c) => [c.label, c.valor]),
+        }}
+      />
     </div>
   );
 }
