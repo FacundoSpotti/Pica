@@ -28,6 +28,7 @@ import HitboxCalibrator from '@/components/home/HitboxCalibrator';
 import FlagCalibrator from '@/components/home/FlagCalibrator';
 import StickyNotes from '@/components/home/StickyNotes';
 import ArticulosDestacados from '@/components/home/ArticulosDestacados';
+import { ARTICLES_ENABLED } from '@/lib/flags';
 import AmbientWalkers from '@/components/shared/AmbientWalkers';
 import PixelSparkles from '@/components/shared/PixelSparkles';
 import PixelIcon from '@/components/shared/PixelIcon';
@@ -113,21 +114,13 @@ export default function HomePage() {
         <Link href="/" aria-label="Pica — inicio" className="pica-logo-hover">
           <PicaLogo className="h-16 w-auto text-text-primary" />
         </Link>
-        <nav className="flex items-center gap-5 max-md:gap-4">
-          <Link
-            href="/detras"
-            className="font-display text-pica-button text-text-secondary underline-offset-4 hover:underline"
-          >
-            Detrás de Pica
-          </Link>
-          <Link
-            href="/nosotros"
-            className="flex items-center gap-2 font-display text-pica-button text-text-primary underline-offset-4 hover:underline"
-          >
-            <PixelIcon name="users" size={20} />
-            Nosotros
-          </Link>
-        </nav>
+        <Link
+          href="/nosotros"
+          className="flex items-center gap-2 font-display text-pica-button text-text-primary underline-offset-4 hover:underline"
+        >
+          <PixelIcon name="users" size={20} />
+          Nosotros
+        </Link>
       </header>
 
       {/* Stage: landscape CONTENIDO (no full-bleed), centrado con margen oscuro.
@@ -306,8 +299,9 @@ export default function HomePage() {
       <ColorBar />
       </section>
 
-      {/* Sección de lecturas (placeholder por ahora) */}
-      <ArticulosDestacados />
+      {/* Sección de lecturas — oculta tras flag hasta tener los copys reales
+          (hoy son tarjetas placeholder). Reactivar con ARTICLES_ENABLED. */}
+      {ARTICLES_ENABLED && <ArticulosDestacados />}
     </main>
   );
 }
