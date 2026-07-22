@@ -7,21 +7,37 @@
 // REGLA ISOTYPE (pica): si el dato involucra PERSONAS, los tipos B/C/D se
 // representan con sprites de personas que caminan a su grilla — la gráfica
 // abstracta solo se permite cuando el dato no es de personas.
+//
+// CODE-SPLITTING (perf): cada viz se carga on-demand con next/dynamic (ssr:false).
+// Así la grilla de entidades y el explorador NO arrastran D3, react-simple-maps
+// ni el código de las 11 vistas hasta que se abre una característica concreta —
+// solo se descarga y parsea la vista que realmente se muestra.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import ScalarViz from './ScalarViz';
-import DistributionViz from './DistributionViz';
-import IsotypeDistributionViz from './IsotypeDistributionViz';
-import IsotypeGlyphViz from './IsotypeGlyphViz';
-import IconGridViz from './IconGridViz';
-import PerCapitaViz from './PerCapitaViz';
-import PixelBarsViz from './PixelBarsViz';
-import IsotypeTimeSeriesViz from './IsotypeTimeSeriesViz';
-import MatrixViz from './MatrixViz';
-import IsotypeMatrixViz from './IsotypeMatrixViz';
-import MapViz from './MapViz';
+import dynamic from 'next/dynamic';
 import { isPersonEntity } from '@/lib/isotype';
 import type { Dataset } from '@/types/data';
+
+// Fallback mientras baja el chunk de la vista (breve, solo la primera vez por
+// tipo). next/dynamic exige que las OPCIONES sean un objeto literal inline
+// (para detectar `ssr: false` estáticamente) — por eso no se comparte un `opts`.
+const loading = () => (
+  <div className="flex min-h-[45vh] w-full items-center justify-center">
+    <p className="font-sans text-pica-subtitle text-text-muted">Cargando…</p>
+  </div>
+);
+
+const ScalarViz = dynamic(() => import('./ScalarViz'), { ssr: false, loading });
+const DistributionViz = dynamic(() => import('./DistributionViz'), { ssr: false, loading });
+const IsotypeDistributionViz = dynamic(() => import('./IsotypeDistributionViz'), { ssr: false, loading });
+const IsotypeGlyphViz = dynamic(() => import('./IsotypeGlyphViz'), { ssr: false, loading });
+const IconGridViz = dynamic(() => import('./IconGridViz'), { ssr: false, loading });
+const PerCapitaViz = dynamic(() => import('./PerCapitaViz'), { ssr: false, loading });
+const PixelBarsViz = dynamic(() => import('./PixelBarsViz'), { ssr: false, loading });
+const IsotypeTimeSeriesViz = dynamic(() => import('./IsotypeTimeSeriesViz'), { ssr: false, loading });
+const MatrixViz = dynamic(() => import('./MatrixViz'), { ssr: false, loading });
+const IsotypeMatrixViz = dynamic(() => import('./IsotypeMatrixViz'), { ssr: false, loading });
+const MapViz = dynamic(() => import('./MapViz'), { ssr: false, loading });
 
 export default function VizRouter({ dataset }: { dataset: Dataset }) {
   // Persona si la entidad lo indica por su nombre O si el dataset lo declara
