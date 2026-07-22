@@ -14,9 +14,9 @@ import PixelIcon, { resolvePixelIcon } from '@/components/shared/PixelIcon';
 import { TEMA_COLOR } from '@/lib/colors';
 import { niceClosest } from '@/lib/isotype';
 import type { DatasetDistribucion } from '@/types/data';
-import { DataTable, VizFooter, VizHeader } from './VizShared';
+import { VizHeader, VizMeta } from './VizShared';
 
-const GLYPH = 22; // px por glifo
+const GLYPH = 18; // px por glifo (compacto: 7 categorías de glifos entran sin scroll)
 const TARGET = 90; // glifos totales apuntados (multitud legible, no miles)
 const MAX_PER_CAT = 120; // techo por categoría para no reventar el DOM
 const GRAY = '#4B4B46'; // resto en gris (remanente hasta 100% / contexto)
@@ -24,7 +24,8 @@ const GRAY = '#4B4B46'; // resto en gris (remanente hasta 100% / contexto)
 export default function IsotypeGlyphViz({ data }: { data: DatasetDistribucion }) {
   const shouldReduce = useReducedMotion();
   const color = TEMA_COLOR[data.tematica];
-  const glyph = resolvePixelIcon(data.glifo, 'coins');
+  // Glifo NEUTRO por defecto (no-personas): un bloque, nunca la figura humana.
+  const glyph = resolvePixelIcon(data.glifo, 'block');
 
   // % → cada categoría es un bloque de 100 glifos: el valor en color y el
   // RESTO en gris (facilita comparar la proporción). Magnitud → 1 glifo = X.
@@ -41,12 +42,14 @@ export default function IsotypeGlyphViz({ data }: { data: DatasetDistribucion })
   return (
     <div className="flex flex-col items-center">
       <div className="w-full">
-        <VizHeader dataset={data} center />
+        <VizHeader dataset={data} compact center />
       </div>
 
-      <p className="mb-4 text-center font-sans text-pica-subtitle text-text-muted">{escala}</p>
+      <p className="mb-3 text-center font-sans text-pica-subtitle text-text-muted short:mb-1">
+        {escala}
+      </p>
 
-      <ul className="flex w-full max-w-2xl flex-col gap-5">
+      <ul className="flex w-full max-w-3xl flex-col gap-4 short:gap-2">
         {data.categorias.map((cat, ci) => {
           const c = cat.color ?? color;
           // % → 100 glifos (coloreados = valor, resto gris). Magnitud → valor/per.
@@ -55,19 +58,17 @@ export default function IsotypeGlyphViz({ data }: { data: DatasetDistribucion })
             : Math.min(MAX_PER_CAT, cat.valor === 0 ? 0 : Math.max(1, Math.round(cat.valor / per)));
           const totalGlyphs = esPorcentaje ? 100 : colored;
           return (
-            <li key={cat.label}>
-              <div className="mb-1 flex items-baseline justify-between gap-3">
-                <span
-                  className="font-sans text-pica-subtitle uppercase tracking-wide text-text-secondary"
-                >
-                  {cat.label}
-                </span>
-                <span className="font-display text-pica-button font-bold" style={{ color: c }}>
-                  {cat.valor.toLocaleString('es-UY')}
-                  {esPorcentaje ? '%' : ''}
-                </span>
-              </div>
-              <div className="flex flex-wrap gap-[3px]" aria-hidden="true">
+            // Fila horizontal: ETIQUETA (izquierda, jerarquía alta) · barra de
+            // glifos · VALOR — todo en la misma línea, para leer de un vistazo a
+            // qué refiere cada barra.
+            <li key={cat.label} className="flex items-center gap-4 max-md:gap-2">
+              <span
+                className="w-40 shrink-0 font-display text-pica-button font-bold uppercase leading-tight md:w-52"
+                style={{ color: c }}
+              >
+                {cat.label}
+              </span>
+              <div className="flex min-w-0 flex-1 flex-wrap gap-[3px]" aria-hidden="true">
                 {Array.from({ length: totalGlyphs }).map((_, gi) => (
                   <motion.span
                     key={gi}
@@ -83,19 +84,26 @@ export default function IsotypeGlyphViz({ data }: { data: DatasetDistribucion })
                   </motion.span>
                 ))}
               </div>
+              <span
+                className="shrink-0 font-display text-pica-title font-bold tabular-nums"
+                style={{ color: c }}
+              >
+                {cat.valor.toLocaleString('es-UY')}
+                {esPorcentaje ? '%' : ''}
+              </span>
             </li>
           );
         })}
       </ul>
 
-      <div className="w-full">
-        <DataTable
-          caption={data.caracteristica}
-          head={['Categoría', `Valor${data.unidad ? ` (${data.unidad})` : ''}`]}
-          rows={data.categorias.map((c) => [c.label, c.valor])}
-        />
-        <VizFooter dataset={data} />
-      </div>
+      <VizMeta
+        dataset={data}
+        table={{
+          caption: data.caracteristica,
+          head: ['Categoría', `Valor${data.unidad ? ` (${data.unidad})` : ''}`],
+          rows: data.categorias.map((c) => [c.label, c.valor]),
+        }}
+      />
     </div>
   );
 }

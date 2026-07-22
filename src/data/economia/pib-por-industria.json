@@ -4,7 +4,7 @@
   "entidad": "Producción nacional",
   "caracteristica": "PIB por industria",
   "tipoResultado": "B",
-  "glifo": "coins",
+  "glifo": "block",
   "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 8.1.3 (fuente BCU)",
   "anio": 2024,
   "unidad": "millones de pesos",
@@ -54,5 +54,6 @@
       "label": "Impuestos menos subvenciones",
       "valor": 376296
     }
-  ]
+  ],
+  "presentacion": "grilla"
 }

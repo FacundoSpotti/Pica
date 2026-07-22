@@ -28,6 +28,7 @@ import HitboxCalibrator from '@/components/home/HitboxCalibrator';
 import FlagCalibrator from '@/components/home/FlagCalibrator';
 import StickyNotes from '@/components/home/StickyNotes';
 import ArticulosDestacados from '@/components/home/ArticulosDestacados';
+import { ARTICLES_ENABLED } from '@/lib/flags';
 import AmbientWalkers from '@/components/shared/AmbientWalkers';
 import PixelSparkles from '@/components/shared/PixelSparkles';
 import PixelIcon from '@/components/shared/PixelIcon';
@@ -298,8 +299,9 @@ export default function HomePage() {
       <ColorBar />
       </section>
 
-      {/* Sección de lecturas (placeholder por ahora) */}
-      <ArticulosDestacados />
+      {/* Sección de lecturas — oculta tras flag hasta tener los copys reales
+          (hoy son tarjetas placeholder). Reactivar con ARTICLES_ENABLED. */}
+      {ARTICLES_ENABLED && <ArticulosDestacados />}
     </main>
   );
 }

@@ -8,7 +8,7 @@
 import { max, scaleLinear } from 'd3';
 import { TEMA_COLOR } from '@/lib/colors';
 import type { DatasetDistribucion } from '@/types/data';
-import { DataTable, VizFooter, VizHeader } from './VizShared';
+import { VizHeader, VizMeta } from './VizShared';
 
 const W = 480;
 const BAR_AREA = 330; // ancho máximo de barra (deja lugar al valor)
@@ -57,14 +57,14 @@ function RankedList({ data }: { data: DatasetDistribucion }) {
           );
         })}
       </ol>
-      <div className="w-full">
-        <DataTable
-          caption={data.caracteristica}
-          head={['Categoría', `Valor${data.unidad ? ` (${data.unidad})` : ''}`]}
-          rows={ranked.map((c) => [c.label, c.valor])}
-        />
-        <VizFooter dataset={data} />
-      </div>
+      <VizMeta
+        dataset={data}
+        table={{
+          caption: data.caracteristica,
+          head: ['Categoría', `Valor${data.unidad ? ` (${data.unidad})` : ''}`],
+          rows: ranked.map((c) => [c.label, c.valor]),
+        }}
+      />
     </div>
   );
 }
@@ -123,14 +123,14 @@ function BarChart({ data }: { data: DatasetDistribucion }) {
         })}
       </svg>
 
-      <div className="w-full">
-        <DataTable
-          caption={data.caracteristica}
-          head={['Categoría', `Valor${data.unidad ? ` (${data.unidad})` : ''}`]}
-          rows={data.categorias.map((c) => [c.label, c.valor])}
-        />
-        <VizFooter dataset={data} />
-      </div>
+      <VizMeta
+        dataset={data}
+        table={{
+          caption: data.caracteristica,
+          head: ['Categoría', `Valor${data.unidad ? ` (${data.unidad})` : ''}`],
+          rows: data.categorias.map((c) => [c.label, c.valor]),
+        }}
+      />
     </div>
   );
 }

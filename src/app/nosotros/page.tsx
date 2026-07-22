@@ -203,13 +203,19 @@ export default function NosotrosPage() {
         <PixelSparkles count={18} seed={23} className="hidden md:block" />
       </div>
 
-      {/* Nav: solo la vuelta al Home (wireframe) */}
-      <header className="z-10 flex items-center p-6">
+      {/* Nav: volver al Home + quién está detrás de Pica */}
+      <header className="z-10 flex items-center justify-between p-6">
         <Link
           href="/"
           className="font-display text-pica-button text-text-primary underline-offset-4 hover:underline"
         >
           ← Home
+        </Link>
+        <Link
+          href="/detras"
+          className="font-display text-pica-button text-text-secondary underline-offset-4 hover:underline"
+        >
+          Detrás de Pica →
         </Link>
       </header>
 
@@ -337,12 +343,12 @@ export default function NosotrosPage() {
         })}
       </div>
 
-      {/* Pie: crédito académico */}
+      {/* Pie: crédito de autor (proyecto propio) */}
       <footer
         className="pointer-events-none z-10 mx-auto max-w-md px-8 pb-4 text-center font-sans text-pica-subtitle text-text-muted"
         style={open ? DIM_STYLE : UNDIM_STYLE}
       >
-        Proyecto académico — Diseño Interactivo, Universidad ORT Uruguay · Facundo Spotti
+        Pica — un proyecto de Facundo Spotti · Uruguay
       </footer>
     </main>
   );

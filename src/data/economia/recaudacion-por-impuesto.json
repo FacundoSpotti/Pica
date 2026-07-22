@@ -4,7 +4,7 @@
   "entidad": "Impuestos",
   "caracteristica": "Qué recauda cada impuesto",
   "tipoResultado": "B",
-  "glifo": "coins",
+  "glifo": "block",
   "fuente": "INE — Anuario Estadístico Nacional 2025, cuadro 6.1.5 (fuente MEF)",
   "anio": 2024,
   "unidad": "millones de pesos",

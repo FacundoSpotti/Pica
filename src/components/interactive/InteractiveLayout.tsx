@@ -71,7 +71,11 @@ export default function InteractiveLayout() {
   );
 
   return (
-    <main className="pica-bg flex h-screen w-screen flex-col overflow-hidden bg-bg-base max-md:h-dvh">
+    // El scroll, cuando el contenido no entra, es el de esta raíz a ALTO
+    // COMPLETO de viewport (nunca una barra dentro del panel de datos): los
+    // devices se dimensionan para entrar, y si en un caso extremo no entran, se
+    // scrollea la página entera. Ver CharacteristicExplorer / VizMeta.
+    <main className="pica-bg flex h-screen w-screen flex-col overflow-x-hidden overflow-y-auto bg-bg-base max-md:h-dvh">
       {/* Nav superior: al elegir temática el logo viaja al CENTRO (animación
           de layout con spring, ver pica-ui) y "Nosotros" desaparece — dentro
           de los datos no importa nada más que los datos. */}
@@ -182,7 +186,11 @@ export default function InteractiveLayout() {
         )}
       </header>
 
-      <div className="min-h-0 flex-1">
+      {/* flex-1 (sin min-h-0): llena el viewport cuando el contenido es corto
+          —states 1 y 2 quedan centrados igual que antes— y CRECE con el
+          contenido cuando un device es más alto que la pantalla, dejando que la
+          raíz scrollee a alto completo en vez de una barra interna. */}
+      <div className="flex-1">
         {/* Estado 1 — sin temática: selector */}
         {!tema && (
           /* MOBILE: tarjetas compactas en columna — las 5 entran SIN scroll. */

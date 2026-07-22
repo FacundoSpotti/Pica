@@ -12,7 +12,6 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useRef, useState } from 'react';
-import { renderStory } from '@/lib/storyRenderer';
 import type { Dataset } from '@/types/data';
 
 interface ShareStoryProps {
@@ -38,6 +37,9 @@ export default function ShareStory({ dataset }: ShareStoryProps) {
     await new Promise((r) => requestAnimationFrame(r));
     const story = canvasRef.current;
     if (!story) return;
+    // storyRenderer arrastra D3 (incluido d3-geo) — se carga on-demand acá, solo
+    // al compartir, para no pesar en la carga del explorador.
+    const { renderStory } = await import('@/lib/storyRenderer');
     await renderStory(story, dataset);
     // Blob + object URL (los data URLs fallan al descargar en iOS/Android)
     const b = await new Promise<Blob | null>((res) => story.toBlob(res, 'image/png'));

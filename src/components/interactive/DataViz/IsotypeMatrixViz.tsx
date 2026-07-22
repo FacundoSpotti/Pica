@@ -21,7 +21,7 @@ import { figureCount, matrixScale, niceClosest, perLabel } from '@/lib/isotype';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useSpriteWalkers, type WalkerTarget } from '@/hooks/useSpriteWalkers';
 import type { DatasetMatriz } from '@/types/data';
-import { DataTable, VizFooter, VizHeader } from './VizShared';
+import { VizHeader, VizMeta } from './VizShared';
 
 const SCALE = 2;
 // Bounding box real del contenido dentro del frame 17×43 (ver IsotypeDistributionViz)
@@ -254,12 +254,14 @@ export default function IsotypeMatrixViz({ data }: { data: DatasetMatriz }) {
         ))}
       </div>
 
-      <DataTable
-        caption={data.caracteristica}
-        head={['', ...data.columnas]}
-        rows={data.filas.map((f, i) => [f, ...data.valores[i]!])}
+      <VizMeta
+        dataset={data}
+        table={{
+          caption: data.caracteristica,
+          head: ['', ...data.columnas],
+          rows: data.filas.map((f, i) => [f, ...data.valores[i]!]),
+        }}
       />
-      <VizFooter dataset={data} />
     </div>
   );
 }
