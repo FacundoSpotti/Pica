@@ -125,6 +125,13 @@ interface WalkerOptions {
    * caliente sin que las figuras vuelvan a entrar caminando.
    */
   layoutKey?: string;
+  /**
+   * Borde por el que entran las figuras. Por defecto 'nearest' (el borde más
+   * cercano a cada destino, menos recorrido). 'left'/'right' fuerzan el borde
+   * — se usa en el mapa para que las figuras entren desde el borde EXTERIOR
+   * (el de la ventana), aunque la multitud esté pegada al mapa.
+   */
+  enterFrom?: 'left' | 'right' | 'nearest';
 }
 
 /**
@@ -141,6 +148,7 @@ export function useSpriteWalkers(
   targetsRef.current = targets;
   const scale = options.scale ?? 1;
   const layoutKey = options.layoutKey ?? '';
+  const enterFrom = options.enterFrom ?? 'nearest';
 
   // Recoloreo en caliente: mismas posiciones, colores nuevos
   useEffect(() => {
@@ -173,7 +181,8 @@ export function useSpriteWalkers(
     // (derecha si el destino está en la mitad derecha, izquierda si no) para no
     // atravesar la pantalla. Velocidad/delays escalados al tamaño del sprite.
     walkersRef.current = targets.map((t, i) => {
-      const fromRight = t.x > W / 2;
+      const fromRight =
+        enterFrom === 'right' ? true : enterFrom === 'left' ? false : t.x > W / 2;
       const sx = fromRight ? W + Math.random() * 120 : -SW - Math.random() * 120;
       const sy = Math.min(H - SH, Math.max(0, t.y + (Math.random() * 40 - 20)));
       return {
@@ -287,5 +296,5 @@ export function useSpriteWalkers(
 
     return () => cancelAnimationFrame(raf);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- targets vía ref: reconstruir solo si cambia el layout
-  }, [canvasRef, layoutKey, scale]);
+  }, [canvasRef, layoutKey, scale, enterFrom]);
 }

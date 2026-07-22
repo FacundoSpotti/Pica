@@ -67,6 +67,8 @@ function DeptPanel({
   hint,
   compareTo,
   crowd = true,
+  bleedW,
+  side,
 }: {
   dept: Dept;
   colorOf: (v: number) => string;
@@ -81,12 +83,18 @@ function DeptPanel({
   compareTo?: Dept | null;
   /** false = sin multitud (datos que no son personas): solo nombre + número */
   crowd?: boolean;
+  /** ancho (px) de la columna: el canvas se estira hasta ahí para que las
+   *  figuras entren desde el borde EXTERIOR de la ventana. Sin él → sin sangrado. */
+  bleedW?: number;
+  /** de qué lado del mapa vive este panel (define borde de entrada y anclaje) */
+  side?: 'left' | 'right';
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const CAP = CROWD_COLS * CROWD_ROWS; // techo de figuras por panel (200)
+  const bleeding = Boolean(bleedW) && crowd;
 
-  const { targets, panelW, panelH } = useMemo(() => {
-    if (!crowd) return { targets: [] as WalkerTarget[], panelW: 0, panelH: 0 };
+  const { targets, canvasW, panelH } = useMemo(() => {
+    if (!crowd) return { targets: [] as WalkerTarget[], canvasW: 0, panelH: 0 };
     const colored = Math.min(CAP, figureCount(dept.valor, per));
     // Proporción: `base/per` figuras con el resto en gris. Magnitud: solo coloreadas.
     const total = mode === 'proporcion' ? Math.min(CAP, Math.round(base / per)) : colored;
@@ -98,28 +106,44 @@ function DeptPanel({
         ? CROWD_ROWS
         : Math.max(1, Math.min(CROWD_ROWS, Math.ceil(total / 8)));
     const cols = Math.max(1, Math.ceil(total / rows));
-    const panelW = MARGIN * 2 + (cols - 1) * PITCH_X + C_W * SCALE;
+    const mW = MARGIN * 2 + (cols - 1) * PITCH_X + C_W * SCALE; // ancho de la multitud
     const panelH = MARGIN * 2 + (rows - 1) * PITCH_Y + C_H * SCALE;
+
+    // SANGRADO: el canvas se ensancha hasta la columna manteniendo la escala de
+    // dibujo de la multitud (misma que sin sangrado). La multitud se ancla al
+    // lado del MAPA (derecha en el panel izquierdo, izquierda en el derecho) y el
+    // resto del canvas queda transparente para que las figuras caminen desde el
+    // borde exterior.
+    const displayW = mode === 'proporcion' ? maxW : Math.min(mW, maxW); // ancho CSS actual de la multitud
+    const s = displayW / mW; // escala de dibujo (CSS/lógico)
+    const canvasW = bleedW && s > 0 ? Math.max(mW, Math.round(bleedW / s)) : mW;
+    const offX = side === 'left' ? canvasW - mW : 0; // izquierda: multitud a la derecha (mapa)
+
     const out: WalkerTarget[] = [];
     for (let j = 0; j < total; j++) {
       out.push({
-        x: MARGIN + Math.floor(j / rows) * PITCH_X - C_MIN_X * SCALE,
+        x: offX + MARGIN + Math.floor(j / rows) * PITCH_X - C_MIN_X * SCALE,
         y: MARGIN + (j % rows) * PITCH_Y - C_MIN_Y * SCALE,
         color: j < colored ? colorOf(dept.valor) : CONTEXT_GRAY,
       });
     }
-    return { targets: out, panelW, panelH };
+    return { targets: out, canvasW, panelH };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dept.id, dept.valor, per, mode, base, crowd]);
+  }, [dept.id, dept.valor, per, mode, base, crowd, bleedW, side, maxW]);
 
-  // layoutKey con panelW: si cambia la densidad (mobile), el enjambre se reconstruye
-  useSpriteWalkers(canvasRef, targets, { scale: SCALE, layoutKey: `map:${dept.id}:${panelW}` });
+  // layoutKey con canvasW: si cambia el ancho (sangrado/densidad), se reconstruye.
+  // enterFrom: en el sangrado las figuras entran desde el borde EXTERIOR (ventana).
+  useSpriteWalkers(canvasRef, targets, {
+    scale: SCALE,
+    layoutKey: `map:${dept.id}:${canvasW}`,
+    enterFrom: bleeding ? (side === 'right' ? 'right' : 'left') : 'nearest',
+  });
 
   const delta = compareTo ? dept.valor - compareTo.valor : null;
   const deltaSuffix = mode === 'proporcion' ? ' pp' : unidad ? ` ${unidad}` : '';
 
-  return (
-    <div className="min-w-0" style={{ maxWidth: maxW }}>
+  const info = (
+    <div className={`min-w-0 ${bleeding && side === 'left' ? 'ml-auto' : ''}`} style={{ maxWidth: maxW }}>
       <p className="truncate font-display text-pica-button font-bold uppercase text-text-primary">
         {dept.nombre}
         {hint && (
@@ -152,28 +176,48 @@ function DeptPanel({
           {deltaSuffix} vs {compareTo!.nombre}
         </p>
       )}
-      {crowd && (
-        <canvas
-          ref={canvasRef}
-          width={panelW}
-          height={panelH}
-          role="img"
-          aria-label={`${dept.nombre}: ${dept.valor}${unidad ? ` ${unidad}` : ''}${mode === 'proporcion' ? ' representado con figuras sobre el total de referencia.' : ' — una figura por caso.'}`}
-          className="mt-2"
-          style={{
-            imageRendering: 'pixelated',
-            width: 'auto',
-            height: 'auto',
-            maxWidth: '100%',
-            // proporción: llena el panel como antes; magnitud: tamaño acorde
-            minWidth: mode === 'proporcion' ? '100%' : undefined,
-          }}
-        />
-      )}
       {/* Sin multitud (no-personas): la unidad debajo del número, legible */}
       {!crowd && unidad && (
         <p className="font-sans text-pica-subtitle text-text-muted">{unidad}</p>
       )}
+    </div>
+  );
+
+  if (!crowd) return <div className={bleeding ? 'w-full' : 'min-w-0'}>{info}</div>;
+
+  const canvasEl = (
+    <canvas
+      ref={canvasRef}
+      width={canvasW}
+      height={panelH}
+      role="img"
+      aria-label={`${dept.nombre}: ${dept.valor}${unidad ? ` ${unidad}` : ''}${mode === 'proporcion' ? ' representado con figuras sobre el total de referencia.' : ' — una figura por caso.'}`}
+      className="mt-2 block"
+      style={{
+        imageRendering: 'pixelated',
+        // Sangrado: el canvas ocupa TODO el ancho de la columna (las figuras
+        // entran desde el borde de la ventana); sin sangrado, tamaño natural.
+        width: bleeding ? '100%' : 'auto',
+        height: 'auto',
+        maxWidth: '100%',
+        minWidth: !bleeding && mode === 'proporcion' ? '100%' : undefined,
+        // no captura el hover del mapa
+        pointerEvents: 'none',
+      }}
+    />
+  );
+
+  // Con sangrado: el panel ocupa la columna, el número se ancla al lado del mapa
+  // y el canvas se extiende hacia el borde exterior.
+  return bleeding ? (
+    <div className="min-w-0 w-full">
+      {info}
+      {canvasEl}
+    </div>
+  ) : (
+    <div className="min-w-0" style={{ maxWidth: maxW }}>
+      {info}
+      {canvasEl}
     </div>
   );
 }
@@ -223,18 +267,21 @@ export default function MapViz({ data }: { data: DatasetEspacial }) {
 
   // Alto disponible medido → mapa y multitudes entran sin scroll
   const rowRef = useRef<HTMLDivElement>(null);
-  const [fit, setFit] = useState({ mapW: 400, panelW: 300 });
+  const [fit, setFit] = useState({ mapW: 400, panelW: 300, colW: 300 });
   useEffect(() => {
     const el = rowRef.current;
     if (!el) return;
     const update = () => {
       const rect = el.getBoundingClientRect();
       const avail = Math.max(200, window.innerHeight - rect.top - 220);
-      setFit({
-        mapW: Math.round(Math.min(430, ((avail - 30) * 480) / 520)),
-        // panel: nombre+número+delta ≈ 130px; el resto para la multitud
-        panelW: Math.round(Math.min(340, Math.max(180, (avail - 140) * (CROWD_W / CROWD_H)))),
-      });
+      const mapW = Math.round(Math.min(430, ((avail - 30) * 480) / 520));
+      // panel: nombre+número+delta ≈ 130px; el resto para la multitud
+      const panelW = Math.round(Math.min(340, Math.max(180, (avail - 140) * (CROWD_W / CROWD_H))));
+      // Ancho de cada columna lateral: la multitud se dibuja sobre un canvas
+      // tan ancho como la columna, así las figuras entran/salen desde el borde
+      // EXTERIOR (el de la ventana) y no desde una caja interna angosta.
+      const colW = Math.max(panelW, Math.round((rect.width - mapW - 48) / 2));
+      setFit({ mapW, panelW, colW });
     };
     update();
     window.addEventListener('resize', update);
@@ -260,7 +307,7 @@ export default function MapViz({ data }: { data: DatasetEspacial }) {
         {/* IZQUIERDA — panel del departamento seleccionado (SIEMPRE: si el dato
             no es de personas va sin multitud, solo nombre + número — el mapa
             de rapiñas quedaba mudo al click/hover sin esto) */}
-        <div className="min-w-0 justify-self-center md:justify-self-end">
+        <div className="min-w-0 justify-self-center md:justify-self-stretch">
           <DeptPanel
             dept={active}
             colorOf={colorOf}
@@ -271,6 +318,8 @@ export default function MapViz({ data }: { data: DatasetEspacial }) {
             maxW={fit.panelW}
             hint="(click en el mapa para cambiar)"
             crowd={showCrowd}
+            bleedW={isMobile ? undefined : fit.colW}
+            side="left"
           />
         </div>
 
@@ -345,7 +394,7 @@ export default function MapViz({ data }: { data: DatasetEspacial }) {
         {/* DERECHA — comparador al hover (placeholder mantiene la composición).
             En MOBILE no existe el hover → se quita la comparación: solo se ve
             el departamento seleccionado. */}
-        <div className="min-w-0 justify-self-center max-md:hidden md:justify-self-start">
+        <div className="min-w-0 justify-self-center max-md:hidden md:justify-self-stretch">
             {compare ? (
               <DeptPanel
                 dept={compare}
@@ -357,6 +406,8 @@ export default function MapViz({ data }: { data: DatasetEspacial }) {
                 maxW={fit.panelW}
                 compareTo={active}
                 crowd={showCrowd}
+                bleedW={isMobile ? undefined : fit.colW}
+                side="right"
               />
             ) : (
               <div
