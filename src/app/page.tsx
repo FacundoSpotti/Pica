@@ -14,7 +14,7 @@
 // completo en el viewport; capas, canvas y hitboxes comparten coordenadas en %.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, motion } from 'framer-motion';
 import CityLandscape, { type Seleccionable } from '@/components/home/CityLandscape';
@@ -30,7 +30,6 @@ import StickyNotes from '@/components/home/StickyNotes';
 import StreetGrid from '@/components/home/StreetGrid';
 import ArticulosDestacados from '@/components/home/ArticulosDestacados';
 import { ARTICLES_ENABLED } from '@/lib/flags';
-import AmbientWalkers from '@/components/shared/AmbientWalkers';
 import PixelSparkles from '@/components/shared/PixelSparkles';
 import PixelIcon from '@/components/shared/PixelIcon';
 import PicaLogo from '@/components/shared/PicaLogo';
@@ -44,7 +43,6 @@ import {
   THEME_STATIC,
 } from '@/lib/assets';
 import { TEMA_COLOR, TEMA_LABEL, TEMA_ORDER } from '@/lib/colors';
-import { useIsMobile } from '@/hooks/useIsMobile';
 import type { Tematica } from '@/types/sprites';
 
 const ASPECT = LANDSCAPE_SIZE.width / LANDSCAPE_SIZE.height;
@@ -60,9 +58,8 @@ interface Selection {
 export default function HomePage() {
   const [selected, setSelected] = useState<Selection | null>(null);
   const [overlayOpen, setOverlayOpen] = useState(false);
-  // Mobile: el overlay se monta a nivel de pantalla (fixed) y no dentro del
-  // stage (que lo recorta); además aparecen los botones de temáticas.
-  const isMobile = useIsMobile();
+  // Área de arrastre de las notas del Home (todo el hero).
+  const sectionRef = useRef<HTMLElement>(null);
 
   const handleSelect = (tema: Seleccionable, center: { x: number; y: number }) => {
     setSelected((prev) => {
@@ -101,7 +98,10 @@ export default function HomePage() {
       {/* Hero: el landscape ocupa el primer viewport; se scrollea hacia abajo
           para llegar a los artículos. En mobile el hero crece (mapa + botones
           + notas) y deja de recortar. */}
-      <section className="relative h-screen w-full overflow-hidden max-md:h-auto max-md:min-h-dvh max-md:overflow-visible max-md:pb-10">
+      <section
+        ref={sectionRef}
+        className="relative h-screen w-full overflow-hidden max-md:h-auto max-md:min-h-dvh max-md:overflow-visible max-md:pb-10"
+      >
       {/* DESKTOP sin marco: suelo (manzanas) + calles generadas por código, a
           todo el viewport, detrás de todo. La ciudad ya no tiene límite. */}
       <div className="hidden md:block">
@@ -120,10 +120,6 @@ export default function HomePage() {
             y hacen wrap por los bordes). Debajo de los edificios (z-10). */}
         <HomeCanvas convergeTarget={selected?.center ?? null} onConverged={handleConverged} />
       </div>
-
-      {/* Personas grises caminando por el margen oscuro (como en Nosotros) —
-          detrás del stage; mantené el click sobre una y te mira */}
-      <AmbientWalkers count={isMobile ? 5 : 8} className="absolute inset-0 h-full w-full" />
 
       {/* Destellos pixel titilando en el margen oscuro (solo desktop) */}
       <PixelSparkles count={26} className="hidden md:block" />
@@ -155,20 +151,9 @@ export default function HomePage() {
         }}
       >
         {/* Los puntos ya no van dentro del stage: viven en el canvas a viewport
-            completo (arriba), debajo de los edificios. */}
+            completo (arriba), debajo de los edificios. El overlay tampoco va
+            acá: se monta a PANTALLA COMPLETA (ya no hay marco de mapa). */}
         <CityLandscape selectedTema={selected?.tema ?? null} onSelect={handleSelect} />
-
-        {/* Overlay de temática — aparece al completarse la convergencia.
-            En mobile NO va acá (el stage lo recorta): se monta fullscreen abajo. */}
-        <AnimatePresence>
-          {!isMobile && overlayOpen && selected && (
-            selected.tema === 'palacio' ? (
-              <RandomOverlay onClose={handleClose} />
-            ) : (
-              <ThemeOverlay tema={selected.tema} onClose={handleClose} />
-            )
-          )}
-        </AnimatePresence>
 
         {/* Herramientas de calibración (dev) — apagadas por defecto. Para
             reactivarlas: crear .env.local con NEXT_PUBLIC_CALIBRATORS=on
@@ -285,10 +270,12 @@ export default function HomePage() {
         <StickyNotes flow />
       </div>
 
-      {/* MOBILE — overlay de temática a PANTALLA COMPLETA (no dentro del mapa,
-          que lo recortaba y tapaba la animación). */}
+      {/* Overlay de temática a PANTALLA COMPLETA (desktop y mobile): ya no hay
+          marco de mapa, así que el fondo oscuro cubre TODO el viewport. Va fuera
+          del stage (que está transformado) para que `fixed inset-0` sea la
+          ventana completa. */}
       <AnimatePresence>
-        {isMobile && overlayOpen && selected && (
+        {overlayOpen && selected && (
           selected.tema === 'palacio' ? (
             <RandomOverlay onClose={handleClose} fullscreen />
           ) : (
@@ -308,7 +295,7 @@ export default function HomePage() {
           height: `min(100vh - 150px, calc(93vw / ${ASPECT}))`,
         }}
       >
-        <StickyNotes />
+        <StickyNotes constraintsRef={sectionRef} />
       </div>
 
       {/* Barra de temáticas en el borde inferior */}
