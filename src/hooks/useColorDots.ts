@@ -19,6 +19,7 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { SPRITE_COLORS } from '@/lib/colors';
 import { LANDSCAPE_SIZE } from '@/lib/assets';
+import { stageBox, toScreen, type StageBox } from '@/lib/streets';
 import type { ColorDot } from '@/types/sprites';
 
 /** Punto en coordenadas normalizadas (0–1). */
@@ -45,7 +46,7 @@ export const STREET_PATHS: ReadonlyArray<ReadonlyArray<[number, number]>> = [
 /** Relación de aspecto del stage — las distancias "físicas" corrigen por esto. */
 const ASPECT = LANDSCAPE_SIZE.width / LANDSCAPE_SIZE.height;
 /** Mitad del ancho de calle, en fracción del alto del stage (~3.4% total). */
-const LANE_HALF = 0.017;
+export const LANE_HALF = 0.017;
 /** Velocidad al seguir una ruta de convergencia (fracción física del alto/seg). */
 const ROUTE_SPEED = 0.25;
 /** Distancia a la que se considera alcanzado un waypoint. */
@@ -79,6 +80,10 @@ interface PathMeta {
   /** longitud física acumulada hasta cada vértice */
   cum: number[];
   total: number;
+  /** paso normalizado por unidad física para extrapolar ANTES del inicio */
+  startStep: Pct;
+  /** paso normalizado por unidad física para extrapolar DESPUÉS del final */
+  endStep: Pct;
 }
 
 function buildPathMeta(paths: typeof STREET_PATHS): PathMeta[] {
@@ -88,7 +93,19 @@ function buildPathMeta(paths: typeof STREET_PATHS): PathMeta[] {
     for (let i = 1; i < pts.length; i++) {
       cum.push(cum[i - 1]! + physDist(pts[i - 1]!, pts[i]!));
     }
-    return { pts, cum, total: cum[cum.length - 1] || 1 };
+    const a0 = pts[0]!;
+    const a1 = pts[1] ?? a0;
+    const startL = physDist(a0, a1) || 1;
+    const bN = pts[pts.length - 1]!;
+    const bM = pts[pts.length - 2] ?? bN;
+    const endL = physDist(bM, bN) || 1;
+    return {
+      pts,
+      cum,
+      total: cum[cum.length - 1] || 1,
+      startStep: { x: (a0.x - a1.x) / startL, y: (a0.y - a1.y) / startL },
+      endStep: { x: (bN.x - bM.x) / endL, y: (bN.y - bM.y) / endL },
+    };
   });
 }
 
@@ -106,6 +123,59 @@ function pointDirOnPath(meta: PathMeta, t: number): { x: number; y: number; dx: 
   }
   const last = meta.pts[meta.pts.length - 1]!;
   return { x: last.x, y: last.y, dx: 1, dy: 0 };
+}
+
+/**
+ * Como pointDirOnPath pero admite t FUERA de [0,1]: extrapola el primer/último
+ * segmento (para que los puntos entren y salgan de pantalla por las calles
+ * extendidas). El grafo de convergencia NO usa esto — sigue en [0,1].
+ */
+function pointDirOnPathExt(
+  meta: PathMeta,
+  t: number,
+): { x: number; y: number; dx: number; dy: number } {
+  if (t >= 0 && t <= 1) return pointDirOnPath(meta, t);
+  if (t < 0) {
+    const d = -t * meta.total;
+    const p0 = meta.pts[0]!;
+    const s = meta.startStep;
+    return { x: p0.x + s.x * d, y: p0.y + s.y * d, dx: -s.x, dy: -s.y };
+  }
+  const d = (t - 1) * meta.total;
+  const pN = meta.pts[meta.pts.length - 1]!;
+  const s = meta.endStep;
+  return { x: pN.x + s.x * d, y: pN.y + s.y * d, dx: s.x, dy: s.y };
+}
+
+interface PathBound {
+  pLow: number;
+  pHigh: number;
+}
+
+/**
+ * Para cada path, el progreso extendido en el que el punto ya salió del viewport
+ * (+ margen). Los puntos hacen wrap entre pLow y pHigh: salen por un borde y
+ * reaparecen por el opuesto, sin acumularse ni cortarse de golpe.
+ */
+function computeBounds(
+  metas: PathMeta[],
+  box: StageBox,
+  vw: number,
+  vh: number,
+  margin = 0.14,
+): PathBound[] {
+  const off = (meta: PathMeta, t: number): boolean => {
+    const p = pointDirOnPathExt(meta, t);
+    const [sx, sy] = toScreen(p.x, p.y, box);
+    return sx < -margin * vw || sx > vw + margin * vw || sy < -margin * vh || sy > vh + margin * vh;
+  };
+  return metas.map((meta) => {
+    let pHigh = 1;
+    for (let i = 0; i < 400 && !off(meta, pHigh); i++) pHigh += 0.02;
+    let pLow = 0;
+    for (let i = 0; i < 400 && !off(meta, pLow); i++) pLow -= 0.02;
+    return { pLow, pHigh };
+  });
 }
 
 // ── Grafo de calles con intersecciones (pathfinding de convergencia) ────────
@@ -231,8 +301,9 @@ function dijkstra(g: StreetGraph, start: number): { dist: number[]; parent: numb
 export interface UseColorDots {
   /** Array mutable de puntos (leído por HomeCanvas para dibujar). */
   dotsRef: React.MutableRefObject<ColorDot[]>;
-  /** Avanza la simulación `dt` segundos. */
-  updateDots: (dt: number) => void;
+  /** Avanza la simulación `dt` segundos. Con vw/vh los puntos hacen wrap por los
+   *  bordes del viewport (calles extendidas); sin ellos, ping-pong en la caja. */
+  updateDots: (dt: number, vw?: number, vh?: number) => void;
   /** Inicia la convergencia de todos los puntos hacia un objetivo (en %). */
   convergeTo: (target: Pct) => void;
   /** Vuelve al estado 'moving' (puntos recorriendo las calles). */
@@ -247,6 +318,9 @@ export function useColorDots(count = 120): UseColorDots {
   const prefersReducedRef = useRef<boolean>(false);
   const pathMeta = useMemo(() => buildPathMeta(STREET_PATHS), []);
   const graph = useMemo(() => buildGraph(pathMeta), [pathMeta]);
+  // Límites de wrap por path, recalculados cuando cambia el viewport.
+  const boundsRef = useRef<PathBound[] | null>(null);
+  const boxKeyRef = useRef<string>('');
 
   // Inicialización de los puntos (una sola vez)
   if (dotsRef.current.length === 0) {
@@ -370,23 +444,43 @@ export function useColorDots(count = 120): UseColorDots {
   }, []);
 
   const updateDots = useCallback(
-    (dt: number) => {
+    (dt: number, vw?: number, vh?: number) => {
       if (prefersReducedRef.current) return; // estáticos
       const target = targetRef.current;
+
+      // Límites de wrap del viewport (recalcula solo si cambió el tamaño)
+      let bounds: PathBound[] | null = null;
+      if (vw && vh) {
+        const key = `${vw}x${vh}`;
+        if (key !== boxKeyRef.current) {
+          const box: StageBox = stageBox(vw, vh);
+          boundsRef.current = computeBounds(pathMeta, box, vw, vh);
+          boxKeyRef.current = key;
+        }
+        bounds = boundsRef.current;
+      }
 
       for (const dot of dotsRef.current) {
         if (dot.phase === 'moving') {
           const meta = pathMeta[dot.pathIndex]!;
           dot.progress += dot.speed * dt;
-          // Ping-pong en los extremos (sin teleport de fin a inicio)
-          if (dot.progress > 1) {
-            dot.progress = 2 - dot.progress;
-            dot.speed = -dot.speed;
-          } else if (dot.progress < 0) {
-            dot.progress = -dot.progress;
-            dot.speed = -dot.speed;
+          const b = bounds ? bounds[dot.pathIndex]! : null;
+          if (b) {
+            // Wrap: sale por un borde (fuera de pantalla) y reaparece por el
+            // opuesto, en el mismo sentido — flujo continuo tipo tráfico.
+            if (dot.progress > b.pHigh) dot.progress = b.pLow + (dot.progress - b.pHigh);
+            else if (dot.progress < b.pLow) dot.progress = b.pHigh - (b.pLow - dot.progress);
+          } else {
+            // Sin viewport (SSR/primer frame): ping-pong clásico en la caja.
+            if (dot.progress > 1) {
+              dot.progress = 2 - dot.progress;
+              dot.speed = -dot.speed;
+            } else if (dot.progress < 0) {
+              dot.progress = -dot.progress;
+              dot.speed = -dot.speed;
+            }
           }
-          const p = pointDirOnPath(meta, dot.progress);
+          const p = pointDirOnPathExt(meta, dot.progress);
           // Ancho de calle: offset lateral perpendicular a la dirección
           const off = perpOffset(p.dx, p.dy, dot.lateral * LANE_HALF);
           dot.x = p.x + off.x;

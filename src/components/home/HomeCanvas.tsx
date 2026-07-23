@@ -11,6 +11,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useColorDots } from '@/hooks/useColorDots';
+import { stageBox, toScreen } from '@/lib/streets';
 
 interface HomeCanvasProps {
   /** Objetivo de convergencia en % (0–1) del stage, o null para movimiento normal. */
@@ -70,25 +71,26 @@ export default function HomeCanvas({ convergeTarget, onConverged, count = 120 }:
       const dt = Math.min(100, now - last); // clamp por si la pestaña estuvo inactiva
       last = now;
       acc += dt;
+      const { width, height } = canvas;
       while (acc >= SIM_STEP_MS) {
-        updateDots(SIM_STEP_MS / 1000);
+        // vw/vh del canvas (viewport completo) → los puntos hacen wrap por los
+        // bordes de la ventana recorriendo las calles extendidas.
+        updateDots(SIM_STEP_MS / 1000, width, height);
         acc -= SIM_STEP_MS;
       }
 
-      const { width, height } = canvas;
       ctx.clearRect(0, 0, width, height);
+      // Mismo transform que las calles (streets.ts): los puntos caen EXACTO
+      // sobre la calzada, dentro y fuera de la caja de los edificios.
+      const box = stageBox(width, height);
       let arrived = 0;
       for (const dot of dotsRef.current) {
         if (dot.phase === 'arrived') arrived++;
+        const [sx, sy] = toScreen(dot.x, dot.y, box);
         // Puntos cuadrados (pixel art) — fillRect, no arc.
         const size = dot.radius; // 2 o 3 px
         ctx.fillStyle = dot.color;
-        ctx.fillRect(
-          Math.round(dot.x * width - size / 2),
-          Math.round(dot.y * height - size / 2),
-          size,
-          size,
-        );
+        ctx.fillRect(Math.round(sx - size / 2), Math.round(sy - size / 2), size, size);
       }
 
       // Aviso de convergencia completada (una sola vez por selección)
@@ -116,7 +118,7 @@ export default function HomeCanvas({ convergeTarget, onConverged, count = 120 }:
     <canvas
       ref={canvasRef}
       aria-hidden="true"
-      className="absolute inset-0 h-full w-full"
+      className="absolute inset-0 z-[5] h-full w-full"
       style={{ imageRendering: 'pixelated', pointerEvents: 'none' }}
     />
   );

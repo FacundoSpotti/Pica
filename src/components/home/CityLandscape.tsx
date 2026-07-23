@@ -25,7 +25,6 @@ import {
   BUILDING_HITBOX_POLYGONS,
   BUILDING_LAYER_ORDER,
   BUILDING_LAYERS,
-  LANDSCAPE_COMPLETE,
   LANDSCAPE_PALACIO,
   PALACIO_FLAG_ANCHOR,
   PALACIO_HITBOX_POLYGON,
@@ -50,20 +49,29 @@ interface CityLandscapeProps {
   onSelect: (tema: Seleccionable, centerPct: { x: number; y: number }) => void;
   /** Canvas de puntos (se inserta entre el fondo y las capas de edificios). */
   children?: React.ReactNode;
+  /** Notifica qué temática está en hover (para expandir su color en la ColorBar).
+   *  El Palacio no es temática → null. */
+  onHoverTema?: (t: Tematica | null) => void;
 }
 
 // rounded-2xl en cada capa: en mobile el stage es overflow-visible (para que el
-// cartel del edificio no se corte) y el redondeo lo aportan las imágenes.
+// cartel del edificio no se corte) y el redondeo lo aportan las imágenes. En
+// desktop el stage no recorta, así que el redondeo no tiene efecto visible.
 const layerClass =
   'pointer-events-none absolute inset-0 h-full w-full rounded-2xl object-fill';
 const pixelated = { imageRendering: 'pixelated' as const };
 const GRAYSCALE = 'grayscale(100%) brightness(0.5)';
 
-export default function CityLandscape({ selectedTema, onSelect, children }: CityLandscapeProps) {
+export default function CityLandscape({ selectedTema, onSelect, children, onHoverTema }: CityLandscapeProps) {
   // Hover sobre un edificio: cartel con la temática + elevación intermedia
   const [hoveredTema, setHoveredTema] = useState<Seleccionable | null>(null);
   const hoveredRef = useRef<Seleccionable | null>(null);
   hoveredRef.current = hoveredTema;
+
+  // Avisar al padre qué temática está en hover (el Palacio no es temática).
+  useEffect(() => {
+    onHoverTema?.(hoveredTema && hoveredTema !== 'palacio' ? hoveredTema : null);
+  }, [hoveredTema, onHoverTema]);
 
   // Modo "atract": sin interacción, cada tanto un edificio destella con su
   // color rotando entre las temáticas activas — invita a clickear.
@@ -101,16 +109,16 @@ export default function CityLandscape({ selectedTema, onSelect, children }: City
   };
 
   return (
-    <div className="absolute inset-0 h-full w-full">
-      {/* 1. Ciudad completa — se desatura al seleccionar */}
-      <img
-        src={assetUrl(LANDSCAPE_COMPLETE)}
-        alt="Ciudad de Montevideo en pixel art isométrico"
-        className={layerClass}
-        style={{ ...pixelated, filter: selectedTema ? GRAYSCALE : 'none' }}
-      />
+    <div
+      className="absolute inset-0 h-full w-full"
+      role="img"
+      aria-label="Ciudad de Montevideo en pixel art isométrico — clickeá un edificio para descubrir su temática"
+    >
+      {/* La ciudad son los EDIFICIOS sobre las calles generadas (StreetGrid),
+          no una foto de fondo: la imagen completa (Landscape_complete) ya no se
+          usa en ningún lado, así que no se carga. */}
 
-      {/* 2. Canvas de puntos de colores (debajo de los edificios) */}
+      {/* Canvas de puntos de colores (debajo de los edificios) */}
       {children}
 
       {/* 2b. Bandera de Uruguay: se IZA al clickear el Palacio. Va DETRÁS de

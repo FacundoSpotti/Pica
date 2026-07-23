@@ -9,7 +9,14 @@
 // La capa no captura clicks (los hitboxes del mapa siguen funcionando).
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { motion, useReducedMotion } from 'framer-motion';
+import {
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useSpring,
+  useTransform,
+  useVelocity,
+} from 'framer-motion';
 import UruguayFlag from '@/components/shared/UruguayFlag';
 import { useCountUp } from '@/hooks/useCountUp';
 
@@ -21,6 +28,7 @@ function Note({
   rotate,
   delay,
   flow = false,
+  constraintsRef,
   children,
 }: {
   className: string;
@@ -28,38 +36,71 @@ function Note({
   delay: number;
   /** En flujo (mobile): ocupa su celda en vez de posicionarse sobre el mapa. */
   flow?: boolean;
+  /** Área de arrastre (desktop): las notas se pueden mover por la pantalla. */
+  constraintsRef?: React.RefObject<HTMLElement>;
   children: React.ReactNode;
 }) {
   const shouldReduce = useReducedMotion();
+  // En desktop las notas se arrastran (como las cards de /nosotros). El DRAG va
+  // en el elemento externo (posición + translate + INCLINACIÓN física) y el
+  // `rotate` base en un div INTERNO — si van juntos, el rotate le pisa el
+  // transform al drag y la nota no se mueve.
+  const draggable = !flow && !!constraintsRef;
+  // Física: la nota se inclina según la VELOCIDAD horizontal del arrastre (se
+  // "acuesta" hacia donde la tiro) y vuelve a su ángulo al soltar (spring).
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const xVel = useVelocity(x);
+  const tiltRaw = useTransform(xVel, [-1600, 1600], [22, -22], { clamp: true });
+  const tilt = useSpring(tiltRaw, { stiffness: 220, damping: 16, mass: 0.5 });
   return (
     <motion.div
       // Ancho fluido: en pantallas chicas (ej. 1024×600) las notas a 192px
       // tapaban el mapa y los carteles de hover de las temáticas — clamp las
       // achica proporcionalmente y solo llegan a 12rem en monitores grandes.
-      className={`${flow ? 'relative w-full' : `absolute w-[clamp(120px,13vw,12rem)] ${className}`} border-2 border-white/25 bg-gradient-to-b from-[#1B1B18] to-[#101010] px-3 pb-3 pt-4 shadow-[4px_6px_0_rgba(0,0,0,0.45)]`}
-      style={{ rotate }}
-      initial={{ opacity: 0, y: shouldReduce ? 0 : 14 }}
-      animate={{ opacity: 1, y: 0 }}
+      className={`${flow ? 'relative w-full' : `absolute w-[clamp(120px,13vw,12rem)] ${className}`}${draggable ? ' pointer-events-auto cursor-grab active:cursor-grabbing' : ''}`}
+      style={draggable ? (shouldReduce ? { x, y } : { x, y, rotate: tilt }) : undefined}
+      drag={draggable}
+      dragConstraints={draggable ? constraintsRef : undefined}
+      dragElastic={0.16}
+      // Inercia al soltar: la nota sigue un poco y frena/rebota en los bordes.
+      dragTransition={{ power: 0.18, timeConstant: 200, bounceStiffness: 300, bounceDamping: 24 }}
+      whileDrag={draggable ? { scale: 1.06, zIndex: 50 } : undefined}
+      // Entrada solo por opacidad (animar `y` acá también pelearía con el drag).
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       transition={shouldReduce ? { duration: 0 } : { duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] }}
     >
-      {/* Cinta adhesiva pixel */}
-      <span
-        aria-hidden="true"
-        className="absolute -top-2 left-1/2 h-3 w-12 -translate-x-1/2 bg-gradient-to-b from-white/30 to-white/10"
-      />
-      {children}
+      <div
+        className="relative border-2 border-white/25 bg-gradient-to-b from-[#1B1B18] to-[#101010] px-3 pb-3 pt-4 shadow-[4px_6px_0_rgba(0,0,0,0.45)]"
+        style={{ transform: `rotate(${rotate}deg)` }}
+      >
+        {/* Cinta adhesiva pixel */}
+        <span
+          aria-hidden="true"
+          className="absolute -top-2 left-1/2 h-3 w-12 -translate-x-1/2 bg-gradient-to-b from-white/30 to-white/10"
+        />
+        {children}
+      </div>
     </motion.div>
   );
 }
 
-export default function StickyNotes({ flow = false }: { flow?: boolean }) {
+export default function StickyNotes({
+  flow = false,
+  constraintsRef,
+}: {
+  flow?: boolean;
+  constraintsRef?: React.RefObject<HTMLElement>;
+}) {
   const shouldReduce = useReducedMotion();
   const population = useCountUp(TOTAL_POPULATION, shouldReduce ?? false, 2200);
+  const noteProps = { flow, constraintsRef };
 
   return (
     <>
       {/* Población — arriba a la izquierda, contando al entrar */}
-      <Note className="-left-7 -top-5" rotate={-3} delay={0.15} flow={flow}>
+      <Note className="-left-7 -top-5" rotate={-3} delay={0.15} {...noteProps}>
         <p className="font-sans text-pica-subtitle uppercase tracking-widest text-text-muted">
           Población
         </p>
@@ -75,7 +116,7 @@ export default function StickyNotes({ flow = false }: { flow?: boolean }) {
       </Note>
 
       {/* Qué es Pica — arriba a la derecha */}
-      <Note className="-right-7 -top-5" rotate={2.5} delay={0.3} flow={flow}>
+      <Note className="-right-7 -top-5" rotate={2.5} delay={0.3} {...noteProps}>
         <p className="font-sans text-pica-subtitle uppercase tracking-widest text-text-muted">
           leeme.txt
         </p>
@@ -87,7 +128,7 @@ export default function StickyNotes({ flow = false }: { flow?: boolean }) {
       </Note>
 
       {/* Fuentes — abajo a la izquierda */}
-      <Note className="-bottom-6 -left-9" rotate={2} delay={0.45} flow={flow}>
+      <Note className="-bottom-6 -left-9" rotate={2} delay={0.45} {...noteProps}>
         <p className="font-sans text-pica-subtitle uppercase tracking-widest text-text-muted">
           Fuentes
         </p>
@@ -97,7 +138,7 @@ export default function StickyNotes({ flow = false }: { flow?: boolean }) {
       </Note>
 
       {/* Versión — abajo a la derecha, chiquita */}
-      <Note className="-bottom-5 -right-5 !w-[clamp(88px,8vw,8rem)]" rotate={-2} delay={0.6} flow={flow}>
+      <Note className="-bottom-5 -right-5 !w-[clamp(88px,8vw,8rem)]" rotate={-2} delay={0.6} {...noteProps}>
         {/* Bandera pixel flameando: esto es de Uruguay */}
         <UruguayFlag height={20} className="mb-1" />
         <p className="font-sans text-pica-subtitle leading-tight text-text-muted">
