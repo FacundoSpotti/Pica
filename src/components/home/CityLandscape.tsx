@@ -53,7 +53,8 @@ interface CityLandscapeProps {
 }
 
 // rounded-2xl en cada capa: en mobile el stage es overflow-visible (para que el
-// cartel del edificio no se corte) y el redondeo lo aportan las imágenes.
+// cartel del edificio no se corte) y el redondeo lo aportan las imágenes. En
+// desktop el stage no recorta, así que el redondeo no tiene efecto visible.
 const layerClass =
   'pointer-events-none absolute inset-0 h-full w-full rounded-2xl object-fill';
 const pixelated = { imageRendering: 'pixelated' as const };
@@ -102,11 +103,14 @@ export default function CityLandscape({ selectedTema, onSelect, children }: City
 
   return (
     <div className="absolute inset-0 h-full w-full">
-      {/* 1. Ciudad completa — se desatura al seleccionar */}
+      {/* 1. Ciudad completa — se desatura al seleccionar. SOLO en mobile: en
+             desktop (md+) se oculta y la ciudad son los edificios sobre las
+             calles generadas (StreetGrid), no una foto de fondo. md:hidden es
+             CSS puro → sin desajuste de hidratación. */}
       <img
         src={assetUrl(LANDSCAPE_COMPLETE)}
         alt="Ciudad de Montevideo en pixel art isométrico"
-        className={layerClass}
+        className={`${layerClass} md:hidden`}
         style={{ ...pixelated, filter: selectedTema ? GRAYSCALE : 'none' }}
       />
 

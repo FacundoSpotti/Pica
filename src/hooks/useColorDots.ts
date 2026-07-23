@@ -45,7 +45,7 @@ export const STREET_PATHS: ReadonlyArray<ReadonlyArray<[number, number]>> = [
 /** Relación de aspecto del stage — las distancias "físicas" corrigen por esto. */
 const ASPECT = LANDSCAPE_SIZE.width / LANDSCAPE_SIZE.height;
 /** Mitad del ancho de calle, en fracción del alto del stage (~3.4% total). */
-const LANE_HALF = 0.017;
+export const LANE_HALF = 0.017;
 /** Velocidad al seguir una ruta de convergencia (fracción física del alto/seg). */
 const ROUTE_SPEED = 0.25;
 /** Distancia a la que se considera alcanzado un waypoint. */

@@ -27,6 +27,7 @@ import PathCalibrator from '@/components/home/PathCalibrator';
 import HitboxCalibrator from '@/components/home/HitboxCalibrator';
 import FlagCalibrator from '@/components/home/FlagCalibrator';
 import StickyNotes from '@/components/home/StickyNotes';
+import StreetGrid from '@/components/home/StreetGrid';
 import ArticulosDestacados from '@/components/home/ArticulosDestacados';
 import { ARTICLES_ENABLED } from '@/lib/flags';
 import AmbientWalkers from '@/components/shared/AmbientWalkers';
@@ -101,6 +102,22 @@ export default function HomePage() {
           para llegar a los artículos. En mobile el hero crece (mapa + botones
           + notas) y deja de recortar. */}
       <section className="relative h-screen w-full overflow-hidden max-md:h-auto max-md:min-h-dvh max-md:overflow-visible max-md:pb-10">
+      {/* DESKTOP sin marco: suelo (manzanas) + calles generadas por código, a
+          todo el viewport, detrás de todo. La ciudad ya no tiene límite. */}
+      <div aria-hidden="true" className="hidden md:block">
+        <div className="fixed inset-0 z-0" style={{ backgroundColor: '#0D0D0D' }}>
+          {/* Textura pixel diagonal sutil sobre las manzanas (identidad pixel art) */}
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage:
+                'repeating-linear-gradient(135deg, rgba(255,255,255,0.022) 0 1px, transparent 1px 6px)',
+            }}
+          />
+        </div>
+        <StreetGrid />
+      </div>
+
       {/* Personas grises caminando por el margen oscuro (como en Nosotros) —
           detrás del stage; mantené el click sobre una y te mira */}
       <AmbientWalkers count={isMobile ? 5 : 8} className="absolute inset-0 h-full w-full" />
@@ -128,7 +145,7 @@ export default function HomePage() {
           MOBILE: el mapa va ARRIBA (flujo normal bajo el header) y debajo se
           muestran los botones de temáticas — el mapa sigue siendo clickeable. */}
       <div
-        className="pica-stage-glow absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl max-md:static max-md:mx-auto max-md:mt-1 max-md:translate-x-0 max-md:translate-y-0 max-md:overflow-visible"
+        className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 max-md:static max-md:mx-auto max-md:mt-1 max-md:translate-x-0 max-md:translate-y-0 max-md:overflow-hidden max-md:rounded-2xl"
         style={{
           width: `min(93vw, calc((100vh - 150px) * ${ASPECT}))`,
           height: `min(100vh - 150px, calc(93vw / ${ASPECT}))`,
