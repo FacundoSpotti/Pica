@@ -104,8 +104,8 @@ export default function HomePage() {
       <section className="relative h-screen w-full overflow-hidden max-md:h-auto max-md:min-h-dvh max-md:overflow-visible max-md:pb-10">
       {/* DESKTOP sin marco: suelo (manzanas) + calles generadas por código, a
           todo el viewport, detrás de todo. La ciudad ya no tiene límite. */}
-      <div aria-hidden="true" className="hidden md:block">
-        <div className="fixed inset-0 z-0" style={{ backgroundColor: '#0D0D0D' }}>
+      <div className="hidden md:block">
+        <div aria-hidden="true" className="fixed inset-0 z-0" style={{ backgroundColor: '#0D0D0D' }}>
           {/* Textura pixel diagonal sutil sobre las manzanas (identidad pixel art) */}
           <div
             className="absolute inset-0"
@@ -116,6 +116,9 @@ export default function HomePage() {
           />
         </div>
         <StreetGrid />
+        {/* Puntos de colores a TODO el viewport (recorren las calles extendidas
+            y hacen wrap por los bordes). Debajo de los edificios (z-10). */}
+        <HomeCanvas convergeTarget={selected?.center ?? null} onConverged={handleConverged} />
       </div>
 
       {/* Personas grises caminando por el margen oscuro (como en Nosotros) —
@@ -151,13 +154,9 @@ export default function HomePage() {
           height: `min(100vh - 150px, calc(93vw / ${ASPECT}))`,
         }}
       >
-        <CityLandscape selectedTema={selected?.tema ?? null} onSelect={handleSelect}>
-          {/* El canvas de puntos va DEBAJO de las capas de edificios (ver CityLandscape) */}
-          <HomeCanvas
-            convergeTarget={selected?.center ?? null}
-            onConverged={handleConverged}
-          />
-        </CityLandscape>
+        {/* Los puntos ya no van dentro del stage: viven en el canvas a viewport
+            completo (arriba), debajo de los edificios. */}
+        <CityLandscape selectedTema={selected?.tema ?? null} onSelect={handleSelect} />
 
         {/* Overlay de temática — aparece al completarse la convergencia.
             En mobile NO va acá (el stage lo recorta): se monta fullscreen abajo. */}
