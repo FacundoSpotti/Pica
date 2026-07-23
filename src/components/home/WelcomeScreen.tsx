@@ -13,7 +13,7 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import UruguayFlag from '@/components/shared/UruguayFlag';
-import { assetUrl, LANDSCAPE_COMPLETE } from '@/lib/assets';
+import { assetUrl, LANDSCAPE_PALACIO } from '@/lib/assets';
 
 let shownThisLoad = false;
 
@@ -35,9 +35,10 @@ export default function WelcomeScreen() {
       finished = true;
       setVisible(false);
     };
-    // Precargar el asset más pesado del home mientras se lee la bienvenida
+    // Precargar un edificio del home (Palacio central) mientras se lee la
+    // bienvenida — ya no existe la foto completa; la ciudad son los edificios.
     const img = new Image();
-    img.src = assetUrl(LANDSCAPE_COMPLETE);
+    img.src = assetUrl(LANDSCAPE_PALACIO);
     const onReady = () => {
       const rest = Math.max(0, MIN_MS - (performance.now() - start));
       minTimer = setTimeout(finish, rest);

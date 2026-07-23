@@ -25,7 +25,6 @@ import {
   BUILDING_HITBOX_POLYGONS,
   BUILDING_LAYER_ORDER,
   BUILDING_LAYERS,
-  LANDSCAPE_COMPLETE,
   LANDSCAPE_PALACIO,
   PALACIO_FLAG_ANCHOR,
   PALACIO_HITBOX_POLYGON,
@@ -102,19 +101,16 @@ export default function CityLandscape({ selectedTema, onSelect, children }: City
   };
 
   return (
-    <div className="absolute inset-0 h-full w-full">
-      {/* 1. Ciudad completa — se desatura al seleccionar. SOLO en mobile: en
-             desktop (md+) se oculta y la ciudad son los edificios sobre las
-             calles generadas (StreetGrid), no una foto de fondo. md:hidden es
-             CSS puro → sin desajuste de hidratación. */}
-      <img
-        src={assetUrl(LANDSCAPE_COMPLETE)}
-        alt="Ciudad de Montevideo en pixel art isométrico"
-        className={`${layerClass} md:hidden`}
-        style={{ ...pixelated, filter: selectedTema ? GRAYSCALE : 'none' }}
-      />
+    <div
+      className="absolute inset-0 h-full w-full"
+      role="img"
+      aria-label="Ciudad de Montevideo en pixel art isométrico — clickeá un edificio para descubrir su temática"
+    >
+      {/* La ciudad son los EDIFICIOS sobre las calles generadas (StreetGrid),
+          no una foto de fondo: la imagen completa (Landscape_complete) ya no se
+          usa en ningún lado, así que no se carga. */}
 
-      {/* 2. Canvas de puntos de colores (debajo de los edificios) */}
+      {/* Canvas de puntos de colores (debajo de los edificios) */}
       {children}
 
       {/* 2b. Bandera de Uruguay: se IZA al clickear el Palacio. Va DETRÁS de

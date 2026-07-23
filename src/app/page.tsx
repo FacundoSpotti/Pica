@@ -94,9 +94,10 @@ export default function HomePage() {
         ref={sectionRef}
         className="relative h-screen w-full overflow-hidden max-md:h-auto max-md:min-h-dvh max-md:overflow-visible max-md:pb-10"
       >
-      {/* DESKTOP sin marco: suelo (manzanas) + calles generadas por código, a
-          todo el viewport, detrás de todo. La ciudad ya no tiene límite. */}
-      <div className="hidden md:block">
+      {/* Suelo (manzanas) + calles generadas + puntos, a todo el viewport,
+          detrás de todo. Una sola simulación sirve al mapa (desktop) y de fondo
+          vivo al carrusel (mobile, que va transparente encima). */}
+      <div>
         <div aria-hidden="true" className="fixed inset-0 z-0" style={{ backgroundColor: '#0D0D0D' }}>
           {/* Textura pixel diagonal sutil sobre las manzanas (identidad pixel art) */}
           <div

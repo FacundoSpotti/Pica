@@ -121,18 +121,9 @@ export default function MobileCityCarousel() {
     : { x: { type: 'spring' as const, stiffness: 300, damping: 34 }, opacity: { duration: 0.2 } };
 
   return (
-    <div className="fixed inset-0 z-10 flex flex-col overflow-hidden bg-bg-base px-5 pb-8 pt-16">
-      {/* Suelo (manzanas) sutil */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-0"
-        style={{
-          backgroundColor: '#0D0D0D',
-          backgroundImage:
-            'repeating-linear-gradient(135deg, rgba(255,255,255,0.02) 0 1px, transparent 1px 6px)',
-        }}
-      />
-
+    // Transparente: el suelo + calles + puntos vienen del fondo de la página
+    // (una sola simulación), así el carrusel conserva la "ciudad viva" detrás.
+    <div className="fixed inset-0 z-10 flex flex-col overflow-hidden px-5 pb-8 pt-16">
       {/* Región del carrusel */}
       <div
         className="relative z-10 flex flex-1 items-stretch"
@@ -177,13 +168,27 @@ export default function MobileCityCarousel() {
           >
             {/* Edificio */}
             <div
-              className="flex min-h-0 flex-1 items-center justify-center"
+              className="relative flex min-h-0 flex-1 items-center justify-center"
               style={{ imageRendering: 'pixelated' }}
             >
               {slide.kind === 'tema' ? (
                 <BuildingCrop layer={BUILDING_LAYERS[slide.tema]} poly={BUILDING_HITBOX_POLYGONS[slide.tema]} />
               ) : (
-                <BuildingCrop layer={LANDSCAPE_PALACIO} poly={PALACIO_HITBOX_POLYGON} />
+                <>
+                  <BuildingCrop layer={LANDSCAPE_PALACIO} poly={PALACIO_HITBOX_POLYGON} />
+                  {/* La bandera de Uruguay se IZA sobre el Palacio al llegar a
+                      la tarjeta (mástil + bandera suben desde atrás). */}
+                  <motion.div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute left-1/2 top-[3%] flex -translate-x-1/2 flex-col items-center"
+                    initial={reduce ? false : { opacity: 0, y: 48 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={reduce ? { duration: 0 } : { duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
+                  >
+                    <UruguayFlag height={20} />
+                    <span className="w-[2px] bg-white/60" style={{ height: 36 }} />
+                  </motion.div>
+                </>
               )}
             </div>
 
