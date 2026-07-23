@@ -9,7 +9,14 @@
 // La capa no captura clicks (los hitboxes del mapa siguen funcionando).
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { motion, useReducedMotion } from 'framer-motion';
+import {
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useSpring,
+  useTransform,
+  useVelocity,
+} from 'framer-motion';
 import UruguayFlag from '@/components/shared/UruguayFlag';
 import { useCountUp } from '@/hooks/useCountUp';
 
@@ -35,21 +42,30 @@ function Note({
 }) {
   const shouldReduce = useReducedMotion();
   // En desktop las notas se arrastran (como las cards de /nosotros). El DRAG va
-  // en el elemento externo (solo posición + translate del drag) y el `rotate`/
-  // estilo en un div INTERNO — si van juntos, el rotate le pisa el transform al
-  // drag y la nota no se mueve.
+  // en el elemento externo (posición + translate + INCLINACIÓN física) y el
+  // `rotate` base en un div INTERNO — si van juntos, el rotate le pisa el
+  // transform al drag y la nota no se mueve.
   const draggable = !flow && !!constraintsRef;
+  // Física: la nota se inclina según la VELOCIDAD horizontal del arrastre (se
+  // "acuesta" hacia donde la tiro) y vuelve a su ángulo al soltar (spring).
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const xVel = useVelocity(x);
+  const tiltRaw = useTransform(xVel, [-1600, 1600], [22, -22], { clamp: true });
+  const tilt = useSpring(tiltRaw, { stiffness: 220, damping: 16, mass: 0.5 });
   return (
     <motion.div
       // Ancho fluido: en pantallas chicas (ej. 1024×600) las notas a 192px
       // tapaban el mapa y los carteles de hover de las temáticas — clamp las
       // achica proporcionalmente y solo llegan a 12rem en monitores grandes.
       className={`${flow ? 'relative w-full' : `absolute w-[clamp(120px,13vw,12rem)] ${className}`}${draggable ? ' pointer-events-auto cursor-grab active:cursor-grabbing' : ''}`}
+      style={draggable ? (shouldReduce ? { x, y } : { x, y, rotate: tilt }) : undefined}
       drag={draggable}
       dragConstraints={draggable ? constraintsRef : undefined}
-      dragMomentum={false}
-      dragElastic={0.12}
-      whileDrag={draggable ? { scale: 1.04, zIndex: 50 } : undefined}
+      dragElastic={0.16}
+      // Inercia al soltar: la nota sigue un poco y frena/rebota en los bordes.
+      dragTransition={{ power: 0.18, timeConstant: 200, bounceStiffness: 300, bounceDamping: 24 }}
+      whileDrag={draggable ? { scale: 1.06, zIndex: 50 } : undefined}
       // Entrada solo por opacidad (animar `y` acá también pelearía con el drag).
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}

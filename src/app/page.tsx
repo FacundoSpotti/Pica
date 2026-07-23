@@ -50,6 +50,8 @@ interface Selection {
 export default function HomePage() {
   const [selected, setSelected] = useState<Selection | null>(null);
   const [overlayOpen, setOverlayOpen] = useState(false);
+  // Temática en hover: su color se expande en la ColorBar de abajo.
+  const [hoveredTema, setHoveredTema] = useState<Tematica | null>(null);
   // Área de arrastre de las notas del Home (todo el hero).
   const sectionRef = useRef<HTMLElement>(null);
 
@@ -146,7 +148,11 @@ export default function HomePage() {
         {/* Los puntos ya no van dentro del stage: viven en el canvas a viewport
             completo (arriba), debajo de los edificios. El overlay tampoco va
             acá: se monta a PANTALLA COMPLETA (ya no hay marco de mapa). */}
-        <CityLandscape selectedTema={selected?.tema ?? null} onSelect={handleSelect} />
+        <CityLandscape
+          selectedTema={selected?.tema ?? null}
+          onSelect={handleSelect}
+          onHoverTema={setHoveredTema}
+        />
 
         {/* Herramientas de calibración (dev) — apagadas por defecto. Para
             reactivarlas: crear .env.local con NEXT_PUBLIC_CALIBRATORS=on
@@ -195,8 +201,9 @@ export default function HomePage() {
         <StickyNotes constraintsRef={sectionRef} />
       </div>
 
-      {/* Barra de temáticas en el borde inferior */}
-      <ColorBar />
+      {/* Barra de temáticas en el borde inferior — el color del edificio en
+          hover se expande a toda la barra */}
+      <ColorBar hovered={hoveredTema} />
       </section>
 
       {/* Sección de lecturas — oculta tras flag hasta tener los copys reales

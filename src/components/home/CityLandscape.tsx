@@ -49,6 +49,9 @@ interface CityLandscapeProps {
   onSelect: (tema: Seleccionable, centerPct: { x: number; y: number }) => void;
   /** Canvas de puntos (se inserta entre el fondo y las capas de edificios). */
   children?: React.ReactNode;
+  /** Notifica qué temática está en hover (para expandir su color en la ColorBar).
+   *  El Palacio no es temática → null. */
+  onHoverTema?: (t: Tematica | null) => void;
 }
 
 // rounded-2xl en cada capa: en mobile el stage es overflow-visible (para que el
@@ -59,11 +62,16 @@ const layerClass =
 const pixelated = { imageRendering: 'pixelated' as const };
 const GRAYSCALE = 'grayscale(100%) brightness(0.5)';
 
-export default function CityLandscape({ selectedTema, onSelect, children }: CityLandscapeProps) {
+export default function CityLandscape({ selectedTema, onSelect, children, onHoverTema }: CityLandscapeProps) {
   // Hover sobre un edificio: cartel con la temática + elevación intermedia
   const [hoveredTema, setHoveredTema] = useState<Seleccionable | null>(null);
   const hoveredRef = useRef<Seleccionable | null>(null);
   hoveredRef.current = hoveredTema;
+
+  // Avisar al padre qué temática está en hover (el Palacio no es temática).
+  useEffect(() => {
+    onHoverTema?.(hoveredTema && hoveredTema !== 'palacio' ? hoveredTema : null);
+  }, [hoveredTema, onHoverTema]);
 
   // Modo "atract": sin interacción, cada tanto un edificio destella con su
   // color rotando entre las temáticas activas — invita a clickear.
