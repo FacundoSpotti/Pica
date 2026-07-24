@@ -13,7 +13,7 @@
 // color siguen de fondo. No escribe la URL hasta entrar a una temática.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import {
@@ -51,14 +51,36 @@ function bbox(poly: Polygon, pad = 0.05) {
   return { x0, y0, bw: x1 - x0, bh: y1 - y0 };
 }
 
-/** Edificio recortado a su bbox desde la capa PNG completa. */
+/** Edificio recortado a su bbox desde la capa PNG completa. Se mide el área
+ *  disponible y se calcula el mayor rectángulo con la proporción del edificio
+ *  que ENTRA (contain) × 0.9 → entra completo y queda más chico. */
 function BuildingCrop({ layer, poly }: { layer: string; poly: Polygon }) {
+  const [size, setSize] = useState<{ w: number; h: number }>({ w: 0, h: 0 });
   const { x0, y0, bw, bh } = bbox(poly);
   const aspect = (bw * LANDSCAPE_SIZE.width) / (bh * LANDSCAPE_SIZE.height);
+  useEffect(() => {
+    const update = () => {
+      // Área útil ≈ viewport menos header, caja, indicador y aire.
+      const availW = window.innerWidth - 40;
+      const availH = window.innerHeight - 230;
+      const margin = 0.92;
+      let w = availW * margin;
+      let h = w / aspect;
+      const maxH = availH * margin;
+      if (h > maxH) {
+        h = maxH;
+        w = h * aspect;
+      }
+      setSize({ w: Math.max(1, Math.round(w)), h: Math.max(1, Math.round(h)) });
+    };
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, [aspect]);
   return (
     <div
-      className="relative max-h-full max-w-full overflow-hidden"
-      style={{ aspectRatio: `${aspect}`, height: '100%' }}
+      className="relative overflow-hidden"
+      style={{ width: size.w || undefined, height: size.h || undefined }}
     >
       <img
         src={assetUrl(layer)}
@@ -168,27 +190,13 @@ export default function MobileCityCarousel() {
           >
             {/* Edificio */}
             <div
-              className="relative flex min-h-0 flex-1 items-center justify-center"
+              className="flex min-h-0 flex-1 items-center justify-center"
               style={{ imageRendering: 'pixelated' }}
             >
               {slide.kind === 'tema' ? (
                 <BuildingCrop layer={BUILDING_LAYERS[slide.tema]} poly={BUILDING_HITBOX_POLYGONS[slide.tema]} />
               ) : (
-                <>
-                  <BuildingCrop layer={LANDSCAPE_PALACIO} poly={PALACIO_HITBOX_POLYGON} />
-                  {/* La bandera de Uruguay se IZA sobre el Palacio al llegar a
-                      la tarjeta (mástil + bandera suben desde atrás). */}
-                  <motion.div
-                    aria-hidden="true"
-                    className="pointer-events-none absolute left-1/2 top-[3%] flex -translate-x-1/2 flex-col items-center"
-                    initial={reduce ? false : { opacity: 0, y: 48 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={reduce ? { duration: 0 } : { duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
-                  >
-                    <UruguayFlag height={20} />
-                    <span className="w-[2px] bg-white/60" style={{ height: 36 }} />
-                  </motion.div>
-                </>
+                <BuildingCrop layer={LANDSCAPE_PALACIO} poly={PALACIO_HITBOX_POLYGON} />
               )}
             </div>
 
