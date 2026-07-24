@@ -26,6 +26,7 @@ import {
   useReducedMotion,
   useTransform,
   type AnimationPlaybackControls,
+  type MotionValue,
 } from 'framer-motion';
 import {
   assetUrl,
@@ -62,6 +63,10 @@ const KHW = 0.6; // medio ancho del rombo = 0.6 × ancho del edificio (abraza af
 const KHH = 0.5; // ratio isométrico 2:1 (alto = 0.5 × ancho) — igual que el arte
 const KDROP = 0.25; // caída del centro desde la base = media-altura iso de la base
 const KROAD = 0.045; // ancho de la calzada respecto al ancho del edificio
+const KLIFT = 0.11; // cuánto se eleva el edificio al entrar (fracción de su alto)
+
+/** Fracción del lift (0→1) según el progreso de entrada: sube en el primer 35%. */
+const liftFrac = (v: number) => Math.min(1, v / 0.35);
 
 /**
  * Bounding-box (0–1) del polígono. Pad chico ABAJO (la base del edificio queda
@@ -93,6 +98,8 @@ function BuildingRoad({
   hw,
   hh,
   entering,
+  enterP,
+  maxLift,
 }: {
   w: number;
   h: number;
@@ -101,6 +108,8 @@ function BuildingRoad({
   hw: number;
   hh: number;
   entering: boolean;
+  enterP: MotionValue<number>;
+  maxLift: number;
 }) {
   const ref = useRef<HTMLCanvasElement>(null);
   const enteringRef = useRef(entering);
@@ -197,11 +206,55 @@ function BuildingRoad({
         ctx.fillRect(Math.round(pt.x - d.s / 2), Math.round(pt.y - d.s / 2), d.s, d.s);
       }
       ctx.globalAlpha = 1;
+
+      // MURO: al elevarse el edificio, se extruyen las dos caras FRONTALES del
+      // rombo (izquierda-frente y frente-derecha) desde el suelo hasta la base
+      // elevada — así sube una pared sólida y no parece que flota.
+      const liftPx = maxLift * liftFrac(enterP.get());
+      if (liftPx > 0.5) {
+        // Diamante del MURO = base del edificio (más chico que el rombo de la
+        // calle, que queda alrededor). Sus dos caras frontales se extruyen.
+        const whw = hw * 0.82;
+        const whh = hh * 0.82;
+        const L = { x: cx - whw, y: cy };
+        const B = { x: cx, y: cy + whh };
+        const R = { x: cx + whw, y: cy };
+        // cara izquierda (más oscura)
+        ctx.fillStyle = '#242424';
+        ctx.beginPath();
+        ctx.moveTo(L.x, L.y);
+        ctx.lineTo(B.x, B.y);
+        ctx.lineTo(B.x, B.y - liftPx);
+        ctx.lineTo(L.x, L.y - liftPx);
+        ctx.closePath();
+        ctx.fill();
+        // cara derecha (más clara, "recibe luz")
+        ctx.fillStyle = '#333333';
+        ctx.beginPath();
+        ctx.moveTo(B.x, B.y);
+        ctx.lineTo(R.x, R.y);
+        ctx.lineTo(R.x, R.y - liftPx);
+        ctx.lineTo(B.x, B.y - liftPx);
+        ctx.closePath();
+        ctx.fill();
+        // aristas verticales para definir el volumen
+        ctx.strokeStyle = '#3C3C3C';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(L.x, L.y);
+        ctx.lineTo(L.x, L.y - liftPx);
+        ctx.moveTo(B.x, B.y);
+        ctx.lineTo(B.x, B.y - liftPx);
+        ctx.moveTo(R.x, R.y);
+        ctx.lineTo(R.x, R.y - liftPx);
+        ctx.stroke();
+      }
+
       raf = requestAnimationFrame(draw);
     };
     raf = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(raf);
-  }, [w, h, cx, cy, hw, hh]);
+  }, [w, h, cx, cy, hw, hh, enterP, maxLift]);
 
   return (
     <canvas
@@ -223,14 +276,19 @@ function BuildingCrop({
   layer,
   poly,
   entering,
+  enterP,
 }: {
   layer: string;
   poly: Polygon;
   entering: boolean;
+  enterP: MotionValue<number>;
 }) {
   const [size, setSize] = useState<{ w: number; h: number }>({ w: 0, h: 0 });
   const { x0, y0, bw, bh } = bbox(poly);
   const aspect = (bw * LANDSCAPE_SIZE.width) / (bh * LANDSCAPE_SIZE.height);
+  // El edificio se eleva (en % de su alto) siguiendo el progreso de entrada; el
+  // muro del canvas usa el MISMO factor (maxLift px) → suben sincronizados.
+  const liftY = useTransform(enterP, (v) => `${(-100 * KLIFT * liftFrac(v)).toFixed(2)}%`);
 
   useEffect(() => {
     const update = () => {
@@ -266,44 +324,52 @@ function BuildingCrop({
   const rbW = Math.round(cx * 2);
   const rbH = Math.round(Math.max(size.h, cy + hh) + roadW);
   const cropLeft = Math.round(cx - size.w / 2);
+  const maxLift = size.h * KLIFT;
 
   return (
     <div className="relative" style={{ width: rbW || undefined, height: rbH || undefined }}>
-      {rbW > 4 && <BuildingRoad w={rbW} h={rbH} cx={cx} cy={cy} hw={hw} hh={hh} entering={entering} />}
-      {/* Wrapper SIN recorte: hace el RELIEVE (se eleva del suelo) + la sombra
-          proyectada abajo (que no se recorta). La calle queda de suelo → sube,
-          no flota. El recorte al bbox lo hace el div interno. */}
-      <div
-        className="absolute"
+      {rbW > 4 && (
+        <BuildingRoad
+          w={rbW}
+          h={rbH}
+          cx={cx}
+          cy={cy}
+          hw={hw}
+          hh={hh}
+          entering={entering}
+          enterP={enterP}
+          maxLift={maxLift}
+        />
+      )}
+      {/* El edificio se ELEVA del suelo al entrar (motion.div, mismo factor que
+          el muro del canvas). El recorte al bbox lo hace este contenedor. */}
+      <motion.div
+        className="absolute overflow-hidden"
         style={{
           width: size.w || undefined,
           height: size.h || undefined,
           left: cropLeft,
           top: 0,
-          transform: entering ? 'translateY(-6%)' : 'none',
-          filter: `drop-shadow(0 10px 9px rgba(0,0,0,${entering ? 0.5 : 0}))`,
-          transition: 'transform 550ms cubic-bezier(0.22, 1, 0.36, 1), filter 550ms ease',
+          y: liftY,
         }}
       >
-        <div className="h-full w-full overflow-hidden">
-          <img
-            src={assetUrl(layer)}
-            alt=""
-            aria-hidden="true"
-            className="absolute max-w-none"
-            style={{
-              width: `${100 / bw}%`,
-              height: `${100 / bh}%`,
-              left: `${(-100 * x0) / bw}%`,
-              top: `${(-100 * y0) / bh}%`,
-              imageRendering: 'pixelated',
-              // B/N por defecto; se pinta a color al entrar.
-              filter: entering ? 'grayscale(0)' : 'grayscale(1) brightness(0.9)',
-              transition: 'filter 0.9s ease',
-            }}
-          />
-        </div>
-      </div>
+        <img
+          src={assetUrl(layer)}
+          alt=""
+          aria-hidden="true"
+          className="absolute max-w-none"
+          style={{
+            width: `${100 / bw}%`,
+            height: `${100 / bh}%`,
+            left: `${(-100 * x0) / bw}%`,
+            top: `${(-100 * y0) / bh}%`,
+            imageRendering: 'pixelated',
+            // B/N por defecto; se pinta a color al entrar.
+            filter: entering ? 'grayscale(0)' : 'grayscale(1) brightness(0.9)',
+            transition: 'filter 0.9s ease',
+          }}
+        />
+      </motion.div>
     </div>
   );
 }
@@ -476,9 +542,15 @@ export default function MobileCityCarousel() {
                   layer={BUILDING_LAYERS[slide.tema]}
                   poly={BUILDING_HITBOX_POLYGONS[slide.tema]}
                   entering={entering}
+                  enterP={enterP}
                 />
               ) : (
-                <BuildingCrop layer={LANDSCAPE_PALACIO} poly={PALACIO_HITBOX_POLYGON} entering={entering} />
+                <BuildingCrop
+                  layer={LANDSCAPE_PALACIO}
+                  poly={PALACIO_HITBOX_POLYGON}
+                  entering={entering}
+                  enterP={enterP}
+                />
               )}
             </div>
 

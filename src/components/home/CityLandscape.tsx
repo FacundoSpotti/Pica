@@ -18,7 +18,7 @@
 // del edificio elegido queda en color.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import {
   assetUrl,
@@ -61,6 +61,11 @@ const layerClass =
   'pointer-events-none absolute inset-0 h-full w-full rounded-2xl object-fill';
 const pixelated = { imageRendering: 'pixelated' as const };
 const GRAYSCALE = 'grayscale(100%) brightness(0.5)';
+// Muro/basamento: versión muy oscura del edificio, dibujada a ras del suelo
+// DETRÁS de la capa real. Al elevarse el edificio (hover/click) queda a la vista
+// su franja inferior → parece un muro que sube desde el piso (no flota). En
+// reposo queda exactamente detrás de su capa, así que es invisible.
+const WALL_FILTER = 'brightness(0.2) grayscale(1)';
 
 export default function CityLandscape({ selectedTema, onSelect, children, onHoverTema }: CityLandscapeProps) {
   // Hover sobre un edificio: cartel con la temática + elevación intermedia
@@ -162,23 +167,47 @@ export default function CityLandscape({ selectedTema, onSelect, children, onHove
           ? GRAYSCALE
           : `drop-shadow(0 0 3px color-mix(in srgb, ${glow} ${s * 100}%, transparent)) drop-shadow(0 0 8px color-mix(in srgb, ${glow} ${s * 40}%, transparent)) drop-shadow(0 18px 14px rgba(0,0,0,${gsA}))`;
         return (
-          <img
-            key={tema}
-            src={assetUrl(BUILDING_LAYERS[tema])}
-            alt=""
-            className={`${layerClass}${isPulsing ? ' pica-attract' : ''}`}
-            style={{
-              ...pixelated,
-              '--glow': glow,
-              filter,
-              transform: `translateY(${lift})`,
-              transition:
-                'filter 350ms ease, transform 400ms cubic-bezier(0.22, 1, 0.36, 1)',
-            } as React.CSSProperties}
-          />
+          <Fragment key={tema}>
+            {/* Muro/basamento (solo al elevarse): duplicado oscuro a ras del
+                suelo, DETRÁS de la capa real; al subir el edificio asoma su
+                franja inferior → un muro que sube desde el piso. */}
+            {lvl > 0 && (
+              <img
+                src={assetUrl(BUILDING_LAYERS[tema])}
+                alt=""
+                aria-hidden="true"
+                className={layerClass}
+                style={{ ...pixelated, filter: WALL_FILTER }}
+              />
+            )}
+            <img
+              src={assetUrl(BUILDING_LAYERS[tema])}
+              alt=""
+              className={`${layerClass}${isPulsing ? ' pica-attract' : ''}`}
+              style={{
+                ...pixelated,
+                '--glow': glow,
+                filter,
+                transform: `translateY(${lift})`,
+                transition:
+                  'filter 350ms ease, transform 400ms cubic-bezier(0.22, 1, 0.36, 1)',
+              } as React.CSSProperties}
+            />
+          </Fragment>
         );
       })}
 
+      {/* Muro del Palacio (basamento), detrás de su copia superior — solo al
+          elevarse (hover/click). */}
+      {(palacioHov || palacioSel) && (
+        <img
+          src={assetUrl(LANDSCAPE_PALACIO)}
+          alt=""
+          aria-hidden="true"
+          className={layerClass}
+          style={{ ...pixelated, filter: WALL_FILTER }}
+        />
+      )}
       {/* 3b. Palacio de nuevo, ENCIMA de las capas de temáticas: el destello
           (drop-shadow) de un edificio vecino en hover "sangraba" sobre el
           Palacio (decorativo). Esta copia lo tapa — verificado que el arte del
