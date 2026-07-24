@@ -65,47 +65,69 @@ function BuildingRoad({ w, h }: { w: number; h: number }) {
     canvas.width = w;
     canvas.height = h;
     const cx = w / 2;
-    const cy = h * 0.84; // a la altura de la base del edificio
-    const rx = w * 0.45;
-    const ry = Math.max(9, w * 0.11); // aplastada (perspectiva isométrica)
+    const cy = h * 0.82; // a la altura de la base del edificio
+    const hw = w * 0.47; // medio ancho (diagonal isométrica)
+    const hh = Math.max(12, w * 0.24); // medio alto (aplastado, perspectiva iso)
     const roadW = Math.max(6, w * 0.045);
-    const dots = Array.from({ length: 18 }, (_, i) => ({
-      a: (i / 18) * Math.PI * 2,
-      spd: (0.3 + Math.random() * 0.4) * (Math.random() < 0.5 ? 1 : -1),
+    // Rombo isométrico (calle CUADRADA, como en desktop): arriba, derecha,
+    // abajo, izquierda. Los píxeles recorren su perímetro.
+    const V = [
+      { x: cx, y: cy - hh },
+      { x: cx + hw, y: cy },
+      { x: cx, y: cy + hh },
+      { x: cx - hw, y: cy },
+    ];
+    const pointAt = (p: number) => {
+      const e = Math.floor(p) % 4;
+      const t = p - Math.floor(p);
+      const a = V[e]!;
+      const b = V[(e + 1) % 4]!;
+      return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t };
+    };
+    const dots = Array.from({ length: 18 }, () => ({
+      p: Math.random() * 4,
+      spd: (0.55 + Math.random() * 0.6) * (Math.random() < 0.5 ? 1 : -1),
       col: SPRITE_COLORS[Math.floor(Math.random() * SPRITE_COLORS.length)]!,
       s: Math.random() < 0.5 ? 2 : 3,
     }));
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let raf = 0;
     let last = performance.now();
-    const ellipse = () => {
+    const trace = () => {
       ctx.beginPath();
-      ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+      ctx.moveTo(V[0]!.x, V[0]!.y);
+      ctx.lineTo(V[1]!.x, V[1]!.y);
+      ctx.lineTo(V[2]!.x, V[2]!.y);
+      ctx.lineTo(V[3]!.x, V[3]!.y);
+      ctx.closePath();
     };
     const draw = (now: number) => {
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
       ctx.clearRect(0, 0, w, h);
+      ctx.lineJoin = 'round';
       ctx.strokeStyle = '#1E1E1E'; // vereda
       ctx.lineWidth = roadW + 3;
-      ellipse();
+      trace();
       ctx.stroke();
       ctx.strokeStyle = '#161616'; // calzada
       ctx.lineWidth = roadW;
-      ellipse();
+      trace();
       ctx.stroke();
       ctx.strokeStyle = '#242424'; // eje punteado
       ctx.lineWidth = 1;
       ctx.setLineDash([4, 6]);
-      ellipse();
+      trace();
       ctx.stroke();
       ctx.setLineDash([]);
       for (const d of dots) {
-        if (!reduced) d.a += d.spd * dt;
-        const x = cx + Math.cos(d.a) * rx;
-        const y = cy + Math.sin(d.a) * ry;
+        if (!reduced) {
+          d.p += d.spd * dt;
+          d.p = ((d.p % 4) + 4) % 4;
+        }
+        const pt = pointAt(d.p);
         ctx.fillStyle = d.col;
-        ctx.fillRect(Math.round(x - d.s / 2), Math.round(y - d.s / 2), d.s, d.s);
+        ctx.fillRect(Math.round(pt.x - d.s / 2), Math.round(pt.y - d.s / 2), d.s, d.s);
       }
       raf = requestAnimationFrame(draw);
     };
@@ -131,10 +153,11 @@ function BuildingCrop({ layer, poly }: { layer: string; poly: Polygon }) {
   useEffect(() => {
     const update = () => {
       // Área útil ≈ viewport menos header, caja, indicador y aire. El edificio
-      // se achica (0.72) para dejar lugar a la calle que lo rodea.
+      // se achica un poco (0.85) para dejar lugar a la calle que lo rodea;
+      // el conjunto puede salirse levemente de pantalla (se recorta).
       const availW = window.innerWidth - 40;
       const availH = window.innerHeight - 230;
-      const margin = 0.72;
+      const margin = 0.85;
       let w = availW * margin;
       let h = w / aspect;
       const maxH = availH * margin;
@@ -148,9 +171,10 @@ function BuildingCrop({ layer, poly }: { layer: string; poly: Polygon }) {
     window.addEventListener('resize', update);
     return () => window.removeEventListener('resize', update);
   }, [aspect]);
-  // Caja de la calle: rodea al edificio (más ancha y con lugar abajo).
-  const rbW = Math.round(size.w * 1.34);
-  const rbH = Math.round(size.h * 1.28);
+  // Caja de la calle: rodea al edificio (más ancha y con lugar abajo). Ajustada
+  // para que la calle abrace al edificio sin agrandar demasiado el conjunto.
+  const rbW = Math.round(size.w * 1.24);
+  const rbH = Math.round(size.h * 1.22);
   return (
     <div
       className="relative flex items-center justify-center"
