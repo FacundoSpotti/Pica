@@ -98,13 +98,17 @@ export default function CityLandscape({ selectedTema, onSelect, children, onHove
   const palacioSel = selectedTema === 'palacio';
   const palacioHov = hoveredTema === 'palacio';
   const pS = palacioHov ? 1 : 0;
+  const palacioGrayed = Boolean(selectedTema) && !palacioSel;
+  // Relieve: al hover/click el edificio se ELEVA del suelo. La sombra proyectada
+  // abajo (drop-shadow oscuro con offset) lo ancla al piso → sube, no flota.
+  const palacioLift = palacioGrayed ? 0 : palacioSel ? 2 : palacioHov ? 1 : 0;
+  const palacioGsA = palacioLift === 2 ? 0.6 : palacioLift === 1 ? 0.4 : 0;
   const palacioStyle: React.CSSProperties = {
     ...pixelated,
-    filter:
-      selectedTema && !palacioSel
-        ? GRAYSCALE
-        : `drop-shadow(0 0 3px color-mix(in srgb, #EBEBEB ${pS * 100}%, transparent)) drop-shadow(0 0 8px color-mix(in srgb, #EBEBEB ${pS * 40}%, transparent))`,
-    transform: `translateY(${palacioSel ? '-0.9%' : palacioHov ? '-0.45%' : '0'})`,
+    filter: palacioGrayed
+      ? GRAYSCALE
+      : `drop-shadow(0 0 3px color-mix(in srgb, #EBEBEB ${pS * 100}%, transparent)) drop-shadow(0 0 8px color-mix(in srgb, #EBEBEB ${pS * 40}%, transparent)) drop-shadow(0 18px 14px rgba(0,0,0,${palacioGsA}))`,
+    transform: `translateY(${palacioLift === 2 ? '-1.6%' : palacioLift === 1 ? '-0.8%' : '0'})`,
     transition: 'filter 350ms ease, transform 400ms cubic-bezier(0.22, 1, 0.36, 1)',
   };
 
@@ -143,17 +147,20 @@ export default function CityLandscape({ selectedTema, onSelect, children, onHove
         const isHovered = hoveredTema === tema;
         const isPulsing = pulseTema === tema && !selectedTema && !isHovered;
         const glow = TEMA_COLOR[tema];
-        // Dos estados de elevación: hover (leve) y click definitivo (más alto)
-        const lift = isSelected ? '-0.9%' : isHovered ? '-0.45%' : '0';
+        const grayed = Boolean(selectedTema) && !isSelected;
+        // Relieve: el edificio se ELEVA al hover (leve) y al click (más alto). La
+        // sombra proyectada abajo lo ancla al suelo → sube del piso, no flota.
+        const lvl = grayed ? 0 : isSelected ? 2 : isHovered ? 1 : 0;
+        const lift = lvl === 2 ? '-1.6%' : lvl === 1 ? '-0.8%' : '0';
+        const gsA = lvl === 2 ? 0.6 : lvl === 1 ? 0.4 : 0; // alpha de la sombra al piso
         // Destello SOSTENIDO en hover (sutil); el pulso periódico va por la clase.
         // El drop-shadow está SIEMPRE presente (mismos radios) y solo varía la
-        // intensidad del color — CSS no interpola desde `filter: none`, así que
-        // mantenerlo permite que la transición de 350ms sea gradual, no un salto.
+        // intensidad del color/alpha — CSS no interpola desde `filter: none`, así
+        // que mantenerlo permite que la transición de 350ms sea gradual, no un salto.
         const s = isHovered ? 1 : 0; // fuerza del destello (0→1)
-        const filter =
-          selectedTema && !isSelected
-            ? GRAYSCALE
-            : `drop-shadow(0 0 3px color-mix(in srgb, ${glow} ${s * 100}%, transparent)) drop-shadow(0 0 8px color-mix(in srgb, ${glow} ${s * 40}%, transparent))`;
+        const filter = grayed
+          ? GRAYSCALE
+          : `drop-shadow(0 0 3px color-mix(in srgb, ${glow} ${s * 100}%, transparent)) drop-shadow(0 0 8px color-mix(in srgb, ${glow} ${s * 40}%, transparent)) drop-shadow(0 18px 14px rgba(0,0,0,${gsA}))`;
         return (
           <img
             key={tema}

@@ -270,26 +270,39 @@ function BuildingCrop({
   return (
     <div className="relative" style={{ width: rbW || undefined, height: rbH || undefined }}>
       {rbW > 4 && <BuildingRoad w={rbW} h={rbH} cx={cx} cy={cy} hw={hw} hh={hh} entering={entering} />}
+      {/* Wrapper SIN recorte: hace el RELIEVE (se eleva del suelo) + la sombra
+          proyectada abajo (que no se recorta). La calle queda de suelo → sube,
+          no flota. El recorte al bbox lo hace el div interno. */}
       <div
-        className="absolute overflow-hidden"
-        style={{ width: size.w || undefined, height: size.h || undefined, left: cropLeft, top: 0 }}
+        className="absolute"
+        style={{
+          width: size.w || undefined,
+          height: size.h || undefined,
+          left: cropLeft,
+          top: 0,
+          transform: entering ? 'translateY(-6%)' : 'none',
+          filter: `drop-shadow(0 10px 9px rgba(0,0,0,${entering ? 0.5 : 0}))`,
+          transition: 'transform 550ms cubic-bezier(0.22, 1, 0.36, 1), filter 550ms ease',
+        }}
       >
-        <img
-          src={assetUrl(layer)}
-          alt=""
-          aria-hidden="true"
-          className="absolute max-w-none"
-          style={{
-            width: `${100 / bw}%`,
-            height: `${100 / bh}%`,
-            left: `${(-100 * x0) / bw}%`,
-            top: `${(-100 * y0) / bh}%`,
-            imageRendering: 'pixelated',
-            // B/N por defecto; se pinta a color al entrar.
-            filter: entering ? 'grayscale(0)' : 'grayscale(1) brightness(0.9)',
-            transition: 'filter 0.9s ease',
-          }}
-        />
+        <div className="h-full w-full overflow-hidden">
+          <img
+            src={assetUrl(layer)}
+            alt=""
+            aria-hidden="true"
+            className="absolute max-w-none"
+            style={{
+              width: `${100 / bw}%`,
+              height: `${100 / bh}%`,
+              left: `${(-100 * x0) / bw}%`,
+              top: `${(-100 * y0) / bh}%`,
+              imageRendering: 'pixelated',
+              // B/N por defecto; se pinta a color al entrar.
+              filter: entering ? 'grayscale(0)' : 'grayscale(1) brightness(0.9)',
+              transition: 'filter 0.9s ease',
+            }}
+          />
+        </div>
       </div>
     </div>
   );
