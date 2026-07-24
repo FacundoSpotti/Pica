@@ -7,15 +7,26 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // PICA — MobileCityCarousel (Fase 2)
 // En mobile la ciudad se explora como un CARRUSEL a pantalla completa: cada
-// tarjeta es un edificio recortado + una caja con el color de la temática.
-// 6 tarjetas: las 5 temáticas + el Palacio (dato al azar, no sale del Home).
-// Swipe horizontal (Framer, solo eje X) + flechas + teclado. Los puntos de
-// color siguen de fondo. No escribe la URL hasta entrar a una temática.
+// tarjeta es un edificio recortado (en B/N) apoyado sobre su "manzana" (rombo
+// isométrico con píxeles de color circulando). 6 tarjetas: las 5 temáticas + el
+// Palacio (dato al azar, no sale del Home). Swipe horizontal (Framer, eje X) +
+// flechas + teclado.
+// Al TOCAR un edificio: se pinta a color y los píxeles (personas) ENTRAN al
+// edificio mientras la caja del nombre se llena como una barra de progreso; al
+// completarse, recién ahí carga la siguiente ventana (/interactivo).
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import {
+  animate,
+  AnimatePresence,
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useTransform,
+  type AnimationPlaybackControls,
+} from 'framer-motion';
 import {
   assetUrl,
   BUILDING_HITBOX_POLYGONS,
@@ -33,12 +44,20 @@ import RandomOverlay from './RandomOverlay';
 import type { Tematica } from '@/types/sprites';
 
 const NEUTRAL = '#EBEBEB';
+const ENTER_MS = 1800; // duración de la animación de "entrar" antes de navegar
 
 type Slide = { kind: 'tema'; tema: Tematica } | { kind: 'palacio' };
 const SLIDES: Slide[] = [
   ...TEMA_ORDER.map((tema) => ({ kind: 'tema' as const, tema })),
   { kind: 'palacio' as const },
 ];
+
+// Proporciones del rombo (la "manzana") respecto al edificio. Se usan tanto en
+// el cálculo de tamaño como al dibujar, así todo queda coherente.
+const KHW = 0.5; // medio ancho del rombo = 0.5 × ancho del edificio
+const KHH = 0.44; // aplastado isométrico (algo más chato para abrazar la base)
+const KBASE = 0.84; // el suelo (centro del rombo) al 84% de la altura del edificio
+const KROAD = 0.045; // ancho de la calzada respecto al ancho del edificio
 
 /** Bounding-box (0–1) del polígono, con un margen para no cortar el arte. */
 function bbox(poly: Polygon, pad = 0.05) {
@@ -51,12 +70,38 @@ function bbox(poly: Polygon, pad = 0.05) {
   return { x0, y0, bw: x1 - x0, bh: y1 - y0 };
 }
 
+const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2);
+
 /**
- * Calle propia de cada edificio (mobile): una elipse "de calzada" alrededor de
- * la base con PÍXELES de color circulando. No usa las calles de desktop.
+ * Calle propia de cada edificio (mobile): un ROMBO isométrico de calzada
+ * (cuadrado en perspectiva, como la grilla de desktop) con PÍXELES de color
+ * circulando por su perímetro. Al ENTRAR, los píxeles convergen hacia el
+ * edificio (entran) y se desvanecen. La geometría llega calculada desde arriba
+ * para que el edificio quede apoyado sobre el centro del rombo.
  */
-function BuildingRoad({ w, h }: { w: number; h: number }) {
+function BuildingRoad({
+  w,
+  h,
+  cx,
+  cy,
+  hw,
+  hh,
+  entering,
+}: {
+  w: number;
+  h: number;
+  cx: number;
+  cy: number;
+  hw: number;
+  hh: number;
+  entering: boolean;
+}) {
   const ref = useRef<HTMLCanvasElement>(null);
+  const enteringRef = useRef(entering);
+  useEffect(() => {
+    enteringRef.current = entering;
+  }, [entering]);
+
   useEffect(() => {
     const canvas = ref.current;
     if (!canvas || w < 4 || h < 4) return;
@@ -64,19 +109,17 @@ function BuildingRoad({ w, h }: { w: number; h: number }) {
     if (!ctx) return;
     canvas.width = w;
     canvas.height = h;
-    const cx = w / 2;
-    const cy = h * 0.82; // a la altura de la base del edificio
-    const hw = w * 0.47; // medio ancho (diagonal isométrica)
-    const hh = Math.max(12, w * 0.24); // medio alto (aplastado, perspectiva iso)
-    const roadW = Math.max(6, w * 0.045);
-    // Rombo isométrico (calle CUADRADA, como en desktop): arriba, derecha,
-    // abajo, izquierda. Los píxeles recorren su perímetro.
+    const roadW = Math.max(6, w * KROAD);
+    // Vértices del rombo: arriba, derecha, abajo, izquierda.
     const V = [
       { x: cx, y: cy - hh },
       { x: cx + hw, y: cy },
       { x: cx, y: cy + hh },
       { x: cx - hw, y: cy },
     ];
+    // Objetivo al "entrar": la base-frente del edificio (centro del rombo, un
+    // poco hacia arriba) — ahí es donde los píxeles "entran".
+    const target = { x: cx, y: cy - hh * 0.15 };
     const pointAt = (p: number) => {
       const e = Math.floor(p) % 4;
       const t = p - Math.floor(p);
@@ -84,11 +127,12 @@ function BuildingRoad({ w, h }: { w: number; h: number }) {
       const b = V[(e + 1) % 4]!;
       return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t };
     };
-    const dots = Array.from({ length: 18 }, () => ({
+    const dots = Array.from({ length: 20 }, () => ({
       p: Math.random() * 4,
       spd: (0.55 + Math.random() * 0.6) * (Math.random() < 0.5 ? 1 : -1),
       col: SPRITE_COLORS[Math.floor(Math.random() * SPRITE_COLORS.length)]!,
       s: Math.random() < 0.5 ? 2 : 3,
+      enterT: 0, // progreso de "entrada" (0→1)
     }));
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let raf = 0;
@@ -120,20 +164,34 @@ function BuildingRoad({ w, h }: { w: number; h: number }) {
       trace();
       ctx.stroke();
       ctx.setLineDash([]);
+      const ent = enteringRef.current;
       for (const d of dots) {
-        if (!reduced) {
+        const base = pointAt(d.p);
+        if (!reduced && !ent) {
           d.p += d.spd * dt;
           d.p = ((d.p % 4) + 4) % 4;
         }
-        const pt = pointAt(d.p);
+        let x = base.x;
+        let y = base.y;
+        let alpha = 1;
+        if (ent) {
+          d.enterT = Math.min(1, d.enterT + dt / 1.1); // entran en ~1.1s
+          const e = easeInOut(d.enterT);
+          x = base.x + (target.x - base.x) * e;
+          y = base.y + (target.y - base.y) * e;
+          alpha = 1 - d.enterT;
+        }
+        ctx.globalAlpha = alpha;
         ctx.fillStyle = d.col;
-        ctx.fillRect(Math.round(pt.x - d.s / 2), Math.round(pt.y - d.s / 2), d.s, d.s);
+        ctx.fillRect(Math.round(x - d.s / 2), Math.round(y - d.s / 2), d.s, d.s);
       }
+      ctx.globalAlpha = 1;
       raf = requestAnimationFrame(draw);
     };
     raf = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(raf);
-  }, [w, h]);
+  }, [w, h, cx, cy, hw, hh]);
+
   return (
     <canvas
       ref={ref}
@@ -144,46 +202,64 @@ function BuildingRoad({ w, h }: { w: number; h: number }) {
   );
 }
 
-/** Edificio recortado a su bbox + su calle alrededor (con píxeles circulando).
- *  Se mide el área útil y se contiene el conjunto (edificio + calle). */
-function BuildingCrop({ layer, poly }: { layer: string; poly: Polygon }) {
+/**
+ * Edificio recortado a su bbox, apoyado sobre su "manzana" (rombo). Se mide el
+ * área útil y se dimensiona TODO el conjunto (edificio + calle) para que entre
+ * completo — la calle nunca se corta abajo. El edificio arranca en B/N y se
+ * pinta a color al entrar.
+ */
+function BuildingCrop({
+  layer,
+  poly,
+  entering,
+}: {
+  layer: string;
+  poly: Polygon;
+  entering: boolean;
+}) {
   const [size, setSize] = useState<{ w: number; h: number }>({ w: 0, h: 0 });
   const { x0, y0, bw, bh } = bbox(poly);
   const aspect = (bw * LANDSCAPE_SIZE.width) / (bh * LANDSCAPE_SIZE.height);
+
   useEffect(() => {
     const update = () => {
-      // Área útil ≈ viewport menos header, caja, indicador y aire. El edificio
-      // se achica un poco (0.85) para dejar lugar a la calle que lo rodea;
-      // el conjunto puede salirse levemente de pantalla (se recorta).
       const availW = window.innerWidth - 40;
-      const availH = window.innerHeight - 230;
-      const margin = 0.85;
-      let w = availW * margin;
-      let h = w / aspect;
-      const maxH = availH * margin;
-      if (h > maxH) {
-        h = maxH;
-        w = h * aspect;
-      }
-      setSize({ w: Math.max(1, Math.round(w)), h: Math.max(1, Math.round(h)) });
+      const availH = window.innerHeight - 240;
+      // Se resuelve el tamaño del edificio (sw×sh) para que el ROAD BOX entero
+      // entre: vertical estricto (la calle no se corta abajo) y horizontal con
+      // un pelín de sangrado permitido (puede salirse un poco de los lados).
+      const MW = 1.04; // horizontal: leve sangrado OK
+      const MH = 0.97; // vertical: la calle NO se corta
+      const a = aspect; // sw/sh
+      const cW = 2 * KHW + 2 * KROAD; // rbW = cW × sw
+      const cH = KBASE + (KHH * KHW + KROAD) * a; // rbH = cH × sh
+      const shByW = (MW * availW) / (cW * a);
+      const shByH = (MH * availH) / cH;
+      const sh = Math.max(1, Math.floor(Math.min(shByW, shByH)));
+      const sw = Math.max(1, Math.round(sh * a));
+      setSize({ w: sw, h: sh });
     };
     update();
     window.addEventListener('resize', update);
     return () => window.removeEventListener('resize', update);
   }, [aspect]);
-  // Caja de la calle: rodea al edificio (más ancha y con lugar abajo). Ajustada
-  // para que la calle abrace al edificio sin agrandar demasiado el conjunto.
-  const rbW = Math.round(size.w * 1.24);
-  const rbH = Math.round(size.h * 1.22);
+
+  // Geometría del rombo (misma proporción que en el cálculo de tamaño).
+  const hw = Math.round(size.w * KHW);
+  const hh = Math.round(hw * KHH);
+  const roadW = Math.max(6, Math.round(size.w * KROAD));
+  const cx = hw + roadW;
+  const cy = Math.round(size.h * KBASE); // suelo: el edificio se apoya acá
+  const rbW = Math.round(cx * 2);
+  const rbH = Math.round(cy + hh + roadW);
+  const cropLeft = Math.round(cx - size.w / 2);
+
   return (
-    <div
-      className="relative flex items-center justify-center"
-      style={{ width: rbW || undefined, height: rbH || undefined }}
-    >
-      {rbW > 4 && <BuildingRoad w={rbW} h={rbH} />}
+    <div className="relative" style={{ width: rbW || undefined, height: rbH || undefined }}>
+      {rbW > 4 && <BuildingRoad w={rbW} h={rbH} cx={cx} cy={cy} hw={hw} hh={hh} entering={entering} />}
       <div
-        className="relative overflow-hidden"
-        style={{ width: size.w || undefined, height: size.h || undefined }}
+        className="absolute overflow-hidden"
+        style={{ width: size.w || undefined, height: size.h || undefined, left: cropLeft, top: 0 }}
       >
         <img
           src={assetUrl(layer)}
@@ -196,6 +272,9 @@ function BuildingCrop({ layer, poly }: { layer: string; poly: Polygon }) {
             left: `${(-100 * x0) / bw}%`,
             top: `${(-100 * y0) / bh}%`,
             imageRendering: 'pixelated',
+            // B/N por defecto; se pinta a color al entrar.
+            filter: entering ? 'grayscale(0)' : 'grayscale(1) brightness(0.9)',
+            transition: 'filter 0.9s ease',
           }}
         />
       </div>
@@ -214,6 +293,13 @@ export default function MobileCityCarousel() {
   const reduce = useReducedMotion() ?? false;
   const [[page, dir], setPage] = useState<[number, number]>([0, 0]);
   const [palacioOpen, setPalacioOpen] = useState(false);
+  // Animación de "entrar": pinta el edificio + los píxeles entran + la caja se
+  // llena como barra de progreso; al completarse, navega.
+  const [entering, setEntering] = useState(false);
+  const enteringRef = useRef(false);
+  const enterP = useMotionValue(0); // 0→1 durante la entrada
+  const fillWidth = useTransform(enterP, (v) => `${v * 100}%`);
+  const enterAnim = useRef<AnimationPlaybackControls | null>(null);
   // Punto donde bajó el puntero: si al soltar casi no se movió → es un TAP
   // (selecciona); si se movió → fue un swipe (cambia de slide, no selecciona).
   const downRef = useRef<{ x: number; y: number; t: number } | null>(null);
@@ -221,10 +307,12 @@ export default function MobileCityCarousel() {
   const idx = ((page % n) + n) % n;
   const slide = SLIDES[idx]!;
 
-  const paginate = useCallback((d: number) => setPage(([p]) => [p + d, d]), []);
+  const paginate = useCallback((d: number) => {
+    if (enteringRef.current) return; // no cambiar de slide mientras entra
+    setPage(([p]) => [p + d, d]);
+  }, []);
 
-  // Entrar a la tarjeta activa: temática → /interactivo; Palacio → dato al azar.
-  const enter = useCallback(
+  const doEnter = useCallback(
     (s: Slide) => {
       if (s.kind === 'palacio') setPalacioOpen(true);
       else router.push(`/interactivo?tema=${slugify(s.tema)}`);
@@ -232,10 +320,41 @@ export default function MobileCityCarousel() {
     [router],
   );
 
+  // Entrar a la tarjeta activa: dispara la animación (píxeles entran + barra) y,
+  // al terminar, carga la ventana. Con reduced-motion navega directo.
+  const enter = useCallback(
+    (s: Slide) => {
+      if (enteringRef.current) return;
+      if (reduce) {
+        doEnter(s);
+        return;
+      }
+      enteringRef.current = true;
+      setEntering(true);
+      enterP.set(0);
+      enterAnim.current = animate(enterP, 1, {
+        duration: ENTER_MS / 1000,
+        ease: [0.42, 0, 0.58, 1],
+        onComplete: () => {
+          doEnter(s);
+          if (s.kind === 'palacio') {
+            // El Palacio no navega (abre overlay en el Home): resetear.
+            enteringRef.current = false;
+            setEntering(false);
+            enterP.set(0);
+          }
+        },
+      });
+    },
+    [reduce, doEnter, enterP],
+  );
+
+  useEffect(() => () => enterAnim.current?.stop(), []);
+
   // Teclado: ←/→ navegan, Enter entra.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (palacioOpen) return;
+      if (palacioOpen || enteringRef.current) return;
       if (e.key === 'ArrowRight') paginate(1);
       else if (e.key === 'ArrowLeft') paginate(-1);
       else if (e.key === 'Enter') enter(SLIDES[((page % n) + n) % n]!);
@@ -279,7 +398,7 @@ export default function MobileCityCarousel() {
             animate="center"
             exit="exit"
             transition={spring}
-            drag="x"
+            drag={entering ? false : 'x'}
             dragDirectionLock
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={0.18}
@@ -321,55 +440,75 @@ export default function MobileCityCarousel() {
             }
             className="absolute inset-0 flex cursor-pointer touch-pan-y flex-col items-center justify-center gap-5"
           >
-            {/* Edificio */}
+            {/* Edificio + su manzana (rombo con píxeles) */}
             <div
               className="flex min-h-0 flex-1 items-center justify-center"
               style={{ imageRendering: 'pixelated' }}
             >
               {slide.kind === 'tema' ? (
-                <BuildingCrop layer={BUILDING_LAYERS[slide.tema]} poly={BUILDING_HITBOX_POLYGONS[slide.tema]} />
+                <BuildingCrop
+                  layer={BUILDING_LAYERS[slide.tema]}
+                  poly={BUILDING_HITBOX_POLYGONS[slide.tema]}
+                  entering={entering}
+                />
               ) : (
-                <BuildingCrop layer={LANDSCAPE_PALACIO} poly={PALACIO_HITBOX_POLYGON} />
+                <BuildingCrop layer={LANDSCAPE_PALACIO} poly={PALACIO_HITBOX_POLYGON} entering={entering} />
               )}
             </div>
 
-            {/* Caja con color de la temática (o neutra en el Palacio) */}
+            {/* Caja con color de la temática. Al entrar se LLENA como barra de
+                progreso (indica que está cargando) hasta abrir la ventana. */}
             <div
-              className="w-full max-w-md shrink-0 border-2 px-5 py-3 text-left"
+              className="relative w-full max-w-md shrink-0 overflow-hidden border-2 px-5 py-3 text-left"
               style={{
                 borderColor: color,
                 background: `linear-gradient(180deg, ${color}1F, ${color}0A)`,
               }}
             >
-              {slide.kind === 'tema' ? (
-                <>
-                  <span
-                    className="flex items-center gap-2 font-display text-pica-title font-bold uppercase"
-                    style={{ color, letterSpacing: '0.08em' }}
-                  >
-                    {TEMA_LABEL[slide.tema]}
-                    <span aria-hidden="true" className="ml-auto text-pica-button">
-                      →
+              {/* Relleno de progreso (detrás del texto) */}
+              <motion.div
+                aria-hidden="true"
+                className="absolute inset-y-0 left-0 z-0"
+                style={{ width: fillWidth, background: `${color}3D` }}
+              />
+              <div className="relative z-10">
+                {slide.kind === 'tema' ? (
+                  <>
+                    <span
+                      className="flex items-center gap-2 font-display text-pica-title font-bold uppercase"
+                      style={{ color, letterSpacing: '0.08em' }}
+                    >
+                      {TEMA_LABEL[slide.tema]}
+                      <span aria-hidden="true" className="ml-auto text-pica-button">
+                        →
+                      </span>
                     </span>
-                  </span>
-                  <span className="mt-0.5 block font-sans text-pica-subtitle text-text-secondary">
-                    {getEntidades(slide.tema).length} entidades para explorar
-                  </span>
-                </>
-              ) : (
-                <>
-                  <span className="flex items-center gap-2 font-display text-pica-title font-bold uppercase text-text-primary" style={{ letterSpacing: '0.08em' }}>
-                    <UruguayFlag height={18} />
-                    Dato al azar
-                    <span aria-hidden="true" className="ml-auto text-pica-button">
-                      ↗
+                    <span className="mt-0.5 block font-sans text-pica-subtitle text-text-secondary">
+                      {entering
+                        ? 'Entrando…'
+                        : `${getEntidades(slide.tema).length} entidades para explorar`}
                     </span>
-                  </span>
-                  <span className="mt-0.5 block font-sans text-pica-subtitle text-text-secondary">
-                    Palacio Legislativo — una estadística al azar de cualquier temática.
-                  </span>
-                </>
-              )}
+                  </>
+                ) : (
+                  <>
+                    <span
+                      className="flex items-center gap-2 font-display text-pica-title font-bold uppercase text-text-primary"
+                      style={{ letterSpacing: '0.08em' }}
+                    >
+                      <UruguayFlag height={18} />
+                      Dato al azar
+                      <span aria-hidden="true" className="ml-auto text-pica-button">
+                        ↗
+                      </span>
+                    </span>
+                    <span className="mt-0.5 block font-sans text-pica-subtitle text-text-secondary">
+                      {entering
+                        ? 'Buscando…'
+                        : 'Palacio Legislativo — una estadística al azar de cualquier temática.'}
+                    </span>
+                  </>
+                )}
+              </div>
             </div>
           </motion.div>
         </AnimatePresence>
@@ -378,16 +517,18 @@ export default function MobileCityCarousel() {
         <button
           type="button"
           onClick={() => paginate(-1)}
+          disabled={entering}
           aria-label="Anterior"
-          className="absolute left-0 top-1/2 z-20 -translate-y-1/2 border border-white/20 bg-black/50 p-1.5 font-display text-pica-button text-text-primary active:bg-black/70"
+          className="absolute left-0 top-1/2 z-20 -translate-y-1/2 border border-white/20 bg-black/50 p-1.5 font-display text-pica-button text-text-primary active:bg-black/70 disabled:opacity-30"
         >
           ‹
         </button>
         <button
           type="button"
           onClick={() => paginate(1)}
+          disabled={entering}
           aria-label="Siguiente"
-          className="absolute right-0 top-1/2 z-20 -translate-y-1/2 border border-white/20 bg-black/50 p-1.5 font-display text-pica-button text-text-primary active:bg-black/70"
+          className="absolute right-0 top-1/2 z-20 -translate-y-1/2 border border-white/20 bg-black/50 p-1.5 font-display text-pica-button text-text-primary active:bg-black/70 disabled:opacity-30"
         >
           ›
         </button>
