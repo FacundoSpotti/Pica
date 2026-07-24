@@ -44,7 +44,8 @@ import RandomOverlay from './RandomOverlay';
 import type { Tematica } from '@/types/sprites';
 
 const NEUTRAL = '#EBEBEB';
-const ENTER_MS = 1800; // duración de la animación de "entrar" antes de navegar
+const ENTER_MS = 2200; // duración de la animación de "entrar" antes de navegar
+const CONV_SPD = 0.95; // velocidad de convergencia por la calle (u/s, calmo como desktop)
 
 type Slide = { kind: 'tema'; tema: Tematica } | { kind: 'palacio' };
 const SLIDES: Slide[] = [
@@ -52,25 +53,30 @@ const SLIDES: Slide[] = [
   { kind: 'palacio' as const },
 ];
 
-// Proporciones del rombo (la "manzana") respecto al edificio. Se usan tanto en
-// el cálculo de tamaño como al dibujar, así todo queda coherente.
-const KHW = 0.5; // medio ancho del rombo = 0.5 × ancho del edificio
-const KHH = 0.44; // aplastado isométrico (algo más chato para abrazar la base)
-const KBASE = 0.84; // el suelo (centro del rombo) al 84% de la altura del edificio
+// Proporciones del rombo (la "manzana") respecto al edificio. Clave: el centro
+// del rombo cae una fracción del ANCHO por debajo de la base del edificio, que
+// es exactamente la media-altura del rombo isométrico de la base — así el rombo
+// de la calle queda CONCÉNTRICO y COPLANAR con la base (el edificio se apoya en
+// el mismo plano, no flota sobre la calle).
+const KHW = 0.6; // medio ancho del rombo = 0.6 × ancho del edificio (abraza afuera)
+const KHH = 0.5; // ratio isométrico 2:1 (alto = 0.5 × ancho) — igual que el arte
+const KDROP = 0.25; // caída del centro desde la base = media-altura iso de la base
 const KROAD = 0.045; // ancho de la calzada respecto al ancho del edificio
 
-/** Bounding-box (0–1) del polígono, con un margen para no cortar el arte. */
-function bbox(poly: Polygon, pad = 0.05) {
+/**
+ * Bounding-box (0–1) del polígono. Pad chico ABAJO (la base del edificio queda
+ * casi al borde inferior del recorte, para poder alinear la calle con ella) y
+ * pad normal arriba/costados (no cortar antenas/agujas).
+ */
+function bbox(poly: Polygon, padX = 0.04, padTop = 0.05, padBottom = 0.012) {
   const xs = poly.map((p) => p[0]);
   const ys = poly.map((p) => p[1]);
-  const x0 = Math.max(0, Math.min(...xs) - pad);
-  const y0 = Math.max(0, Math.min(...ys) - pad);
-  const x1 = Math.min(1, Math.max(...xs) + pad);
-  const y1 = Math.min(1, Math.max(...ys) + pad);
+  const x0 = Math.max(0, Math.min(...xs) - padX);
+  const y0 = Math.max(0, Math.min(...ys) - padTop);
+  const x1 = Math.min(1, Math.max(...xs) + padX);
+  const y1 = Math.min(1, Math.max(...ys) + padBottom);
   return { x0, y0, bw: x1 - x0, bh: y1 - y0 };
 }
-
-const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2);
 
 /**
  * Calle propia de cada edificio (mobile): un ROMBO isométrico de calzada
@@ -110,16 +116,15 @@ function BuildingRoad({
     canvas.width = w;
     canvas.height = h;
     const roadW = Math.max(6, w * KROAD);
-    // Vértices del rombo: arriba, derecha, abajo, izquierda.
+    // Vértices del rombo: arriba (atrás), derecha, abajo (frente), izquierda.
+    // El vértice 0 (arriba) queda DETRÁS del edificio: es el punto común al que
+    // convergen todos los píxeles al entrar.
     const V = [
       { x: cx, y: cy - hh },
       { x: cx + hw, y: cy },
       { x: cx, y: cy + hh },
       { x: cx - hw, y: cy },
     ];
-    // Objetivo al "entrar": la base-frente del edificio (centro del rombo, un
-    // poco hacia arriba) — ahí es donde los píxeles "entran".
-    const target = { x: cx, y: cy - hh * 0.15 };
     const pointAt = (p: number) => {
       const e = Math.floor(p) % 4;
       const t = p - Math.floor(p);
@@ -129,10 +134,11 @@ function BuildingRoad({
     };
     const dots = Array.from({ length: 20 }, () => ({
       p: Math.random() * 4,
-      spd: (0.55 + Math.random() * 0.6) * (Math.random() < 0.5 ? 1 : -1),
+      // Velocidad calma (como en desktop), no la anterior (muy rápida).
+      spd: (0.24 + Math.random() * 0.2) * (Math.random() < 0.5 ? 1 : -1),
       col: SPRITE_COLORS[Math.floor(Math.random() * SPRITE_COLORS.length)]!,
       s: Math.random() < 0.5 ? 2 : 3,
-      enterT: 0, // progreso de "entrada" (0→1)
+      arrived: 0, // tiempo acumulado tras llegar al punto de atrás (para el fade)
     }));
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let raf = 0;
@@ -166,24 +172,29 @@ function BuildingRoad({
       ctx.setLineDash([]);
       const ent = enteringRef.current;
       for (const d of dots) {
-        const base = pointAt(d.p);
-        if (!reduced && !ent) {
+        let alpha = 1;
+        if (ent) {
+          // Al entrar, cada píxel se mueve POR LA CALLE (el perímetro del rombo)
+          // hasta el vértice de atrás (p=0), común a todos, que está detrás del
+          // edificio — ahí "entra". Toma el arco más corto, a velocidad calma.
+          const dist = d.p <= 2 ? d.p : d.p - 4; // distancia con signo a 0 en [-2,2]
+          const step = CONV_SPD * dt;
+          if (Math.abs(dist) <= step) {
+            d.p = 0;
+            d.arrived += dt;
+          } else {
+            d.p += (dist > 0 ? -1 : 1) * step;
+            d.p = ((d.p % 4) + 4) % 4;
+          }
+          alpha = d.arrived > 0 ? Math.max(0, 1 - d.arrived / 0.35) : 1;
+        } else if (!reduced) {
           d.p += d.spd * dt;
           d.p = ((d.p % 4) + 4) % 4;
         }
-        let x = base.x;
-        let y = base.y;
-        let alpha = 1;
-        if (ent) {
-          d.enterT = Math.min(1, d.enterT + dt / 1.1); // entran en ~1.1s
-          const e = easeInOut(d.enterT);
-          x = base.x + (target.x - base.x) * e;
-          y = base.y + (target.y - base.y) * e;
-          alpha = 1 - d.enterT;
-        }
+        const pt = pointAt(d.p);
         ctx.globalAlpha = alpha;
         ctx.fillStyle = d.col;
-        ctx.fillRect(Math.round(x - d.s / 2), Math.round(y - d.s / 2), d.s, d.s);
+        ctx.fillRect(Math.round(pt.x - d.s / 2), Math.round(pt.y - d.s / 2), d.s, d.s);
       }
       ctx.globalAlpha = 1;
       raf = requestAnimationFrame(draw);
@@ -228,11 +239,12 @@ function BuildingCrop({
       // Se resuelve el tamaño del edificio (sw×sh) para que el ROAD BOX entero
       // entre: vertical estricto (la calle no se corta abajo) y horizontal con
       // un pelín de sangrado permitido (puede salirse un poco de los lados).
-      const MW = 1.04; // horizontal: leve sangrado OK
-      const MH = 0.97; // vertical: la calle NO se corta
+      // rbW = 2(hw+road) = 2(KHW+KROAD)·sw ;  rbH = sh + (KHH·KHW − KDROP + KROAD)·sw
+      const MW = 1.06; // horizontal: leve sangrado OK (edificio un poco más grande)
+      const MH = 0.98; // vertical: la calle NO se corta
       const a = aspect; // sw/sh
-      const cW = 2 * KHW + 2 * KROAD; // rbW = cW × sw
-      const cH = KBASE + (KHH * KHW + KROAD) * a; // rbH = cH × sh
+      const cW = 2 * (KHW + KROAD); // rbW = cW × sw
+      const cH = 1 + (KHH * KHW - KDROP + KROAD) * a; // rbH = cH × sh
       const shByW = (MW * availW) / (cW * a);
       const shByH = (MH * availH) / cH;
       const sh = Math.max(1, Math.floor(Math.min(shByW, shByH)));
@@ -244,14 +256,15 @@ function BuildingCrop({
     return () => window.removeEventListener('resize', update);
   }, [aspect]);
 
-  // Geometría del rombo (misma proporción que en el cálculo de tamaño).
+  // Geometría del rombo, CONCÉNTRICO y COPLANAR con la base del edificio: el
+  // centro cae KDROP·ancho por debajo de la base (= media-altura iso de la base).
   const hw = Math.round(size.w * KHW);
   const hh = Math.round(hw * KHH);
   const roadW = Math.max(6, Math.round(size.w * KROAD));
   const cx = hw + roadW;
-  const cy = Math.round(size.h * KBASE); // suelo: el edificio se apoya acá
+  const cy = Math.round(size.h - KDROP * size.w); // plano del suelo (base del edificio)
   const rbW = Math.round(cx * 2);
-  const rbH = Math.round(cy + hh + roadW);
+  const rbH = Math.round(Math.max(size.h, cy + hh) + roadW);
   const cropLeft = Math.round(cx - size.w / 2);
 
   return (
