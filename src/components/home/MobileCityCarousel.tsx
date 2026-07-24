@@ -25,7 +25,7 @@ import {
   PALACIO_HITBOX_POLYGON,
   type Polygon,
 } from '@/lib/assets';
-import { TEMA_COLOR, TEMA_LABEL, TEMA_ORDER } from '@/lib/colors';
+import { SPRITE_COLORS, TEMA_COLOR, TEMA_LABEL, TEMA_ORDER } from '@/lib/colors';
 import { getEntidades } from '@/lib/datasets';
 import { slugify } from '@/lib/slug';
 import UruguayFlag from '@/components/shared/UruguayFlag';
@@ -51,19 +51,90 @@ function bbox(poly: Polygon, pad = 0.05) {
   return { x0, y0, bw: x1 - x0, bh: y1 - y0 };
 }
 
-/** Edificio recortado a su bbox desde la capa PNG completa. Se mide el área
- *  disponible y se calcula el mayor rectángulo con la proporción del edificio
- *  que ENTRA (contain) × 0.9 → entra completo y queda más chico. */
+/**
+ * Calle propia de cada edificio (mobile): una elipse "de calzada" alrededor de
+ * la base con PÍXELES de color circulando. No usa las calles de desktop.
+ */
+function BuildingRoad({ w, h }: { w: number; h: number }) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const canvas = ref.current;
+    if (!canvas || w < 4 || h < 4) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    canvas.width = w;
+    canvas.height = h;
+    const cx = w / 2;
+    const cy = h * 0.84; // a la altura de la base del edificio
+    const rx = w * 0.45;
+    const ry = Math.max(9, w * 0.11); // aplastada (perspectiva isométrica)
+    const roadW = Math.max(6, w * 0.045);
+    const dots = Array.from({ length: 18 }, (_, i) => ({
+      a: (i / 18) * Math.PI * 2,
+      spd: (0.3 + Math.random() * 0.4) * (Math.random() < 0.5 ? 1 : -1),
+      col: SPRITE_COLORS[Math.floor(Math.random() * SPRITE_COLORS.length)]!,
+      s: Math.random() < 0.5 ? 2 : 3,
+    }));
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let raf = 0;
+    let last = performance.now();
+    const ellipse = () => {
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+    };
+    const draw = (now: number) => {
+      const dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
+      ctx.clearRect(0, 0, w, h);
+      ctx.strokeStyle = '#1E1E1E'; // vereda
+      ctx.lineWidth = roadW + 3;
+      ellipse();
+      ctx.stroke();
+      ctx.strokeStyle = '#161616'; // calzada
+      ctx.lineWidth = roadW;
+      ellipse();
+      ctx.stroke();
+      ctx.strokeStyle = '#242424'; // eje punteado
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 6]);
+      ellipse();
+      ctx.stroke();
+      ctx.setLineDash([]);
+      for (const d of dots) {
+        if (!reduced) d.a += d.spd * dt;
+        const x = cx + Math.cos(d.a) * rx;
+        const y = cy + Math.sin(d.a) * ry;
+        ctx.fillStyle = d.col;
+        ctx.fillRect(Math.round(x - d.s / 2), Math.round(y - d.s / 2), d.s, d.s);
+      }
+      raf = requestAnimationFrame(draw);
+    };
+    raf = requestAnimationFrame(draw);
+    return () => cancelAnimationFrame(raf);
+  }, [w, h]);
+  return (
+    <canvas
+      ref={ref}
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0"
+      style={{ imageRendering: 'pixelated', width: w, height: h }}
+    />
+  );
+}
+
+/** Edificio recortado a su bbox + su calle alrededor (con píxeles circulando).
+ *  Se mide el área útil y se contiene el conjunto (edificio + calle). */
 function BuildingCrop({ layer, poly }: { layer: string; poly: Polygon }) {
   const [size, setSize] = useState<{ w: number; h: number }>({ w: 0, h: 0 });
   const { x0, y0, bw, bh } = bbox(poly);
   const aspect = (bw * LANDSCAPE_SIZE.width) / (bh * LANDSCAPE_SIZE.height);
   useEffect(() => {
     const update = () => {
-      // Área útil ≈ viewport menos header, caja, indicador y aire.
+      // Área útil ≈ viewport menos header, caja, indicador y aire. El edificio
+      // se achica (0.72) para dejar lugar a la calle que lo rodea.
       const availW = window.innerWidth - 40;
       const availH = window.innerHeight - 230;
-      const margin = 0.92;
+      const margin = 0.72;
       let w = availW * margin;
       let h = w / aspect;
       const maxH = availH * margin;
@@ -77,24 +148,33 @@ function BuildingCrop({ layer, poly }: { layer: string; poly: Polygon }) {
     window.addEventListener('resize', update);
     return () => window.removeEventListener('resize', update);
   }, [aspect]);
+  // Caja de la calle: rodea al edificio (más ancha y con lugar abajo).
+  const rbW = Math.round(size.w * 1.34);
+  const rbH = Math.round(size.h * 1.28);
   return (
     <div
-      className="relative overflow-hidden"
-      style={{ width: size.w || undefined, height: size.h || undefined }}
+      className="relative flex items-center justify-center"
+      style={{ width: rbW || undefined, height: rbH || undefined }}
     >
-      <img
-        src={assetUrl(layer)}
-        alt=""
-        aria-hidden="true"
-        className="absolute max-w-none"
-        style={{
-          width: `${100 / bw}%`,
-          height: `${100 / bh}%`,
-          left: `${(-100 * x0) / bw}%`,
-          top: `${(-100 * y0) / bh}%`,
-          imageRendering: 'pixelated',
-        }}
-      />
+      {rbW > 4 && <BuildingRoad w={rbW} h={rbH} />}
+      <div
+        className="relative overflow-hidden"
+        style={{ width: size.w || undefined, height: size.h || undefined }}
+      >
+        <img
+          src={assetUrl(layer)}
+          alt=""
+          aria-hidden="true"
+          className="absolute max-w-none"
+          style={{
+            width: `${100 / bw}%`,
+            height: `${100 / bh}%`,
+            left: `${(-100 * x0) / bw}%`,
+            top: `${(-100 * y0) / bh}%`,
+            imageRendering: 'pixelated',
+          }}
+        />
+      </div>
     </div>
   );
 }
@@ -110,6 +190,9 @@ export default function MobileCityCarousel() {
   const reduce = useReducedMotion() ?? false;
   const [[page, dir], setPage] = useState<[number, number]>([0, 0]);
   const [palacioOpen, setPalacioOpen] = useState(false);
+  // Punto donde bajó el puntero: si al soltar casi no se movió → es un TAP
+  // (selecciona); si se movió → fue un swipe (cambia de slide, no selecciona).
+  const downRef = useRef<{ x: number; y: number; t: number } | null>(null);
   const n = SLIDES.length;
   const idx = ((page % n) + n) % n;
   const slide = SLIDES[idx]!;
@@ -143,9 +226,19 @@ export default function MobileCityCarousel() {
     : { x: { type: 'spring' as const, stiffness: 300, damping: 34 }, opacity: { duration: 0.2 } };
 
   return (
-    // Transparente: el suelo + calles + puntos vienen del fondo de la página
-    // (una sola simulación), así el carrusel conserva la "ciudad viva" detrás.
-    <div className="fixed inset-0 z-10 flex flex-col overflow-hidden px-5 pb-8 pt-16">
+    <div className="fixed inset-0 z-10 flex flex-col overflow-hidden bg-bg-base px-5 pb-8 pt-16">
+      {/* Suelo propio de mobile (manzanas + textura) — NO usa las calles de
+          desktop; cada edificio trae su calle alrededor (ver Building). */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-0"
+        style={{
+          backgroundColor: '#0D0D0D',
+          backgroundImage:
+            'repeating-linear-gradient(135deg, rgba(255,255,255,0.02) 0 1px, transparent 1px 6px)',
+        }}
+      />
+
       {/* Región del carrusel */}
       <div
         className="relative z-10 flex flex-1 items-stretch"
@@ -170,9 +263,25 @@ export default function MobileCityCarousel() {
               if (info.offset.x < -70 || info.velocity.x < -450) paginate(1);
               else if (info.offset.x > 70 || info.velocity.x > 450) paginate(-1);
             }}
-            // onTap distingue tap de swipe (un botón hijo dentro del drag se
-            // "come" el click). Tocar el edificio o la caja entra a la temática.
-            onTap={() => enter(slide)}
+            // Tap vs swipe por distancia real del puntero: arrastrar NO selecciona,
+            // solo un tap (casi sin movimiento) entra a la temática. Se usan los
+            // handlers de CAPTURA porque Framer (drag) corta la propagación en
+            // burbuja y los onPointer* normales no llegarían.
+            onPointerDownCapture={(e) => {
+              downRef.current = { x: e.clientX, y: e.clientY, t: Date.now() };
+            }}
+            onPointerUpCapture={(e) => {
+              const d = downRef.current;
+              downRef.current = null;
+              if (
+                d &&
+                Math.abs(e.clientX - d.x) < 12 &&
+                Math.abs(e.clientY - d.y) < 12 &&
+                Date.now() - d.t < 500
+              ) {
+                enter(slide);
+              }
+            }}
             role="button"
             tabIndex={0}
             onKeyDown={(e) => {

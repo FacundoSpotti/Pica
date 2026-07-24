@@ -97,9 +97,9 @@ export default function HomePage() {
         className="relative h-screen w-full overflow-hidden max-md:h-auto max-md:min-h-dvh max-md:overflow-visible max-md:pb-10"
       >
       {/* Suelo (manzanas) + calles generadas + puntos, a todo el viewport,
-          detrás de todo. Una sola simulación sirve al mapa (desktop) y de fondo
-          vivo al carrusel (mobile, que va transparente encima). */}
-      <div>
+          detrás de todo — SOLO DESKTOP. En mobile la ciudad es el carrusel, con
+          su propia calle alrededor de cada edificio (no la grilla de desktop). */}
+      <div className="hidden md:block">
         <div aria-hidden="true" className="fixed inset-0 z-0" style={{ backgroundColor: '#0D0D0D' }}>
           {/* Textura pixel diagonal sutil sobre las manzanas (identidad pixel art) */}
           <div
