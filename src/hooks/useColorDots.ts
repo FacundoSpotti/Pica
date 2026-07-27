@@ -30,12 +30,24 @@ type Pct = { x: number; y: number };
  * Calibrados por Facundo con el PathCalibrator (tecla P) sobre las avenidas
  * reales del landscape — no editar a mano: recalibrar con la herramienta.
  *
- * VACÍO a propósito: los paths viejos correspondían a la ciudad anterior y
- * estorbaban como referencia al recalibrar sobre los edificios rediseñados.
- * Sin calles no se dibuja grilla ni se crean puntos de color (ambos consumidores
- * lo contemplan); al pegar el bloque nuevo con la tecla C vuelve todo solo.
+ * Retrazados sobre los edificios rediseñados. Las coordenadas salen de [0,1] a
+ * propósito: el Home ya no tiene marco, así que las avenidas arrancan y terminan
+ * fuera de la ventana (extendPath las estira todavía más para cubrir el margen).
  */
-export const STREET_PATHS: ReadonlyArray<ReadonlyArray<[number, number]>> = [];
+export const STREET_PATHS: ReadonlyArray<ReadonlyArray<[number, number]>> = [
+  [[0.204, 1.059], [1.176, -0.013]],
+  [[-0.177, 1.024], [0.829, -0.069]],
+  [[0.829, 1.07], [-0.172, -0.069]],
+  [[1.176, 1.031], [0.211, -0.07]],
+  [[-0.176, 0.356], [0.457, 1.07]],
+  [[-0.177, 0.901], [-0.041, 1.069]],
+  [[-0.177, 0.574], [0.446, -0.069]],
+  [[-0.177, 0.142], [0.039, -0.07]],
+  [[0.572, -0.07], [1.176, 0.617]],
+  [[0.933, -0.069], [1.176, 0.208]],
+  [[0.6, 1.07], [1.176, 0.389]],
+  [[1.026, 1.069], [1.176, 0.875]],
+];
 
 // ── Constantes de simulación ─────────────────────────────────────────────────
 

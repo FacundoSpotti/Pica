@@ -152,12 +152,12 @@ export interface Placement {
 }
 
 export const BUILDING_PLACEMENT: Record<Tematica | 'palacio', Placement> = {
-  educacion: { left: 0.56361, top: 0.06793, width: 0.28872, height: 0.39585 },
-  trabajo: { left: 0.18327, top: 0.38994, width: 0.28872, height: 0.48014 },
-  salud: { left: 0.18247, top: 0.01854, width: 0.26851, height: 0.42634 },
+  educacion: { left: 0.55586, top: 0.05791, width: 0.28872, height: 0.39585 },
+  trabajo: { left: 0.17834, top: 0.38243, width: 0.28872, height: 0.48014 },
+  salud: { left: 0.19234, top: 0.00852, width: 0.26851, height: 0.42634 },
   economia: { left: 0.56681, top: 0.50645, width: 0.28345, height: 0.36924 },
-  seguridad: { left: -0.02163, top: 0.26686, width: 0.28309, height: 0.36979 },
-  palacio: { left: 0.37737, top: 0.28466, width: 0.28608, height: 0.38255 },
+  seguridad: { left: -0.01529, top: 0.27312, width: 0.28309, height: 0.36979 },
+  palacio: { left: 0.37244, top: 0.27464, width: 0.28608, height: 0.38255 },
 };
 
 /**

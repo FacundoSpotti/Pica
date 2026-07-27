@@ -207,10 +207,13 @@ export default function HomePage() {
           tienen que poder marcar en TODA la pantalla; convierten pantalla→stage
           con stageBox(), así las coordenadas siguen siendo las de siempre. */}
       {CALIBRATORS_ON && (
-        <>
+        // Solo desktop: se calibra sobre el landscape, que en mobile no existe
+        // (ahí la ciudad es el carrusel). Antes vivían dentro del stage, que ya
+        // era max-md:hidden; al sacarlos hay que ocultarlos explícitamente.
+        <div className="hidden md:block">
           <PathCalibrator />
           <HitboxCalibrator />
-        </>
+        </div>
       )}
 
       {/* Barra de temáticas en el borde inferior — el color del edificio en
