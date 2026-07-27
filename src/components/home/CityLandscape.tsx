@@ -23,6 +23,7 @@ import { AnimatePresence } from 'framer-motion';
 import {
   assetUrl,
   BUILDING_HITBOX_POLYGONS,
+  BUILDING_FOOTPRINT,
   BUILDING_LAYER_ORDER_ABOVE_PALACIO,
   BUILDING_LAYER_ORDER_BELOW_PALACIO,
   BUILDING_LAYERS,
@@ -78,11 +79,56 @@ function placementStyle(p: Placement): React.CSSProperties {
   };
 }
 const GRAYSCALE = 'grayscale(100%) brightness(0.5)';
-// Muro/basamento: versión muy oscura del edificio, dibujada a ras del suelo
-// DETRÁS de la capa real. Al elevarse el edificio (hover/click) queda a la vista
-// su franja inferior → parece un muro que sube desde el piso (no flota). En
-// reposo queda exactamente detrás de su capa, así que es invisible.
-const WALL_FILTER = 'brightness(0.2) grayscale(1)';
+
+// Relieve: al hover/click el edificio se ELEVA y del basamento sube un MURO que
+// rellena el hueco — igual que en mobile. Fracciones del alto del sprite.
+const LIFT_HOVER = 0.028;
+const LIFT_SELECTED = 0.055;
+/** Caras del muro: izquierda en sombra, derecha recibiendo luz. */
+const WALL_LEFT = '#242424';
+const WALL_RIGHT = '#333333';
+const WALL_EDGE = '#3C3C3C';
+
+/**
+ * Muro/basamento en SVG: extruye las dos caras frontales del rombo de base del
+ * arte (BUILDING_FOOTPRINT) desde el piso hasta la base elevada. Misma técnica
+ * que el canvas de mobile, pero en coordenadas del stage. Reemplaza al truco
+ * viejo (duplicar el sprite oscurecido detrás), que era una aproximación.
+ *
+ * El viewBox 0–100 con preserveAspectRatio="none" hace que x/y sean porcentajes
+ * del stage, el mismo sistema que BUILDING_PLACEMENT — así el muro calza con el
+ * borde del arte por construcción.
+ */
+function BuildingWall({ tema, lift }: { tema: Tematica | 'palacio'; lift: number }) {
+  if (lift <= 0) return null;
+  const p = BUILDING_PLACEMENT[tema];
+  const f = BUILDING_FOOTPRINT[tema];
+  const h = lift * p.height * 100; // altura del muro, en % del stage
+  const gy = (p.top + f.groundY * p.height) * 100; // plano del piso
+  const by = (p.top + f.bottomY * p.height) * 100; // vértice frontal
+  const lx = p.left * 100;
+  const rx = (p.left + p.width) * 100;
+  const bx = (p.left + f.bottomX * p.width) * 100;
+  return (
+    <svg
+      className="pointer-events-none absolute inset-0 h-full w-full"
+      viewBox="0 0 100 100"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      {/* cara izquierda (sombra) */}
+      <polygon points={`${lx},${gy} ${bx},${by} ${bx},${by - h} ${lx},${gy - h}`} fill={WALL_LEFT} />
+      {/* cara derecha (luz) */}
+      <polygon points={`${bx},${by} ${rx},${gy} ${rx},${gy - h} ${bx},${by - h}`} fill={WALL_RIGHT} />
+      {/* aristas verticales, para definir el volumen */}
+      <g stroke={WALL_EDGE} strokeWidth={0.12}>
+        <line x1={lx} y1={gy} x2={lx} y2={gy - h} />
+        <line x1={bx} y1={by} x2={bx} y2={by - h} />
+        <line x1={rx} y1={gy} x2={rx} y2={gy - h} />
+      </g>
+    </svg>
+  );
+}
 
 export default function CityLandscape({ selectedTema, onSelect, children, onHoverTema }: CityLandscapeProps) {
   // Hover sobre un edificio: cartel con la temática + elevación intermedia
@@ -134,6 +180,7 @@ export default function CityLandscape({ selectedTema, onSelect, children, onHove
   // Relieve: al hover/click el edificio se ELEVA del suelo. La sombra proyectada
   // abajo (drop-shadow oscuro con offset) lo ancla al piso → sube, no flota.
   const palacioLift = palacioGrayed ? 0 : palacioSel ? 2 : palacioHov ? 1 : 0;
+  const palacioLiftF = palacioLift === 2 ? LIFT_SELECTED : palacioLift === 1 ? LIFT_HOVER : 0;
   const palacioGsA = palacioLift === 2 ? 0.6 : palacioLift === 1 ? 0.4 : 0;
   const palacioStyle: React.CSSProperties = {
     ...pixelated,
@@ -142,7 +189,7 @@ export default function CityLandscape({ selectedTema, onSelect, children, onHove
     filter: palacioGrayed
       ? GRAYSCALE
       : `drop-shadow(0 0 3px color-mix(in srgb, #EBEBEB ${pS * 100}%, transparent)) drop-shadow(0 0 8px color-mix(in srgb, #EBEBEB ${pS * 40}%, transparent)) drop-shadow(0 18px 14px rgba(0,0,0,${palacioGsA}))`,
-    transform: `translateY(${palacioLift === 2 ? '-1.6%' : palacioLift === 1 ? '-0.8%' : '0'})`,
+    transform: `translateY(-${(palacioLiftF * 100).toFixed(2)}%)`,
     transition: 'filter 350ms ease, transform 400ms cubic-bezier(0.22, 1, 0.36, 1)',
   };
 
@@ -156,7 +203,8 @@ export default function CityLandscape({ selectedTema, onSelect, children, onHove
     // Relieve: el edificio se ELEVA al hover (leve) y al click (más alto). La
     // sombra proyectada abajo lo ancla al suelo → sube del piso, no flota.
     const lvl = grayed ? 0 : isSelected ? 2 : isHovered ? 1 : 0;
-    const lift = lvl === 2 ? '-1.6%' : lvl === 1 ? '-0.8%' : '0';
+    const liftF = lvl === 2 ? LIFT_SELECTED : lvl === 1 ? LIFT_HOVER : 0;
+    const lift = `-${(liftF * 100).toFixed(2)}%`;
     const gsA = lvl === 2 ? 0.6 : lvl === 1 ? 0.4 : 0; // alpha de la sombra al piso
     // Destello SOSTENIDO en hover (sutil); el pulso periódico va por la clase.
     // El drop-shadow está SIEMPRE presente (mismos radios) y solo varía la
@@ -169,18 +217,8 @@ export default function CityLandscape({ selectedTema, onSelect, children, onHove
     const place = placementStyle(BUILDING_PLACEMENT[tema]);
     return (
       <Fragment key={tema}>
-        {/* Muro/basamento (solo al elevarse): duplicado oscuro a ras del suelo,
-            DETRÁS de la capa real y con el MISMO emplazamiento; al subir el
-            edificio asoma su franja inferior → un muro que sube desde el piso. */}
-        {lvl > 0 && (
-          <img
-            src={assetUrl(BUILDING_LAYERS[tema])}
-            alt=""
-            aria-hidden="true"
-            className={layerClass}
-            style={{ ...pixelated, ...place, filter: WALL_FILTER }}
-          />
-        )}
+        {/* Muro que sube del basamento y rellena el hueco al elevarse. */}
+        <BuildingWall tema={tema} lift={liftF} />
         <img
           src={assetUrl(BUILDING_LAYERS[tema])}
           alt=""
@@ -226,16 +264,8 @@ export default function CityLandscape({ selectedTema, onSelect, children, onHove
              veces (antes iba detrás y delante para tapar el sangrado del glow). */}
       {BUILDING_LAYER_ORDER_BELOW_PALACIO.map(renderBuilding)}
 
-      {/* Muro del Palacio (basamento), detrás de su capa — solo al elevarse. */}
-      {(palacioHov || palacioSel) && (
-        <img
-          src={assetUrl(LANDSCAPE_PALACIO)}
-          alt=""
-          aria-hidden="true"
-          className={layerClass}
-          style={{ ...pixelated, ...placementStyle(BUILDING_PLACEMENT.palacio), filter: WALL_FILTER }}
-        />
-      )}
+      {/* Muro del Palacio: sube del basamento al elevarse. */}
+      <BuildingWall tema="palacio" lift={palacioLiftF} />
       <img src={assetUrl(LANDSCAPE_PALACIO)} alt="" className={layerClass} style={palacioStyle} />
 
       {/* Economía va ARRIBA de todo (incluido el Palacio). */}

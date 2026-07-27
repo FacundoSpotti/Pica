@@ -59,7 +59,7 @@ const SLIDES: Slide[] = [
 // él y el muro se extruye de sus mismas aristas — coinciden por construcción.
 const KGAP = 0.045; // separación calle↔basamento (fracción del ancho del sprite)
 const KROAD = 0.05; // ancho de la calzada (fracción del ancho del sprite)
-const KLIFT = 0.11; // cuánto se eleva el edificio al entrar (fracción de su alto)
+const KLIFT = 0.055; // cuánto se eleva el edificio al entrar (fracción de su alto)
 
 /** Fracción del lift (0→1) según el progreso de entrada: sube en el primer 35%. */
 const liftFrac = (v: number) => Math.min(1, v / 0.35);
