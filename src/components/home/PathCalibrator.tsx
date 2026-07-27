@@ -23,6 +23,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { stageBox, toScreen, toStage } from '@/lib/streets';
+import { LANE_HALF } from '@/hooks/useColorDots';
 import {
   CALIBRATION_EVENT,
   calibration,
@@ -114,6 +115,8 @@ export default function PathCalibrator() {
     return () => window.removeEventListener('resize', update);
   }, []);
   const box = stageBox(vp.w || 1, vp.h || 1);
+  /** Ancho de calzada en px, idéntico al que dibuja StreetGrid. */
+  const roadW = LANE_HALF * 2 * box.h;
 
   /** Pantalla → coordenadas del stage (pueden salir de [0,1]: no hay marco). */
   const at = (e: React.MouseEvent<HTMLDivElement>): Pt => {
@@ -172,15 +175,26 @@ export default function PathCalibrator() {
         {paths.map((path, i) => {
           const isCurrent = i === paths.length - 1;
           const color = isCurrent ? '#FFEA00' : '#39FF14';
+          const pts = path.map(([x, y]) => toScreen(x, y, box).join(',')).join(' ');
           return (
             <g key={i}>
+              {/* ANCHO REAL de la calzada: mismo grosor que dibuja StreetGrid
+                  (LANE_HALF·2·box.h), semitransparente, para ver si la calle
+                  cae bien entre las manzanas y no se come los edificios. */}
               {path.length >= 2 && (
                 <polyline
-                  points={path.map(([x, y]) => toScreen(x, y, box).join(',')).join(' ')}
+                  points={pts}
                   fill="none"
                   stroke={color}
-                  strokeWidth={2}
+                  strokeOpacity={0.25}
+                  strokeWidth={roadW}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 />
+              )}
+              {/* Eje de la calle (el path en sí) */}
+              {path.length >= 2 && (
+                <polyline points={pts} fill="none" stroke={color} strokeWidth={1.5} />
               )}
               {/* Marcador en X (chico y calado): deja ver el arte debajo */}
               {path.map(([x, y], j) => {
