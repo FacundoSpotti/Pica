@@ -33,6 +33,9 @@ import {
   BUILDING_FOOTPRINT,
   BUILDING_LAYERS,
   BUILDING_PLACEMENT,
+  chimneysForBuilding,
+  GROUND_SLOPE,
+  lampsForBuilding,
   LANDSCAPE_PALACIO,
   LANDSCAPE_SIZE,
   type Footprint,
@@ -93,7 +96,6 @@ function BuildingRoad({
   hh,
   bhw,
   bhh,
-  night,
   entering,
   enterP,
   maxLift,
@@ -106,8 +108,6 @@ function BuildingRoad({
   hh: number;
   bhw: number;
   bhh: number;
-  /** 0 (día) → 1 (noche): enciende los faroles de la manzana. */
-  night: number;
   entering: boolean;
   enterP: MotionValue<number>;
   maxLift: number;
@@ -117,8 +117,6 @@ function BuildingRoad({
   useEffect(() => {
     enteringRef.current = entering;
   }, [entering]);
-  const nightRef = useRef(night);
-  nightRef.current = night;
 
   useEffect(() => {
     const canvas = ref.current;
@@ -182,42 +180,6 @@ function BuildingRoad({
       trace();
       ctx.stroke();
       ctx.setLineDash([]);
-
-      // Faroles de la manzana: uno en cada esquina del rombo de la calle.
-      // Mismo lenguaje que en desktop — charco elíptico sobre el asfalto, halo
-      // y bulbo — pero derivados de la geometría del propio slide.
-      const nightNow = nightRef.current;
-      const lampOn = Math.min(1, Math.max(0, (nightNow - 0.18) / 0.5));
-      if (lampOn > 0.02) {
-        ctx.save();
-        ctx.globalAlpha = lampOn;
-        for (const v of V) {
-          // Charco de luz en el piso (elipse aplastada por la perspectiva)
-          const rx = hw * 0.32;
-          const ry = rx * (hh / hw);
-          const g = ctx.createRadialGradient(v.x, v.y, 0, v.x, v.y, rx);
-          g.addColorStop(0, 'rgba(255,186,96,0.34)');
-          g.addColorStop(0.45, 'rgba(255,170,70,0.14)');
-          g.addColorStop(1, 'rgba(255,170,70,0)');
-          ctx.fillStyle = g;
-          ctx.beginPath();
-          ctx.ellipse(v.x, v.y, rx, Math.max(2, ry), 0, 0, Math.PI * 2);
-          ctx.fill();
-          // Halo de la lámpara, un poco por encima del piso
-          const ly = v.y - roadW * 1.6;
-          const hg = ctx.createRadialGradient(v.x, ly, 0, v.x, ly, roadW * 1.5);
-          hg.addColorStop(0, 'rgba(255,206,140,0.55)');
-          hg.addColorStop(1, 'rgba(255,178,80,0)');
-          ctx.fillStyle = hg;
-          ctx.beginPath();
-          ctx.arc(v.x, ly, roadW * 1.5, 0, Math.PI * 2);
-          ctx.fill();
-          // Bulbo
-          ctx.fillStyle = '#FFF0D0';
-          ctx.fillRect(Math.round(v.x - 1), Math.round(ly - 1), 2, 2);
-        }
-        ctx.restore();
-      }
 
       const ent = enteringRef.current;
       for (const d of dots) {
@@ -306,6 +268,142 @@ function BuildingRoad({
 }
 
 /**
+ * Faroles encendidos y humo del edificio, en un canvas que va ENCIMA del sprite.
+ *
+ * Los puntos vienen en fracciones del sprite (derivados en assets.ts de la misma
+ * calibración que usa el desktop), así que el carrusel hereda las luces y las
+ * chimeneas sin calibrar nada aparte. Va arriba porque las farolas están
+ * dibujadas al frente del arte: debajo, el propio edificio las taparía.
+ */
+function BuildingLights({
+  w,
+  h,
+  night,
+  lamps,
+  chimneys,
+  left,
+  spriteW,
+  spriteH,
+}: {
+  w: number;
+  h: number;
+  night: number;
+  lamps: ReadonlyArray<readonly [number, number]>;
+  chimneys: ReadonlyArray<readonly [number, number]>;
+  left: number;
+  spriteW: number;
+  spriteH: number;
+}) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  const nightRef = useRef(night);
+  nightRef.current = night;
+
+  useEffect(() => {
+    const canvas = ref.current;
+    if (!canvas || w < 4 || h < 4 || spriteW < 4) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    canvas.width = w;
+    canvas.height = h;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Puntos ya proyectados a píxeles del canvas
+    const L = lamps.map(([u, v]) => ({ x: left + u * spriteW, y: v * spriteH }));
+    const C = chimneys.map(([u, v]) => ({ x: left + u * spriteW, y: v * spriteH }));
+    const glowR = Math.max(10, spriteW * 0.085);
+    const poolR = Math.max(7, spriteW * 0.055);
+
+    const puffs: Array<{ i: number; age: number; life: number; drift: number; s: number }> = [];
+    let raf = 0;
+    let last = performance.now();
+    let t = 0;
+
+    const draw = (now: number) => {
+      const dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
+      t += dt;
+      ctx.clearRect(0, 0, w, h);
+
+      // ── Humo ──────────────────────────────────────────────────────────────
+      if (C.length) {
+        if (!reduced && Math.random() < dt * 4) {
+          puffs.push({
+            i: Math.floor(Math.random() * C.length),
+            age: 0,
+            life: 3 + Math.random() * 2,
+            drift: (Math.random() - 0.5) * 0.4,
+            s: spriteW * 0.012,
+          });
+        }
+        for (let k = puffs.length - 1; k >= 0; k--) {
+          const s = puffs[k]!;
+          s.age += dt;
+          if (s.age >= s.life) {
+            puffs.splice(k, 1);
+            continue;
+          }
+          const f = s.age / s.life;
+          const c = C[s.i]!;
+          const rise = f * spriteH * 0.16;
+          ctx.globalAlpha = (1 - f) * 0.24;
+          ctx.fillStyle = '#C9CDD2';
+          ctx.beginPath();
+          ctx.arc(c.x + s.drift * rise, c.y - rise, Math.max(1, s.s + f * spriteW * 0.03), 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      // ── Faroles ───────────────────────────────────────────────────────────
+      const lampOn = Math.min(1, Math.max(0, (nightRef.current - 0.18) / 0.5));
+      if (lampOn > 0.02) {
+        for (let k = 0; k < L.length; k++) {
+          const p = L[k]!;
+          // Titileo desfasado por farol, como en desktop
+          const flick = reduced ? 1 : 0.88 + 0.12 * Math.sin(t * 1.1 + k * 0.9);
+          ctx.globalAlpha = lampOn * flick;
+          // Charco de luz en el piso: elipse aplastada por la perspectiva
+          const py = p.y + poolR * 0.5;
+          const pg = ctx.createRadialGradient(p.x, py, 0, p.x, py, poolR);
+          pg.addColorStop(0, 'rgba(255,186,96,0.34)');
+          pg.addColorStop(0.45, 'rgba(255,170,70,0.13)');
+          pg.addColorStop(1, 'rgba(255,170,70,0)');
+          ctx.fillStyle = pg;
+          ctx.beginPath();
+          ctx.ellipse(p.x, py, poolR, Math.max(2, poolR * GROUND_SLOPE), 0, 0, Math.PI * 2);
+          ctx.fill();
+          // Halo volumétrico de la lámpara
+          const hg = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, glowR);
+          hg.addColorStop(0, 'rgba(255,206,140,0.5)');
+          hg.addColorStop(0.4, 'rgba(255,178,80,0.2)');
+          hg.addColorStop(1, 'rgba(255,178,80,0)');
+          ctx.fillStyle = hg;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, glowR, 0, Math.PI * 2);
+          ctx.fill();
+          // Bulbo
+          ctx.fillStyle = '#FFF0D0';
+          ctx.fillRect(Math.round(p.x - 1), Math.round(p.y - 1), 2, 2);
+        }
+        ctx.globalAlpha = 1;
+      }
+      raf = requestAnimationFrame(draw);
+    };
+    raf = requestAnimationFrame(draw);
+    return () => cancelAnimationFrame(raf);
+  }, [w, h, lamps, chimneys, left, spriteW, spriteH]);
+
+  return (
+    <canvas
+      ref={ref}
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0"
+      style={{ width: w, height: h }}
+    />
+  );
+}
+
+/**
  * Edificio (sprite ya recortado a su rombo de base) apoyado sobre su calle.
  *
  * Ya no hay recorte por hitbox ni "manzana" inventada: el sprite ES el edificio
@@ -317,12 +415,17 @@ function BuildingCrop({
   layer,
   foot,
   aspect,
+  lamps,
+  chimneys,
   entering,
   enterP,
 }: {
   layer: string;
   foot: Footprint;
   aspect: number;
+  /** Faroles y chimeneas del edificio, en fracciones de su propio sprite. */
+  lamps: ReadonlyArray<readonly [number, number]>;
+  chimneys: ReadonlyArray<readonly [number, number]>;
   entering: boolean;
   enterP: MotionValue<number>;
 }) {
@@ -367,11 +470,14 @@ function BuildingCrop({
   const hw = bhw * kRoad; // semiancho de la calle
   const hh = bhh * kRoad; // semialto de la calle
   const roadW = Math.max(6, Math.round(size.w * KROAD));
+  // Margen para que los HALOS de los faroles no queden cortados contra el borde
+  // del canvas: los degradados se extienden bastante más allá del rombo.
+  const pad = Math.round(hw * 0.4 + roadW);
   const cy = Math.round(size.h * foot.groundY); // plano del piso (centro del rombo)
-  const cx = Math.round(Math.max(hw + roadW / 2, size.w * foot.bottomX));
+  const cx = Math.round(Math.max(hw + roadW / 2, size.w * foot.bottomX) + pad);
   const spriteLeft = Math.round(cx - size.w * foot.bottomX);
-  const rbW = Math.round(cx + hw + roadW / 2);
-  const rbH = Math.round(Math.max(size.h, cy + hh + roadW / 2));
+  const rbW = Math.round(cx + hw + roadW / 2 + pad);
+  const rbH = Math.round(Math.max(size.h, cy + hh + roadW / 2 + pad));
   const maxLift = size.h * KLIFT;
 
   return (
@@ -386,7 +492,6 @@ function BuildingCrop({
           hh={hh}
           bhw={bhw}
           bhh={bhh}
-          night={night}
           entering={entering}
           enterP={enterP}
           maxLift={maxLift}
@@ -417,6 +522,21 @@ function BuildingCrop({
           }}
         />
       </motion.div>
+      {/* Luces y humo del edificio, ENCIMA del sprite (si van debajo, el propio
+          edificio los tapa). El lift no los afecta: el farol está en la vereda,
+          que no se eleva. */}
+      {rbW > 4 && size.w > 4 && (
+        <BuildingLights
+          w={rbW}
+          h={rbH}
+          night={night}
+          lamps={lamps}
+          chimneys={chimneys}
+          left={spriteLeft}
+          spriteW={size.w}
+          spriteH={size.h}
+        />
+      )}
     </div>
   );
 }
@@ -600,6 +720,8 @@ export default function MobileCityCarousel() {
                 layer={slide.kind === 'tema' ? BUILDING_LAYERS[slide.tema] : LANDSCAPE_PALACIO}
                 foot={BUILDING_FOOTPRINT[slide.kind === 'tema' ? slide.tema : 'palacio']}
                 aspect={spriteAspect(slide.kind === 'tema' ? slide.tema : 'palacio')}
+                lamps={lampsForBuilding(slide.kind === 'tema' ? slide.tema : 'palacio')}
+                chimneys={chimneysForBuilding(slide.kind === 'tema' ? slide.tema : 'palacio')}
                 entering={entering}
                 enterP={enterP}
               />

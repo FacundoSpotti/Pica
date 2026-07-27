@@ -307,6 +307,53 @@ export const BUILDING_LAYER_ORDER: readonly Tematica[] = [
   ...BUILDING_LAYER_ORDER_ABOVE_PALACIO,
 ] as const;
 
+/**
+ * Faroles y chimeneas de un edificio, en coordenadas LOCALES de su sprite
+ * (0–1 sobre el propio recorte) en vez de coordenadas del stage.
+ *
+ * Se derivan de la misma calibración que usa el desktop: se toman los puntos que
+ * caen dentro del emplazamiento del edificio y se los reproyecta. Así el
+ * carrusel mobile —donde el sprite se muestra suelto, a otra escala y en otra
+ * posición— hereda las luces y el humo sin calibrar nada aparte.
+ */
+function toLocal(
+  pts: ReadonlyArray<readonly [number, number]>,
+  key: Tematica | 'palacio',
+): Array<readonly [number, number]> {
+  const p = BUILDING_PLACEMENT[key];
+  return pts
+    .filter(
+      ([x, y]) =>
+        x >= p.left && x <= p.left + p.width && y >= p.top && y <= p.top + p.height,
+    )
+    .map(([x, y]) => [(x - p.left) / p.width, (y - p.top) / p.height] as const);
+}
+
+/**
+ * Faroles del edificio. NO alcanza con filtrar por el rectángulo del sprite: los
+ * edificios altos (la torre de Trabajo) tienen un bbox que se estira hacia
+ * arriba y se come faroles de las manzanas vecinas, que después aparecen
+ * flotando en el cielo. Los faroles están sobre el PLINTO, así que el filtro
+ * correcto es el rombo de base.
+ */
+export function lampsForBuilding(key: Tematica | 'palacio') {
+  const f = BUILDING_FOOTPRINT[key];
+  const hh = f.bottomY - f.groundY;
+  return toLocal(CITY_LAMPS, key).filter(([u, v]) => {
+    // Punto dentro del rombo: |Δu|/semiancho + |Δv|/semialto ≤ 1. Se deja un
+    // poco de holgura (1.06) porque las farolas van justo sobre el borde.
+    const du = Math.abs(u - f.bottomX) / 0.5;
+    const dv = Math.abs(v - f.groundY) / hh;
+    return du + dv <= 1.06;
+  });
+}
+
+/** Chimeneas: van en los TECHOS, o sea por encima del rombo — filtro por el
+ *  rectángulo del sprite, que para ellas sí alcanza. */
+export function chimneysForBuilding(key: Tematica | 'palacio') {
+  return toLocal(CITY_CHIMNEYS, key);
+}
+
 /** Centroide (promedio de vértices) de un polígono, en fracciones. */
 export function polygonCentroid(poly: Polygon): { x: number; y: number } {
   const n = poly.length;
