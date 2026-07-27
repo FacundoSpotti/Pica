@@ -30,12 +30,12 @@ import {
 } from 'framer-motion';
 import {
   assetUrl,
-  BUILDING_HITBOX_POLYGONS,
+  BUILDING_FOOTPRINT,
   BUILDING_LAYERS,
+  BUILDING_PLACEMENT,
   LANDSCAPE_PALACIO,
   LANDSCAPE_SIZE,
-  PALACIO_HITBOX_POLYGON,
-  type Polygon,
+  type Footprint,
 } from '@/lib/assets';
 import { SPRITE_COLORS, TEMA_COLOR, TEMA_LABEL, TEMA_ORDER } from '@/lib/colors';
 import { getEntidades } from '@/lib/datasets';
@@ -54,41 +54,34 @@ const SLIDES: Slide[] = [
   { kind: 'palacio' as const },
 ];
 
-// Proporciones del rombo (la "manzana") respecto al edificio. Clave: el centro
-// del rombo cae una fracción del ANCHO por debajo de la base del edificio, que
-// es exactamente la media-altura del rombo isométrico de la base — así el rombo
-// de la calle queda CONCÉNTRICO y COPLANAR con la base (el edificio se apoya en
-// el mismo plano, no flota sobre la calle).
-const KHW = 0.6; // medio ancho del rombo = 0.6 × ancho del edificio (abraza afuera)
-const KHH = 0.5; // ratio isométrico 2:1 (alto = 0.5 × ancho) — igual que el arte
-const KDROP = 0.25; // caída del centro desde la base = media-altura iso de la base
-const KROAD = 0.045; // ancho de la calzada respecto al ancho del edificio
+// La "manzana" ya NO se inventa con proporciones fijas: el rombo sale del
+// BASAMENTO DEL PROPIO ARTE (BUILDING_FOOTPRINT), así la calle se apoya contra
+// él y el muro se extruye de sus mismas aristas — coinciden por construcción.
+const KGAP = 0.045; // separación calle↔basamento (fracción del ancho del sprite)
+const KROAD = 0.05; // ancho de la calzada (fracción del ancho del sprite)
 const KLIFT = 0.11; // cuánto se eleva el edificio al entrar (fracción de su alto)
 
 /** Fracción del lift (0→1) según el progreso de entrada: sube en el primer 35%. */
 const liftFrac = (v: number) => Math.min(1, v / 0.35);
 
-/**
- * Bounding-box (0–1) del polígono. Pad chico ABAJO (la base del edificio queda
- * casi al borde inferior del recorte, para poder alinear la calle con ella) y
- * pad normal arriba/costados (no cortar antenas/agujas).
- */
-function bbox(poly: Polygon, padX = 0.04, padTop = 0.05, padBottom = 0.012) {
-  const xs = poly.map((p) => p[0]);
-  const ys = poly.map((p) => p[1]);
-  const x0 = Math.max(0, Math.min(...xs) - padX);
-  const y0 = Math.max(0, Math.min(...ys) - padTop);
-  const x1 = Math.min(1, Math.max(...xs) + padX);
-  const y1 = Math.min(1, Math.max(...ys) + padBottom);
-  return { x0, y0, bw: x1 - x0, bh: y1 - y0 };
+/** Relación de aspecto real del sprite, derivada de su emplazamiento en el stage
+ *  (las fracciones left/top/width/height son sobre 4096×2305, no cuadradas). */
+function spriteAspect(key: Tematica | 'palacio'): number {
+  const p = BUILDING_PLACEMENT[key];
+  return (p.width * LANDSCAPE_SIZE.width) / (p.height * LANDSCAPE_SIZE.height);
 }
 
 /**
- * Calle propia de cada edificio (mobile): un ROMBO isométrico de calzada
- * (cuadrado en perspectiva, como la grilla de desktop) con PÍXELES de color
- * circulando por su perímetro. Al ENTRAR, los píxeles convergen hacia el
- * edificio (entran) y se desvanecen. La geometría llega calculada desde arriba
- * para que el edificio quede apoyado sobre el centro del rombo.
+ * Calle propia de cada edificio (mobile): un ROMBO isométrico de calzada que
+ * rodea el BASAMENTO DEL ARTE, con PÍXELES de color circulando por su perímetro.
+ * Al ENTRAR, los píxeles convergen por la calle al vértice de atrás y se
+ * desvanecen, y del basamento sube un MURO.
+ *
+ * Toda la geometría llega ya resuelta desde BuildingCrop a partir de
+ * BUILDING_FOOTPRINT (el rombo real del arte):
+ *   · (cx, cy) centro del plano de piso, común a la calle y al basamento
+ *   · (hw, hh) semiejes del rombo de la CALLE
+ *   · (bhw, bhh) semiejes del rombo del BASAMENTO (de donde sale el muro)
  */
 function BuildingRoad({
   w,
@@ -97,6 +90,8 @@ function BuildingRoad({
   cy,
   hw,
   hh,
+  bhw,
+  bhh,
   entering,
   enterP,
   maxLift,
@@ -107,6 +102,8 @@ function BuildingRoad({
   cy: number;
   hw: number;
   hh: number;
+  bhw: number;
+  bhh: number;
   entering: boolean;
   enterP: MotionValue<number>;
   maxLift: number;
@@ -212,13 +209,12 @@ function BuildingRoad({
       // elevada — así sube una pared sólida y no parece que flota.
       const liftPx = maxLift * liftFrac(enterP.get());
       if (liftPx > 0.5) {
-        // Diamante del MURO = base del edificio (más chico que el rombo de la
-        // calle, que queda alrededor). Sus dos caras frontales se extruyen.
-        const whw = hw * 0.82;
-        const whh = hh * 0.82;
-        const L = { x: cx - whw, y: cy };
-        const B = { x: cx, y: cy + whh };
-        const R = { x: cx + whw, y: cy };
+        // El MURO se extruye del rombo del BASAMENTO DEL ARTE (bhw/bhh): sus dos
+        // caras frontales, desde el piso hasta la base elevada. Coincide con el
+        // borde del arte por construcción, no por ajuste a ojo.
+        const L = { x: cx - bhw, y: cy };
+        const B = { x: cx, y: cy + bhh };
+        const R = { x: cx + bhw, y: cy };
         // cara izquierda (más oscura)
         ctx.fillStyle = '#242424';
         ctx.beginPath();
@@ -254,7 +250,7 @@ function BuildingRoad({
     };
     raf = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(raf);
-  }, [w, h, cx, cy, hw, hh, enterP, maxLift]);
+  }, [w, h, cx, cy, hw, hh, bhw, bhh, enterP, maxLift]);
 
   return (
     <canvas
@@ -267,63 +263,70 @@ function BuildingRoad({
 }
 
 /**
- * Edificio recortado a su bbox, apoyado sobre su "manzana" (rombo). Se mide el
- * área útil y se dimensiona TODO el conjunto (edificio + calle) para que entre
- * completo — la calle nunca se corta abajo. El edificio arranca en B/N y se
- * pinta a color al entrar.
+ * Edificio (sprite ya recortado a su rombo de base) apoyado sobre su calle.
+ *
+ * Ya no hay recorte por hitbox ni "manzana" inventada: el sprite ES el edificio
+ * con su basamento, y la calle se dibuja RODEANDO ese basamento, separada por
+ * KGAP. Se dimensiona todo el conjunto para que entre en el área útil (la calle
+ * nunca se corta abajo). Arranca en B/N y se pinta a color al entrar.
  */
 function BuildingCrop({
   layer,
-  poly,
+  foot,
+  aspect,
   entering,
   enterP,
 }: {
   layer: string;
-  poly: Polygon;
+  foot: Footprint;
+  aspect: number;
   entering: boolean;
   enterP: MotionValue<number>;
 }) {
   const [size, setSize] = useState<{ w: number; h: number }>({ w: 0, h: 0 });
-  const { x0, y0, bw, bh } = bbox(poly);
-  const aspect = (bw * LANDSCAPE_SIZE.width) / (bh * LANDSCAPE_SIZE.height);
   // El edificio se eleva (en % de su alto) siguiendo el progreso de entrada; el
   // muro del canvas usa el MISMO factor (maxLift px) → suben sincronizados.
   const liftY = useTransform(enterP, (v) => `${(-100 * KLIFT * liftFrac(v)).toFixed(2)}%`);
+
+  // Semiejes del basamento del ARTE, en fracciones del sprite.
+  const fBhw = 0.5;
+  const fBhh = foot.bottomY - foot.groundY;
+  // Rombo de la CALLE: el mismo, escalado hacia afuera (conserva la pendiente).
+  const kRoad = (fBhw + KGAP) / fBhw;
 
   useEffect(() => {
     const update = () => {
       const availW = window.innerWidth - 40;
       const availH = window.innerHeight - 240;
-      // Se resuelve el tamaño del edificio (sw×sh) para que el ROAD BOX entero
-      // entre: vertical estricto (la calle no se corta abajo) y horizontal con
-      // un pelín de sangrado permitido (puede salirse un poco de los lados).
-      // rbW = 2(hw+road) = 2(KHW+KROAD)·sw ;  rbH = sh + (KHH·KHW − KDROP + KROAD)·sw
-      const MW = 1.06; // horizontal: leve sangrado OK (edificio un poco más grande)
+      // Conjunto = calle + calzada. En unidades de ANCHO del sprite (sw):
+      //   ancho  = 2·(fBhw·kRoad) + KROAD
+      //   alto   = sh + (groundY·… ) → se resuelve abajo con la altura real
+      const MW = 1.02; // horizontal: apenas de sangrado
       const MH = 0.98; // vertical: la calle NO se corta
-      const a = aspect; // sw/sh
-      const cW = 2 * (KHW + KROAD); // rbW = cW × sw
-      const cH = 1 + (KHH * KHW - KDROP + KROAD) * a; // rbH = cH × sh
-      const shByW = (MW * availW) / (cW * a);
+      const cW = 2 * fBhw * kRoad + KROAD; // × sw
+      // alto del conjunto = max(sh, cy + hhRoad + roadW) con cy = groundY·sh
+      const cH = Math.max(1, foot.groundY + (fBhh * kRoad + KROAD / 2) * aspect); // × sh
+      const shByW = (MW * availW) / (cW * aspect);
       const shByH = (MH * availH) / cH;
       const sh = Math.max(1, Math.floor(Math.min(shByW, shByH)));
-      const sw = Math.max(1, Math.round(sh * a));
-      setSize({ w: sw, h: sh });
+      setSize({ w: Math.max(1, Math.round(sh * aspect)), h: sh });
     };
     update();
     window.addEventListener('resize', update);
     return () => window.removeEventListener('resize', update);
-  }, [aspect]);
+  }, [aspect, foot.groundY, fBhh, kRoad]);
 
-  // Geometría del rombo, CONCÉNTRICO y COPLANAR con la base del edificio: el
-  // centro cae KDROP·ancho por debajo de la base (= media-altura iso de la base).
-  const hw = Math.round(size.w * KHW);
-  const hh = Math.round(hw * KHH);
+  // Geometría en px, derivada del basamento del arte.
+  const bhw = size.w * fBhw; // semiancho del basamento
+  const bhh = size.h * fBhh; // semialto del basamento
+  const hw = bhw * kRoad; // semiancho de la calle
+  const hh = bhh * kRoad; // semialto de la calle
   const roadW = Math.max(6, Math.round(size.w * KROAD));
-  const cx = hw + roadW;
-  const cy = Math.round(size.h - KDROP * size.w); // plano del suelo (base del edificio)
-  const rbW = Math.round(cx * 2);
-  const rbH = Math.round(Math.max(size.h, cy + hh) + roadW);
-  const cropLeft = Math.round(cx - size.w / 2);
+  const cy = Math.round(size.h * foot.groundY); // plano del piso (centro del rombo)
+  const cx = Math.round(Math.max(hw + roadW / 2, size.w * foot.bottomX));
+  const spriteLeft = Math.round(cx - size.w * foot.bottomX);
+  const rbW = Math.round(cx + hw + roadW / 2);
+  const rbH = Math.round(Math.max(size.h, cy + hh + roadW / 2));
   const maxLift = size.h * KLIFT;
 
   return (
@@ -336,19 +339,21 @@ function BuildingCrop({
           cy={cy}
           hw={hw}
           hh={hh}
+          bhw={bhw}
+          bhh={bhh}
           entering={entering}
           enterP={enterP}
           maxLift={maxLift}
         />
       )}
       {/* El edificio se ELEVA del suelo al entrar (motion.div, mismo factor que
-          el muro del canvas). El recorte al bbox lo hace este contenedor. */}
+          el muro del canvas). Sin overflow: el sprite ya viene recortado. */}
       <motion.div
-        className="absolute overflow-hidden"
+        className="absolute"
         style={{
           width: size.w || undefined,
           height: size.h || undefined,
-          left: cropLeft,
+          left: spriteLeft,
           top: 0,
           y: liftY,
         }}
@@ -357,12 +362,8 @@ function BuildingCrop({
           src={assetUrl(layer)}
           alt=""
           aria-hidden="true"
-          className="absolute max-w-none"
+          className="h-full w-full"
           style={{
-            width: `${100 / bw}%`,
-            height: `${100 / bh}%`,
-            left: `${(-100 * x0) / bw}%`,
-            top: `${(-100 * y0) / bh}%`,
             imageRendering: 'pixelated',
             // B/N por defecto; se pinta a color al entrar.
             filter: entering ? 'grayscale(0)' : 'grayscale(1) brightness(0.9)',
@@ -537,21 +538,13 @@ export default function MobileCityCarousel() {
               className="flex min-h-0 flex-1 items-center justify-center"
               style={{ imageRendering: 'pixelated' }}
             >
-              {slide.kind === 'tema' ? (
-                <BuildingCrop
-                  layer={BUILDING_LAYERS[slide.tema]}
-                  poly={BUILDING_HITBOX_POLYGONS[slide.tema]}
-                  entering={entering}
-                  enterP={enterP}
-                />
-              ) : (
-                <BuildingCrop
-                  layer={LANDSCAPE_PALACIO}
-                  poly={PALACIO_HITBOX_POLYGON}
-                  entering={entering}
-                  enterP={enterP}
-                />
-              )}
+              <BuildingCrop
+                layer={slide.kind === 'tema' ? BUILDING_LAYERS[slide.tema] : LANDSCAPE_PALACIO}
+                foot={BUILDING_FOOTPRINT[slide.kind === 'tema' ? slide.tema : 'palacio']}
+                aspect={spriteAspect(slide.kind === 'tema' ? slide.tema : 'palacio')}
+                entering={entering}
+                enterP={enterP}
+              />
             </div>
 
             {/* Caja con color de la temática. Al entrar se LLENA como barra de

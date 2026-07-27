@@ -23,13 +23,16 @@ import { AnimatePresence } from 'framer-motion';
 import {
   assetUrl,
   BUILDING_HITBOX_POLYGONS,
-  BUILDING_LAYER_ORDER,
+  BUILDING_LAYER_ORDER_ABOVE_PALACIO,
+  BUILDING_LAYER_ORDER_BELOW_PALACIO,
   BUILDING_LAYERS,
+  BUILDING_PLACEMENT,
   LANDSCAPE_PALACIO,
   PALACIO_FLAG_ANCHOR,
   PALACIO_HITBOX_POLYGON,
   polygonCentroid,
   polygonClipPath,
+  type Placement,
 } from '@/lib/assets';
 import PalacioFlag from '@/components/home/PalacioFlag';
 import WindowTwinkles from '@/components/home/WindowTwinkles';
@@ -54,12 +57,21 @@ interface CityLandscapeProps {
   onHoverTema?: (t: Tematica | null) => void;
 }
 
-// rounded-2xl en cada capa: en mobile el stage es overflow-visible (para que el
-// cartel del edificio no se corte) y el redondeo lo aportan las imágenes. En
-// desktop el stage no recorta, así que el redondeo no tiene efecto visible.
-const layerClass =
-  'pointer-events-none absolute inset-0 h-full w-full rounded-2xl object-fill';
+// Cada edificio es un SPRITE RECORTADO posicionado en el stage (antes era un
+// lienzo completo 4096×2305 con la posición horneada en los píxeles). La
+// posición/tamaño sale de BUILDING_PLACEMENT, en fracciones del stage.
+const layerClass = 'pointer-events-none absolute';
 const pixelated = { imageRendering: 'pixelated' as const };
+
+/** Posición del sprite en el stage, en % — la comparten el edificio y su muro. */
+function placementStyle(p: Placement): React.CSSProperties {
+  return {
+    left: `${p.left * 100}%`,
+    top: `${p.top * 100}%`,
+    width: `${p.width * 100}%`,
+    height: `${p.height * 100}%`,
+  };
+}
 const GRAYSCALE = 'grayscale(100%) brightness(0.5)';
 // Muro/basamento: versión muy oscura del edificio, dibujada a ras del suelo
 // DETRÁS de la capa real. Al elevarse el edificio (hover/click) queda a la vista
@@ -110,11 +122,64 @@ export default function CityLandscape({ selectedTema, onSelect, children, onHove
   const palacioGsA = palacioLift === 2 ? 0.6 : palacioLift === 1 ? 0.4 : 0;
   const palacioStyle: React.CSSProperties = {
     ...pixelated,
+    ...placementStyle(BUILDING_PLACEMENT.palacio),
     filter: palacioGrayed
       ? GRAYSCALE
       : `drop-shadow(0 0 3px color-mix(in srgb, #EBEBEB ${pS * 100}%, transparent)) drop-shadow(0 0 8px color-mix(in srgb, #EBEBEB ${pS * 40}%, transparent)) drop-shadow(0 18px 14px rgba(0,0,0,${palacioGsA}))`,
     transform: `translateY(${palacioLift === 2 ? '-1.6%' : palacioLift === 1 ? '-0.8%' : '0'})`,
     transition: 'filter 350ms ease, transform 400ms cubic-bezier(0.22, 1, 0.36, 1)',
+  };
+
+  /** Una temática: su muro (basamento) + la capa real, compartiendo emplazamiento. */
+  const renderBuilding = (tema: Tematica) => {
+    const isSelected = selectedTema === tema;
+    const isHovered = hoveredTema === tema;
+    const isPulsing = pulseTema === tema && !selectedTema && !isHovered;
+    const glow = TEMA_COLOR[tema];
+    const grayed = Boolean(selectedTema) && !isSelected;
+    // Relieve: el edificio se ELEVA al hover (leve) y al click (más alto). La
+    // sombra proyectada abajo lo ancla al suelo → sube del piso, no flota.
+    const lvl = grayed ? 0 : isSelected ? 2 : isHovered ? 1 : 0;
+    const lift = lvl === 2 ? '-1.6%' : lvl === 1 ? '-0.8%' : '0';
+    const gsA = lvl === 2 ? 0.6 : lvl === 1 ? 0.4 : 0; // alpha de la sombra al piso
+    // Destello SOSTENIDO en hover (sutil); el pulso periódico va por la clase.
+    // El drop-shadow está SIEMPRE presente (mismos radios) y solo varía la
+    // intensidad del color/alpha — CSS no interpola desde `filter: none`, así
+    // que mantenerlo permite que la transición de 350ms sea gradual, no un salto.
+    const s = isHovered ? 1 : 0; // fuerza del destello (0→1)
+    const filter = grayed
+      ? GRAYSCALE
+      : `drop-shadow(0 0 3px color-mix(in srgb, ${glow} ${s * 100}%, transparent)) drop-shadow(0 0 8px color-mix(in srgb, ${glow} ${s * 40}%, transparent)) drop-shadow(0 18px 14px rgba(0,0,0,${gsA}))`;
+    const place = placementStyle(BUILDING_PLACEMENT[tema]);
+    return (
+      <Fragment key={tema}>
+        {/* Muro/basamento (solo al elevarse): duplicado oscuro a ras del suelo,
+            DETRÁS de la capa real y con el MISMO emplazamiento; al subir el
+            edificio asoma su franja inferior → un muro que sube desde el piso. */}
+        {lvl > 0 && (
+          <img
+            src={assetUrl(BUILDING_LAYERS[tema])}
+            alt=""
+            aria-hidden="true"
+            className={layerClass}
+            style={{ ...pixelated, ...place, filter: WALL_FILTER }}
+          />
+        )}
+        <img
+          src={assetUrl(BUILDING_LAYERS[tema])}
+          alt=""
+          className={`${layerClass}${isPulsing ? ' pica-attract' : ''}`}
+          style={{
+            ...pixelated,
+            ...place,
+            '--glow': glow,
+            filter,
+            transform: `translateY(${lift})`,
+            transition: 'filter 350ms ease, transform 400ms cubic-bezier(0.22, 1, 0.36, 1)',
+          } as React.CSSProperties}
+        />
+      </Fragment>
+    );
   };
 
   return (
@@ -138,87 +203,26 @@ export default function CityLandscape({ selectedTema, onSelect, children, onHove
       </AnimatePresence>
 
       {/* 3. Capas de edificios por encima — ocultan los puntos que pasan detrás.
-             Palacio (decorativo) + las 5 temáticas en BUILDING_LAYER_ORDER:
-             trabajo va último porque su antena pasa por encima de salud.
-             Al seleccionar, todas se desaturan menos la elegida. */}
-      <img
-        src={assetUrl(LANDSCAPE_PALACIO)}
-        alt=""
-        className={layerClass}
-        style={palacioStyle}
-      />
-      {BUILDING_LAYER_ORDER.map((tema) => {
-        const isSelected = selectedTema === tema;
-        const isHovered = hoveredTema === tema;
-        const isPulsing = pulseTema === tema && !selectedTema && !isHovered;
-        const glow = TEMA_COLOR[tema];
-        const grayed = Boolean(selectedTema) && !isSelected;
-        // Relieve: el edificio se ELEVA al hover (leve) y al click (más alto). La
-        // sombra proyectada abajo lo ancla al suelo → sube del piso, no flota.
-        const lvl = grayed ? 0 : isSelected ? 2 : isHovered ? 1 : 0;
-        const lift = lvl === 2 ? '-1.6%' : lvl === 1 ? '-0.8%' : '0';
-        const gsA = lvl === 2 ? 0.6 : lvl === 1 ? 0.4 : 0; // alpha de la sombra al piso
-        // Destello SOSTENIDO en hover (sutil); el pulso periódico va por la clase.
-        // El drop-shadow está SIEMPRE presente (mismos radios) y solo varía la
-        // intensidad del color/alpha — CSS no interpola desde `filter: none`, así
-        // que mantenerlo permite que la transición de 350ms sea gradual, no un salto.
-        const s = isHovered ? 1 : 0; // fuerza del destello (0→1)
-        const filter = grayed
-          ? GRAYSCALE
-          : `drop-shadow(0 0 3px color-mix(in srgb, ${glow} ${s * 100}%, transparent)) drop-shadow(0 0 8px color-mix(in srgb, ${glow} ${s * 40}%, transparent)) drop-shadow(0 18px 14px rgba(0,0,0,${gsA}))`;
-        return (
-          <Fragment key={tema}>
-            {/* Muro/basamento (solo al elevarse): duplicado oscuro a ras del
-                suelo, DETRÁS de la capa real; al subir el edificio asoma su
-                franja inferior → un muro que sube desde el piso. */}
-            {lvl > 0 && (
-              <img
-                src={assetUrl(BUILDING_LAYERS[tema])}
-                alt=""
-                aria-hidden="true"
-                className={layerClass}
-                style={{ ...pixelated, filter: WALL_FILTER }}
-              />
-            )}
-            <img
-              src={assetUrl(BUILDING_LAYERS[tema])}
-              alt=""
-              className={`${layerClass}${isPulsing ? ' pica-attract' : ''}`}
-              style={{
-                ...pixelated,
-                '--glow': glow,
-                filter,
-                transform: `translateY(${lift})`,
-                transition:
-                  'filter 350ms ease, transform 400ms cubic-bezier(0.22, 1, 0.36, 1)',
-              } as React.CSSProperties}
-            />
-          </Fragment>
-        );
-      })}
+             Orden (abajo → arriba): las cuatro que no se solapan, el PALACIO, y
+             ECONOMÍA arriba de todo. Al seleccionar, todas se desaturan menos la
+             elegida. Con este orden el Palacio ya no necesita renderizarse dos
+             veces (antes iba detrás y delante para tapar el sangrado del glow). */}
+      {BUILDING_LAYER_ORDER_BELOW_PALACIO.map(renderBuilding)}
 
-      {/* Muro del Palacio (basamento), detrás de su copia superior — solo al
-          elevarse (hover/click). */}
+      {/* Muro del Palacio (basamento), detrás de su capa — solo al elevarse. */}
       {(palacioHov || palacioSel) && (
         <img
           src={assetUrl(LANDSCAPE_PALACIO)}
           alt=""
           aria-hidden="true"
           className={layerClass}
-          style={{ ...pixelated, filter: WALL_FILTER }}
+          style={{ ...pixelated, ...placementStyle(BUILDING_PLACEMENT.palacio), filter: WALL_FILTER }}
         />
       )}
-      {/* 3b. Palacio de nuevo, ENCIMA de las capas de temáticas: el destello
-          (drop-shadow) de un edificio vecino en hover "sangraba" sobre el
-          Palacio (decorativo). Esta copia lo tapa — verificado que el arte del
-          Palacio no se superpone con ninguna temática (∩ ≈ 0 px). */}
-      <img
-        src={assetUrl(LANDSCAPE_PALACIO)}
-        alt=""
-        aria-hidden="true"
-        className={layerClass}
-        style={palacioStyle}
-      />
+      <img src={assetUrl(LANDSCAPE_PALACIO)} alt="" className={layerClass} style={palacioStyle} />
+
+      {/* Economía va ARRIBA de todo (incluido el Palacio). */}
+      {BUILDING_LAYER_ORDER_ABOVE_PALACIO.map(renderBuilding)}
 
       {/* 3c. Microvida: ventanas encendiéndose y apagándose en los edificios */}
       <WindowTwinkles selectedTema={selectedTema} />

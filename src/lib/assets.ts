@@ -111,16 +111,89 @@ export const LANDSCAPE_COMPLETE = `${LANDSCAPE_ART_DIR}/Landscape_complete.png`;
 /** Capa base: ciudad con el centro (edificios temáticos) vaciado. */
 export const LANDSCAPE_BACKGROUND = `${LANDSCAPE_ART_DIR}/Landscape_background.png`;
 
+/** Edificios rediseñados: sprites recortados a su rombo de base, mosaico pixel
+ *  art (celda 4, paleta global de 96). Generados por scripts/pixelate-buildings.py. */
+const BUILDINGS_DIR = '/assets/design_system/nuevos_edificios/pixel';
+
 /** Palacio Legislativo: decorativo central, NO clickeable. */
-export const LANDSCAPE_PALACIO = `${LANDSCAPE_ART_DIR}/Landscape_parts_palacio_legislativo.png`;
+export const LANDSCAPE_PALACIO = `${BUILDINGS_DIR}/palacio.png`;
 
 /** Capa de color de cada temática (se muestra al seleccionar el edificio). */
 export const BUILDING_LAYERS: Record<Tematica, string> = {
-  educacion: `${LANDSCAPE_ART_DIR}/Landscape_parts-educacion.png`, // IAVA (sin tilde en disco)
-  trabajo: `${LANDSCAPE_ART_DIR}/Landscape_parts_trabajo.png`, // Intendencia
-  salud: `${LANDSCAPE_ART_DIR}/Landscape_parts_salud.png`, // Hospital de Clínicas
-  economia: `${LANDSCAPE_ART_DIR}/Landscape_parts_economia.png`, // BROU (V2)
-  seguridad: `${LANDSCAPE_ART_DIR}/Landscape_parts_seguridad.png`, // Comisaría (V2)
+  educacion: `${BUILDINGS_DIR}/educacion.png`, // IAVA
+  trabajo: `${BUILDINGS_DIR}/trabajo.png`, // Intendencia
+  salud: `${BUILDINGS_DIR}/salud.png`, // Hospital de Clínicas
+  economia: `${BUILDINGS_DIR}/economia.png`, // BROU
+  seguridad: `${BUILDINGS_DIR}/seguridad.png`, // Comisaría
+};
+
+/**
+ * Emplazamiento de cada sprite en el stage, en fracciones (0–1).
+ *
+ * A diferencia del arte viejo (lienzo completo 4096×2305 con la posición
+ * horneada en los píxeles), los edificios rediseñados vienen RECORTADOS a su
+ * propio rombo de base, así que la posición se declara acá.
+ *
+ * CALIBRADO, NO TOCAR A MANO salvo ajuste fino: se derivó midiendo el punto de
+ * apoyo (vértice inferior del rombo) de cada edificio viejo y colocando el
+ * sprite nuevo de forma que su propio vértice inferior caiga en el mismo punto,
+ * igualando el ancho de base. Escala 0.90 sobre ese punto de apoyo, para
+ * recuperar el aire de calle entre manzanas (el arte nuevo tiene más masa de
+ * edificio por manzana que el viejo).
+ *
+ * Para recalcular: `python scripts/pixelate-buildings.py` regenera los sprites
+ * y footprint.json con la geometría de base medida del propio arte.
+ */
+export interface Placement {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
+export const BUILDING_PLACEMENT: Record<Tematica | 'palacio', Placement> = {
+  educacion: { left: 0.56572, top: 0.07419, width: 0.28872, height: 0.39585 },
+  trabajo: { left: 0.14592, top: 0.37992, width: 0.28872, height: 0.48014 },
+  salud: { left: 0.18811, top: 0.04359, width: 0.26851, height: 0.42634 },
+  economia: { left: 0.57597, top: 0.49643, width: 0.28345, height: 0.36924 },
+  seguridad: { left: -0.03995, top: 0.27938, width: 0.28309, height: 0.36979 },
+  palacio: { left: 0.37737, top: 0.28466, width: 0.28608, height: 0.38255 },
+};
+
+/**
+ * Pendiente (dy/dx) de las aristas de la base isométrica, medida del propio
+ * arte: el plano del piso baja 0.649 px por cada px horizontal. NO es el 2:1
+ * clásico (0.5): los edificios rediseñados comparten un punto de fuga más
+ * cerrado (~33°). Es la constante que alinea la calle y el muro con la base.
+ */
+export const GROUND_SLOPE = 0.649;
+
+/**
+ * Rombo de BASE de cada sprite (el basamento del propio arte), en fracciones
+ * (0–1) del sprite. Medido por scripts/pixelate-buildings.py → footprint.json.
+ *
+ * El recorte del sprite coincide con el rombo: sus vértices izquierdo y derecho
+ * están en x=0 y x=1, a la altura `groundY` (el plano del piso), y el vértice
+ * frontal en (bottomX, bottomY). Con esto la calle se apoya CONTRA el basamento
+ * del arte y el muro se extruye desde sus mismas aristas — sin adivinar.
+ */
+export interface Footprint {
+  /** Vértice frontal (el más bajo) del rombo. */
+  bottomX: number;
+  bottomY: number;
+  /** Altura del plano del piso = y de los vértices izquierdo/derecho. */
+  groundY: number;
+  /** Pendiente de las aristas de base de ESTE sprite (dy/dx en px del sprite). */
+  slope: number;
+}
+
+export const BUILDING_FOOTPRINT: Record<Tematica | 'palacio', Footprint> = {
+  economia: { bottomX: 0.5038, bottomY: 0.9949, groundY: 0.5551, slope: 0.6471 },
+  educacion: { bottomX: 0.5131, bottomY: 0.9951, groundY: 0.5667, slope: 0.6633 },
+  palacio: { bottomX: 0.5033, bottomY: 0.9956, groundY: 0.5744, slope: 0.6358 },
+  salud: { bottomX: 0.4715, bottomY: 0.9957, groundY: 0.6362, slope: 0.6454 },
+  seguridad: { bottomX: 0.4925, bottomY: 0.9949, groundY: 0.5546, slope: 0.6498 },
+  trabajo: { bottomX: 0.5, bottomY: 0.996, groundY: 0.6542, slope: 0.642 },
 };
 
 /**
@@ -177,15 +250,25 @@ export const PALACIO_FLAG_ANCHOR: { x: number; y: number } = { x: 0.505, y: 0.26
 
 /**
  * Orden de apilado (z) de las capas de edificios, de abajo hacia arriba.
- * Trabajo (Intendencia) va ÚLTIMO porque su antena pasa por encima del
- * edificio de Salud — si se renderiza debajo, la antena queda cortada.
+ * Con los edificios rediseñados el apilado importa solo en dos casos:
+ *   · ECONOMÍA va arriba de todo.
+ *   · el PALACIO va debajo de Economía y encima del resto.
+ * Las otras cuatro no se solapan entre sí, así que su orden es indiferente.
+ * El Palacio se intercala en CityLandscape entre estos dos grupos.
  */
-export const BUILDING_LAYER_ORDER: readonly Tematica[] = [
+export const BUILDING_LAYER_ORDER_BELOW_PALACIO: readonly Tematica[] = [
   'educacion',
   'salud',
-  'economia',
   'seguridad',
   'trabajo',
+] as const;
+
+export const BUILDING_LAYER_ORDER_ABOVE_PALACIO: readonly Tematica[] = ['economia'] as const;
+
+/** Orden completo (abajo → arriba), sin el Palacio. */
+export const BUILDING_LAYER_ORDER: readonly Tematica[] = [
+  ...BUILDING_LAYER_ORDER_BELOW_PALACIO,
+  ...BUILDING_LAYER_ORDER_ABOVE_PALACIO,
 ] as const;
 
 /** Centroide (promedio de vértices) de un polígono, en fracciones. */
