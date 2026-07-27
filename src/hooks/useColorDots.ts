@@ -29,16 +29,24 @@ type Pct = { x: number; y: number };
  * Paths de calles en % del stage (0–1).
  * Calibrados por Facundo con el PathCalibrator (tecla P) sobre las avenidas
  * reales del landscape — no editar a mano: recalibrar con la herramienta.
+ *
+ * Retrazados sobre los edificios rediseñados. Las coordenadas salen de [0,1] a
+ * propósito: el Home ya no tiene marco, así que las avenidas arrancan y terminan
+ * fuera de la ventana (extendPath las estira todavía más para cubrir el margen).
  */
 export const STREET_PATHS: ReadonlyArray<ReadonlyArray<[number, number]>> = [
-  [[0.009, 0.182], [0.829, 0.995]],
-  [[0.007, 0.564], [0.398, 0.995]],
-  [[0.202, 0.021], [0.997, 0.761]],
-  [[0.569, 0.017], [0.888, 0.315]],
-  [[0.998, 0.181], [0.541, 0.684], [0.465, 0.708], [0.193, 0.995]],
-  [[-0.001, 0.795], [0.784, 0.021]],
-  [[0.002, 0.471], [0.48, 0.017]],
-  [[1, 0.565], [0.729, 0.887], [0.597, 0.997]],
+  [[0.204, 1.059], [1.176, -0.013]],
+  [[-0.177, 1.024], [0.829, -0.069]],
+  [[0.829, 1.07], [-0.172, -0.069]],
+  [[1.176, 1.031], [0.211, -0.07]],
+  [[-0.176, 0.356], [0.457, 1.07]],
+  [[-0.177, 0.901], [-0.041, 1.069]],
+  [[-0.177, 0.574], [0.446, -0.069]],
+  [[-0.177, 0.142], [0.039, -0.07]],
+  [[0.572, -0.07], [1.176, 0.617]],
+  [[0.933, -0.069], [1.176, 0.208]],
+  [[0.6, 1.07], [1.176, 0.389]],
+  [[1.026, 1.069], [1.176, 0.875]],
 ];
 
 // ── Constantes de simulación ─────────────────────────────────────────────────
@@ -322,8 +330,10 @@ export function useColorDots(count = 120): UseColorDots {
   const boundsRef = useRef<PathBound[] | null>(null);
   const boxKeyRef = useRef<string>('');
 
-  // Inicialización de los puntos (una sola vez)
-  if (dotsRef.current.length === 0) {
+  // Inicialización de los puntos (una sola vez). Sin calles no hay puntos: el
+  // recorrido se define sobre STREET_PATHS, así que con la lista vacía (mientras
+  // se recalibran las calles) simplemente no se crea ninguno.
+  if (dotsRef.current.length === 0 && STREET_PATHS.length > 0) {
     const dots: ColorDot[] = [];
     for (let i = 0; i < count; i++) {
       const pathIndex = i % STREET_PATHS.length;

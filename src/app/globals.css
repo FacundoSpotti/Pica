@@ -90,6 +90,63 @@ img[data-pixelated='true'] {
   animation: pica-attract 1.8s ease-in-out;
 }
 
+/* ── Faroles de la ciudad (ver CityAmbience) ──────────────────────────────────
+   Dos ritmos combinados: un "respirar" lento constante y, dentro del mismo
+   ciclo, un destello corto. Al desfasar el delay por farol la ciudad titila
+   despareja en vez de latir toda junta. */
+
+/* Un solo keyframe para TODO el farol (charco + halo + bulbo se mueven juntos,
+   como una lámpara real): respira lento y cada tanto parpadea corto, como un
+   tubo de sodio. El delay desfasado por índice evita el latido al unísono. */
+@keyframes pica-lamp {
+  0%, 100% { opacity: 0.86; }
+  30%      { opacity: 1; }
+  /* parpadeo breve de descarga */
+  63%      { opacity: 0.72; }
+  66%      { opacity: 1; }
+  69%      { opacity: 0.8; }
+  72%      { opacity: 0.99; }
+}
+
+.pica-lamp {
+  animation: pica-lamp 7.5s ease-in-out infinite;
+  will-change: opacity;
+}
+
+/* Pájaro que cruza el cielo cada tanto (ver CitySky): traslación de borde a
+   borde con una leve ondulación, más el aleteo por separado. */
+@keyframes pica-bird-fly {
+  0%   { transform: translateX(var(--bird-from)) translateY(0); opacity: 0; }
+  8%   { opacity: 0.9; }
+  50%  { transform: translateX(calc((var(--bird-from) + var(--bird-to)) / 2)) translateY(-14px); }
+  92%  { opacity: 0.9; }
+  100% { transform: translateX(var(--bird-to)) translateY(4px); opacity: 0; }
+}
+
+.pica-bird-fly {
+  animation: pica-bird-fly linear forwards;
+}
+
+@keyframes pica-bird-flap {
+  0%, 100% { transform: scaleY(1); }
+  50%      { transform: scaleY(0.45); }
+}
+
+.pica-bird-flap {
+  animation: pica-bird-flap 0.42s ease-in-out infinite;
+}
+
+/* Manzanas todavía sin temática: el contorno respira apenas, para que se lea
+   como "reservado" y no como un error de dibujo. */
+@keyframes pica-block-breathe {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1; }
+}
+
+.pica-block-breathe {
+  animation: pica-block-breathe 4.5s ease-in-out infinite;
+}
+
 /* ── Ojos del logo: mirada + parpadeo pasivos (ver PicaLogo) ─────────────── */
 
 @keyframes pica-eye-cycle {

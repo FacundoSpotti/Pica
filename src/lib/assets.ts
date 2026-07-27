@@ -111,16 +111,128 @@ export const LANDSCAPE_COMPLETE = `${LANDSCAPE_ART_DIR}/Landscape_complete.png`;
 /** Capa base: ciudad con el centro (edificios temáticos) vaciado. */
 export const LANDSCAPE_BACKGROUND = `${LANDSCAPE_ART_DIR}/Landscape_background.png`;
 
+/** Edificios rediseñados: sprites recortados a su rombo de base, mosaico pixel
+ *  art (celda 4, paleta global de 96). Generados por scripts/pixelate-buildings.py. */
+const BUILDINGS_DIR = '/assets/design_system/nuevos_edificios/pixel';
+
 /** Palacio Legislativo: decorativo central, NO clickeable. */
-export const LANDSCAPE_PALACIO = `${LANDSCAPE_ART_DIR}/Landscape_parts_palacio_legislativo.png`;
+export const LANDSCAPE_PALACIO = `${BUILDINGS_DIR}/palacio.png`;
 
 /** Capa de color de cada temática (se muestra al seleccionar el edificio). */
 export const BUILDING_LAYERS: Record<Tematica, string> = {
-  educacion: `${LANDSCAPE_ART_DIR}/Landscape_parts-educacion.png`, // IAVA (sin tilde en disco)
-  trabajo: `${LANDSCAPE_ART_DIR}/Landscape_parts_trabajo.png`, // Intendencia
-  salud: `${LANDSCAPE_ART_DIR}/Landscape_parts_salud.png`, // Hospital de Clínicas
-  economia: `${LANDSCAPE_ART_DIR}/Landscape_parts_economia.png`, // BROU (V2)
-  seguridad: `${LANDSCAPE_ART_DIR}/Landscape_parts_seguridad.png`, // Comisaría (V2)
+  educacion: `${BUILDINGS_DIR}/educacion.png`, // IAVA
+  trabajo: `${BUILDINGS_DIR}/trabajo.png`, // Intendencia
+  salud: `${BUILDINGS_DIR}/salud.png`, // Hospital de Clínicas
+  economia: `${BUILDINGS_DIR}/economia.png`, // BROU
+  seguridad: `${BUILDINGS_DIR}/seguridad.png`, // Comisaría
+};
+
+/**
+ * Emplazamiento de cada sprite en el stage, en fracciones (0–1).
+ *
+ * A diferencia del arte viejo (lienzo completo 4096×2305 con la posición
+ * horneada en los píxeles), los edificios rediseñados vienen RECORTADOS a su
+ * propio rombo de base, así que la posición se declara acá.
+ *
+ * CALIBRADO, NO TOCAR A MANO salvo ajuste fino: se derivó midiendo el punto de
+ * apoyo (vértice inferior del rombo) de cada edificio viejo y colocando el
+ * sprite nuevo de forma que su propio vértice inferior caiga en el mismo punto,
+ * igualando el ancho de base. Escala 0.90 sobre ese punto de apoyo, para
+ * recuperar el aire de calle entre manzanas (el arte nuevo tiene más masa de
+ * edificio por manzana que el viejo).
+ *
+ * Para recalcular: `python scripts/pixelate-buildings.py` regenera los sprites
+ * y footprint.json con la geometría de base medida del propio arte.
+ */
+export interface Placement {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
+export const BUILDING_PLACEMENT: Record<Tematica | 'palacio', Placement> = {
+  educacion: { left: 0.55586, top: 0.05791, width: 0.28872, height: 0.39585 },
+  trabajo: { left: 0.17834, top: 0.38243, width: 0.28872, height: 0.48014 },
+  salud: { left: 0.19234, top: 0.00852, width: 0.26851, height: 0.42634 },
+  economia: { left: 0.56681, top: 0.50645, width: 0.28345, height: 0.36924 },
+  seguridad: { left: -0.01529, top: 0.27312, width: 0.28309, height: 0.36979 },
+  palacio: { left: 0.37244, top: 0.27464, width: 0.28608, height: 0.38255 },
+};
+
+/**
+ * Pendiente (dy/dx) de las aristas de la base isométrica, medida del propio
+ * arte: el plano del piso baja 0.649 px por cada px horizontal. NO es el 2:1
+ * clásico (0.5): los edificios rediseñados comparten un punto de fuga más
+ * cerrado (~33°). Es la constante que alinea la calle y el muro con la base.
+ */
+export const GROUND_SLOPE = 0.649;
+
+/**
+ * Faroles de la ciudad, en fracciones (0–1) del stage. Sobre cada uno se dibuja
+ * un halo cálido que respira y de vez en cuando destella.
+ * Calibrados con el LampCalibrator (tecla L) — no editar a mano.
+ */
+export const CITY_LAMPS: ReadonlyArray<readonly [number, number]> = [
+  [0.6849, 0.8108], [0.7366, 0.8108], [0.7758, 0.7687], [0.8135, 0.7267], [0.8283, 0.6623],
+  [0.6464, 0.7648], [0.6087, 0.7214], [0.5887, 0.6623], [0.6952, 0.4179], [0.7226, 0.4113],
+  [0.7462, 0.3798], [0.778, 0.3482], [0.8032, 0.318], [0.8313, 0.2878], [0.6804, 0.3982],
+  [0.6627, 0.3837], [0.6035, 0.3127], [0.5836, 0.2904], [0.5695, 0.2694], [0.568, 0.2418],
+  [0.5917, 0.2221], [0.3432, 0.8095], [0.375, 0.7753], [0.4105, 0.7332], [0.4379, 0.7043],
+  [0.4216, 0.6386], [0.3883, 0.6058], [0.2264, 0.7214], [0.1983, 0.6702], [0.2212, 0.636],
+  [0.2538, 0.6045], [0.2685, 0.7674], [0.2996, 0.8042], [0.2323, 0.4862], [0.2552, 0.4534],
+  [0.2412, 0.4087], [0.1746, 0.544], [0.1473, 0.5742], [0.1155, 0.5887], [0.0792, 0.3495],
+  [0.0216, 0.4862], [0.3721, 0.3403], [0.4053, 0.3022], [0.4297, 0.2773], [0.4416, 0.2418],
+  [0.3454, 0.364], [0.3307, 0.3863], [0.2974, 0.3771], [0.2412, 0.3127], [0.202, 0.2628],
+];
+
+/**
+ * Chimeneas / respiraderos de donde sale humo, en fracciones del stage.
+ * Calibradas con el LampCalibrator (tecla L, capa chimeneas).
+ */
+export const CITY_CHIMNEYS: ReadonlyArray<readonly [number, number]> = [
+  [0.3262, 0.0118], [0.6827, 0.2076], [0.6331, 0.1459], [0.7292, 0.2576], [0.8002, 0.1827],
+  [0.6982, 0.0788],
+];
+
+/**
+ * Manzanas vacías: los huecos que dejan las calles donde TODAVÍA no hay
+ * temática. Se marcan con un rombo punteado y un cartel de "próximamente" para
+ * contar que Pica sigue creciendo. Centro del rombo, en fracciones del stage.
+ * Calibrados con el LampCalibrator (tecla L, modo manzanas) — no editar a mano.
+ */
+export const FUTURE_BLOCKS: ReadonlyArray<readonly [number, number]> = [
+  [0.8912, 0.4954], [1.079, 0.2681], [1.0975, 0.724], [0.9112, 0.9501], [0.52, 0.9146],
+  [0.1125, 0.9304], [-0.0975, 0.7148], [-0.0805, 0.2326], [0.1236, 0.0381], [0.5141, 0.0578],
+  [0.889, 0.0762],
+];
+
+/**
+ * Rombo de BASE de cada sprite (el basamento del propio arte), en fracciones
+ * (0–1) del sprite. Medido por scripts/pixelate-buildings.py → footprint.json.
+ *
+ * El recorte del sprite coincide con el rombo: sus vértices izquierdo y derecho
+ * están en x=0 y x=1, a la altura `groundY` (el plano del piso), y el vértice
+ * frontal en (bottomX, bottomY). Con esto la calle se apoya CONTRA el basamento
+ * del arte y el muro se extruye desde sus mismas aristas — sin adivinar.
+ */
+export interface Footprint {
+  /** Vértice frontal (el más bajo) del rombo. */
+  bottomX: number;
+  bottomY: number;
+  /** Altura del plano del piso = y de los vértices izquierdo/derecho. */
+  groundY: number;
+  /** Pendiente de las aristas de base de ESTE sprite (dy/dx en px del sprite). */
+  slope: number;
+}
+
+export const BUILDING_FOOTPRINT: Record<Tematica | 'palacio', Footprint> = {
+  economia: { bottomX: 0.5038, bottomY: 0.9949, groundY: 0.5551, slope: 0.6471 },
+  educacion: { bottomX: 0.5131, bottomY: 0.9951, groundY: 0.5667, slope: 0.6633 },
+  palacio: { bottomX: 0.5033, bottomY: 0.9956, groundY: 0.5744, slope: 0.6358 },
+  salud: { bottomX: 0.4715, bottomY: 0.9957, groundY: 0.6362, slope: 0.6454 },
+  seguridad: { bottomX: 0.4925, bottomY: 0.9949, groundY: 0.5546, slope: 0.6498 },
+  trabajo: { bottomX: 0.5, bottomY: 0.996, groundY: 0.6542, slope: 0.642 },
 };
 
 /**
@@ -135,36 +247,33 @@ export type Polygon = ReadonlyArray<readonly [number, number]>;
 // Calibrados por Facundo con el HitboxCalibrator (tecla H) — no editar a mano:
 // recalibrar con la herramienta y pegar el bloque que copia la tecla C.
 export const BUILDING_HITBOX_POLYGONS: Record<Tematica, Polygon> = {
-  educacion: [[0.543, 0.298], [0.719, 0.465], [0.864, 0.313], [0.839, 0.278], [0.835, 0.234], [0.759, 0.163], [0.747, 0.1], [0.73, 0.141], [0.699, 0.111], [0.599, 0.208], [0.598, 0.242]],
-  salud: [[0.174, 0.331], [0.316, 0.469], [0.482, 0.298], [0.446, 0.27], [0.445, 0.161], [0.398, 0.105], [0.267, 0.217], [0.265, 0.248]],
-  trabajo: [[0.292, 0.842], [0.446, 0.691], [0.309, 0.539], [0.282, 0.501], [0.275, 0.381], [0.269, 0.514], [0.239, 0.55], [0.233, 0.576], [0.136, 0.679]],
-  economia: [[0.719, 0.861], [0.872, 0.684], [0.719, 0.507], [0.563, 0.694]],
-  seguridad: [[0.001, 0.523], [0.104, 0.641], [0.258, 0.491], [0.223, 0.433], [0.22, 0.4], [0.157, 0.336]],
+  educacion: [[0.566, 0.284], [0.613, 0.344], [0.663, 0.407], [0.695, 0.445], [0.706, 0.457], [0.714, 0.46], [0.74, 0.431], [0.828, 0.336], [0.85, 0.305], [0.851, 0.292], [0.845, 0.281], [0.844, 0.266], [0.841, 0.272], [0.828, 0.253], [0.829, 0.224], [0.812, 0.202], [0.762, 0.151], [0.761, 0.133], [0.757, 0.127], [0.758, 0.106], [0.752, 0.088], [0.749, 0.067], [0.746, 0.087], [0.741, 0.104], [0.738, 0.13], [0.708, 0.106], [0.704, 0.101], [0.615, 0.19], [0.615, 0.217]],
+  salud: [[0.31, 0.445], [0.348, 0.404], [0.379, 0.371], [0.421, 0.322], [0.45, 0.289], [0.45, 0.277], [0.409, 0.232], [0.407, 0.085], [0.389, 0.067], [0.384, 0.062], [0.383, 0.044], [0.368, 0.035], [0.348, 0.054], [0.329, 0.033], [0.32, 0.039], [0.317, 0.018], [0.312, 0.027], [0.312, 0.046], [0.3, 0.059], [0.299, 0.089], [0.273, 0.115], [0.264, 0.107], [0.247, 0.125], [0.246, 0.224], [0.222, 0.25], [0.21, 0.247], [0.204, 0.264], [0.185, 0.292], [0.183, 0.298]],
+  trabajo: [[0.184, 0.704], [0.325, 0.87], [0.331, 0.867], [0.469, 0.713], [0.471, 0.706], [0.455, 0.682], [0.447, 0.664], [0.441, 0.666], [0.363, 0.585], [0.361, 0.557], [0.352, 0.546], [0.349, 0.529], [0.331, 0.509], [0.327, 0.394], [0.325, 0.393], [0.321, 0.487], [0.319, 0.516], [0.301, 0.533], [0.301, 0.548], [0.289, 0.558], [0.287, 0.589], [0.187, 0.695]],
+  economia: [[0.569, 0.711], [0.705, 0.873], [0.712, 0.873], [0.847, 0.723], [0.85, 0.712], [0.809, 0.663], [0.808, 0.614], [0.807, 0.601], [0.795, 0.585], [0.79, 0.593], [0.71, 0.508], [0.645, 0.569], [0.639, 0.563], [0.623, 0.576], [0.623, 0.589], [0.619, 0.596], [0.615, 0.622], [0.618, 0.626], [0.618, 0.648], [0.57, 0.697]],
+  seguridad: [[-0.022, 0.479], [0.11, 0.63], [0.115, 0.634], [0.12, 0.634], [0.259, 0.483], [0.262, 0.469], [0.259, 0.46], [0.234, 0.426], [0.23, 0.409], [0.223, 0.4], [0.222, 0.352], [0.137, 0.266], [0.09, 0.319], [0.088, 0.352], [-0.019, 0.464], [-0.021, 0.477]],
 };
 
 // Hitbox del Palacio Legislativo ("dato al azar") — CALIBRADA por Facundo con
 // el HitboxCalibrator (tecla H): no editar a mano, recalibrar con la herramienta.
 export const PALACIO_HITBOX_POLYGON: Polygon = [
-  [0.661, 0.507],
-  [0.585, 0.603],
-  [0.525, 0.66],
-  [0.475, 0.607],
-  [0.456, 0.629],
-  [0.389, 0.557],
-  [0.399, 0.533],
-  [0.353, 0.51],
-  [0.413, 0.439],
-  [0.418, 0.394],
-  [0.479, 0.336],
-  [0.497, 0.309],
-  [0.505, 0.269],
-  [0.522, 0.329],
-  [0.535, 0.35],
-  [0.557, 0.363],
-  [0.561, 0.356],
-  [0.588, 0.383],
-  [0.587, 0.426],
-  [0.655, 0.499],
+  [0.377, 0.505],
+  [0.517, 0.664],
+  [0.523, 0.664],
+  [0.526, 0.663],
+  [0.662, 0.512],
+  [0.661, 0.505],
+  [0.65, 0.491],
+  [0.648, 0.42],
+  [0.647, 0.408],
+  [0.641, 0.407],
+  [0.52, 0.292],
+  [0.458, 0.347],
+  [0.449, 0.336],
+  [0.424, 0.366],
+  [0.422, 0.381],
+  [0.391, 0.404],
+  [0.391, 0.483],
 ];
 
 /**
@@ -173,20 +282,77 @@ export const PALACIO_HITBOX_POLYGON: Polygon = [
  * FINA se calibra in-app con la tecla B (FlagCalibrator, NEXT_PUBLIC_CALIBRATORS=on)
  * y se pega acá.
  */
-export const PALACIO_FLAG_ANCHOR: { x: number; y: number } = { x: 0.505, y: 0.269 };
+export const PALACIO_FLAG_ANCHOR: { x: number; y: number } = { x: 0.5137, y: 0.3353 };
 
 /**
  * Orden de apilado (z) de las capas de edificios, de abajo hacia arriba.
- * Trabajo (Intendencia) va ÚLTIMO porque su antena pasa por encima del
- * edificio de Salud — si se renderiza debajo, la antena queda cortada.
+ * Con los edificios rediseñados el apilado importa solo en dos casos:
+ *   · ECONOMÍA va arriba de todo.
+ *   · el PALACIO va debajo de Economía y encima del resto.
+ * Las otras cuatro no se solapan entre sí, así que su orden es indiferente.
+ * El Palacio se intercala en CityLandscape entre estos dos grupos.
  */
-export const BUILDING_LAYER_ORDER: readonly Tematica[] = [
+export const BUILDING_LAYER_ORDER_BELOW_PALACIO: readonly Tematica[] = [
   'educacion',
   'salud',
-  'economia',
   'seguridad',
   'trabajo',
 ] as const;
+
+export const BUILDING_LAYER_ORDER_ABOVE_PALACIO: readonly Tematica[] = ['economia'] as const;
+
+/** Orden completo (abajo → arriba), sin el Palacio. */
+export const BUILDING_LAYER_ORDER: readonly Tematica[] = [
+  ...BUILDING_LAYER_ORDER_BELOW_PALACIO,
+  ...BUILDING_LAYER_ORDER_ABOVE_PALACIO,
+] as const;
+
+/**
+ * Faroles y chimeneas de un edificio, en coordenadas LOCALES de su sprite
+ * (0–1 sobre el propio recorte) en vez de coordenadas del stage.
+ *
+ * Se derivan de la misma calibración que usa el desktop: se toman los puntos que
+ * caen dentro del emplazamiento del edificio y se los reproyecta. Así el
+ * carrusel mobile —donde el sprite se muestra suelto, a otra escala y en otra
+ * posición— hereda las luces y el humo sin calibrar nada aparte.
+ */
+function toLocal(
+  pts: ReadonlyArray<readonly [number, number]>,
+  key: Tematica | 'palacio',
+): Array<readonly [number, number]> {
+  const p = BUILDING_PLACEMENT[key];
+  return pts
+    .filter(
+      ([x, y]) =>
+        x >= p.left && x <= p.left + p.width && y >= p.top && y <= p.top + p.height,
+    )
+    .map(([x, y]) => [(x - p.left) / p.width, (y - p.top) / p.height] as const);
+}
+
+/**
+ * Faroles del edificio. NO alcanza con filtrar por el rectángulo del sprite: los
+ * edificios altos (la torre de Trabajo) tienen un bbox que se estira hacia
+ * arriba y se come faroles de las manzanas vecinas, que después aparecen
+ * flotando en el cielo. Los faroles están sobre el PLINTO, así que el filtro
+ * correcto es el rombo de base.
+ */
+export function lampsForBuilding(key: Tematica | 'palacio') {
+  const f = BUILDING_FOOTPRINT[key];
+  const hh = f.bottomY - f.groundY;
+  return toLocal(CITY_LAMPS, key).filter(([u, v]) => {
+    // Punto dentro del rombo: |Δu|/semiancho + |Δv|/semialto ≤ 1. Se deja un
+    // poco de holgura (1.06) porque las farolas van justo sobre el borde.
+    const du = Math.abs(u - f.bottomX) / 0.5;
+    const dv = Math.abs(v - f.groundY) / hh;
+    return du + dv <= 1.06;
+  });
+}
+
+/** Chimeneas: van en los TECHOS, o sea por encima del rombo — filtro por el
+ *  rectángulo del sprite, que para ellas sí alcanza. */
+export function chimneysForBuilding(key: Tematica | 'palacio') {
+  return toLocal(CITY_CHIMNEYS, key);
+}
 
 /** Centroide (promedio de vértices) de un polígono, en fracciones. */
 export function polygonCentroid(poly: Polygon): { x: number; y: number } {

@@ -15,7 +15,7 @@
 // EXPLORAR y devolución del foco al cerrar.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, useReducedMotion } from 'framer-motion';
 import ThemeCharacter from '@/components/home/ThemeCharacter';
@@ -53,6 +53,18 @@ export default function ThemeOverlay({ tema, onClose, fullscreen = false }: Them
       : { duration: 0.55, delay, ease: EASE },
   });
 
+  // El contenido entra animando `y: 48 → 0`. Un translate SÍ cuenta como
+  // desborde en un contenedor con overflow-y-auto, así que durante la entrada
+  // asomaba una barra de scroll que desaparecía sola al asentar — se veía como
+  // un parpadeo feo. Se mantiene el scroll (necesario en pantallas bajas) pero
+  // recién se habilita cuando la cascada terminó.
+  const [scrollable, setScrollable] = useState(shouldReduce ?? false);
+  useEffect(() => {
+    if (shouldReduce) return;
+    const t = setTimeout(() => setScrollable(true), 1100); // 0.55s + delay máx.
+    return () => clearTimeout(t);
+  }, [shouldReduce]);
+
   // Foco inicial en EXPLORAR + devolución del foco al elemento previo al cerrar
   useEffect(() => {
     const prev = document.activeElement as HTMLElement | null;
@@ -88,7 +100,7 @@ export default function ThemeOverlay({ tema, onClose, fullscreen = false }: Them
       aria-describedby="theme-overlay-desc"
       className={
         fullscreen
-          ? 'fixed inset-0 z-50 flex items-center justify-center overflow-y-auto'
+          ? `fixed inset-0 z-50 flex items-center justify-center ${scrollable ? 'overflow-y-auto' : 'overflow-hidden'}`
           : 'absolute inset-0 z-30 flex items-center justify-center overflow-hidden'
       }
       style={{
@@ -102,7 +114,9 @@ export default function ThemeOverlay({ tema, onClose, fullscreen = false }: Them
       transition={{ duration: shouldReduce ? 0 : 0.35 }}
     >
       {/* max-h-full + overflow-y-auto: en stages bajos nada queda cortado */}
-      <div className="flex max-h-full flex-col items-center gap-6 overflow-y-auto px-8 py-8 short:gap-4 short:py-4 md:flex-row md:gap-16">
+      <div
+        className={`flex max-h-full flex-col items-center gap-6 px-8 py-8 short:gap-4 short:py-4 md:flex-row md:gap-16 ${scrollable ? 'overflow-y-auto' : 'overflow-hidden'}`}
+      >
         {/* IZQUIERDA — personaje 360° + título debajo */}
         <div className="flex flex-col items-center gap-4">
           {/* Marco neon con el color de la temática (ref. de Figma) */}

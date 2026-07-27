@@ -4,7 +4,13 @@
 // activos a la vez y se pisen los atajos (N, Z, X, C).
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type CalibrationMode = 'none' | 'paths' | 'hitboxes' | 'flag';
+export type CalibrationMode =
+  | 'none'
+  | 'paths'
+  | 'hitboxes'
+  | 'flag'
+  | 'placement'
+  | 'lamps';
 
 /** Modo activo actual (mutable, compartido entre calibradores). */
 export const calibration = { mode: 'none' as CalibrationMode };

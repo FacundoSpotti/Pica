@@ -26,6 +26,11 @@ import RandomOverlay from '@/components/home/RandomOverlay';
 import PathCalibrator from '@/components/home/PathCalibrator';
 import HitboxCalibrator from '@/components/home/HitboxCalibrator';
 import FlagCalibrator from '@/components/home/FlagCalibrator';
+import PlacementCalibrator from '@/components/home/PlacementCalibrator';
+import LampCalibrator from '@/components/home/LampCalibrator';
+import CityAmbience from '@/components/home/CityAmbience';
+import CitySky from '@/components/home/CitySky';
+import CityLifeCanvas from '@/components/home/CityLifeCanvas';
 import StickyNotes from '@/components/home/StickyNotes';
 import StreetGrid from '@/components/home/StreetGrid';
 import MobileCityCarousel from '@/components/home/MobileCityCarousel';
@@ -114,6 +119,11 @@ export default function HomePage() {
         {/* Puntos de colores a TODO el viewport (recorren las calles extendidas
             y hacen wrap por los bordes). Debajo de los edificios (z-10). */}
         <HomeCanvas convergeTarget={selected?.center ?? null} onConverged={handleConverged} />
+        {/* Autos, semáforos en los cruces y humo — un solo canvas para todo lo
+            que se mueve, encima de las calles y debajo de los edificios. */}
+        <CityLifeCanvas />
+        {/* Tinte de la hora sobre toda la ventana + pájaro ocasional */}
+        <CitySky />
       </div>
 
       {/* Destellos pixel titilando en el margen oscuro (solo desktop) */}
@@ -145,6 +155,11 @@ export default function HomePage() {
           height: `min(100vh - 150px, calc(93vw / ${ASPECT}))`,
         }}
       >
+        {/* Suelo del paisaje: sombras proyectadas y manzanas todavía sin
+            temática. Va DEBAJO de los edificios. Se atenúa cuando hay una
+            temática seleccionada, para no competir con ella. */}
+        <CityAmbience dimmed={Boolean(selected)} layer="ground" />
+
         {/* Los puntos ya no van dentro del stage: viven en el canvas a viewport
             completo (arriba), debajo de los edificios. El overlay tampoco va
             acá: se monta a PANTALLA COMPLETA (ya no hay marco de mapa). */}
@@ -154,15 +169,16 @@ export default function HomePage() {
           onHoverTema={setHoveredTema}
         />
 
-        {/* Herramientas de calibración (dev) — apagadas por defecto. Para
-            reactivarlas: crear .env.local con NEXT_PUBLIC_CALIBRATORS=on
-            (P = paths, H = hitboxes, B = bandera del Palacio). Dentro del stage para que las
-            coordenadas % coincidan con el landscape. */}
+        {/* Faroles ENCIMA de los edificios: las farolas del arte están al frente
+            de cada manzana, así que si la luz va debajo el edificio la tapa. */}
+        <CityAmbience dimmed={Boolean(selected)} layer="lights" />
+
+        {/* Calibradores que trabajan DENTRO de la caja del stage (sus overlays
+            son `absolute inset-0` y heredan sus %). */}
         {CALIBRATORS_ON && (
           <>
-            <PathCalibrator />
-            <HitboxCalibrator />
             <FlagCalibrator />
+            <PlacementCalibrator />
           </>
         )}
       </div>
@@ -200,6 +216,24 @@ export default function HomePage() {
       >
         <StickyNotes constraintsRef={sectionRef} />
       </div>
+
+      {/* Calibradores de PANTALLA COMPLETA (dev) — apagados por defecto; para
+          reactivarlos poner NEXT_PUBLIC_CALIBRATORS=on en .env.local.
+          P = calles, H = hitboxes. Van FUERA del stage a propósito: el stage
+          está transformado (-translate-1/2) y un `fixed` adentro se ancla a él
+          en vez de a la ventana. Como el Home ya no tiene marco, estos dos
+          tienen que poder marcar en TODA la pantalla; convierten pantalla→stage
+          con stageBox(), así las coordenadas siguen siendo las de siempre. */}
+      {CALIBRATORS_ON && (
+        // Solo desktop: se calibra sobre el landscape, que en mobile no existe
+        // (ahí la ciudad es el carrusel). Antes vivían dentro del stage, que ya
+        // era max-md:hidden; al sacarlos hay que ocultarlos explícitamente.
+        <div className="hidden md:block">
+          <PathCalibrator />
+          <HitboxCalibrator />
+          <LampCalibrator />
+        </div>
+      )}
 
       {/* Barra de temáticas en el borde inferior — el color del edificio en
           hover se expande a toda la barra */}

@@ -30,9 +30,17 @@ export default function ColorBar({ hovered }: { hovered?: Tematica | null }) {
 
   return (
     <>
+      {/* Glow en dos capas: una difusa que tiñe el borde inferior, y otra más
+          cerrada pegada a la barra para que se lea como emisión y no como
+          neblina. Ambas siguen el color en hover. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute bottom-0 left-0 z-10 h-2 w-full opacity-35 blur-md transition-colors duration-300"
+        className="pointer-events-none absolute bottom-0 left-0 z-10 h-5 w-full opacity-40 blur-xl transition-colors duration-300"
+        style={{ background: hovered ? TEMA_COLOR[hovered] : glowGradient }}
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute bottom-0 left-0 z-10 h-2 w-full opacity-70 blur-[5px] transition-colors duration-300"
         style={{ background: hovered ? TEMA_COLOR[hovered] : glowGradient }}
       />
     <ul

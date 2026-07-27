@@ -13,10 +13,15 @@
 // · H → salir del modo
 // Arranca precargado con los polígonos actuales de assets.ts: solo hace falta
 // redibujar (X + clicks) los que estén mal.
-// Montar DENTRO del stage para que los % coincidan con el landscape.
+//
+// Cubre TODA LA VENTANA (el Home ya no tiene marco): se puede marcar fuera de
+// la caja del stage, que es necesario para los edificios que sangran por el
+// borde. La conversión pantalla→stage usa el mismo stageBox() que el resto.
+// Montar FUERA del stage (el stage tiene transform y capturaría el `fixed`).
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useEffect, useRef, useState } from 'react';
+import { stageBox, toScreen, toStage } from '@/lib/streets';
 import { BUILDING_HITBOX_POLYGONS, PALACIO_HITBOX_POLYGON } from '@/lib/assets';
 import { TEMA_COLOR, TEMA_LABEL } from '@/lib/colors';
 import type { Tematica } from '@/types/sprites';
@@ -135,23 +140,30 @@ export default function HitboxCalibrator() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = overlayRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const x = Number(((e.clientX - rect.left) / rect.width).toFixed(3));
-    const y = Number(((e.clientY - rect.top) / rect.height).toFixed(3));
-    const tema = SEQUENCE[temaIdxRef.current]!;
-    setPolys((ps) => ({ ...ps, [tema]: [...ps[tema], [x, y] as Pt] }));
+  // Tamaño de ventana: el overlay es full-screen y las coordenadas se calculan
+  // contra la caja del stage, que depende del viewport.
+  const [vp, setVp] = useState({ w: 0, h: 0 });
+  useEffect(() => {
+    const update = () => setVp({ w: window.innerWidth, h: window.innerHeight });
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+  const box = stageBox(vp.w || 1, vp.h || 1);
+
+  /** Pantalla → coordenadas del stage (pueden salir de [0,1]: no hay marco). */
+  const at = (e: React.MouseEvent<HTMLDivElement>): Pt => {
+    const [x, y] = toStage(e.clientX, e.clientY, box);
+    return [Number(x.toFixed(3)), Number(y.toFixed(3))];
   };
 
-  const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = overlayRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    setCursor([
-      Number(((e.clientX - rect.left) / rect.width).toFixed(3)),
-      Number(((e.clientY - rect.top) / rect.height).toFixed(3)),
-    ]);
+  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const pt = at(e);
+    const tema = SEQUENCE[temaIdxRef.current]!;
+    setPolys((ps) => ({ ...ps, [tema]: [...ps[tema], pt] }));
   };
+
+  const handleMove = (e: React.MouseEvent<HTMLDivElement>) => setCursor(at(e));
 
   if (!active) {
     // Badge oculto si el calibrador de paths está en uso
@@ -171,72 +183,75 @@ export default function HitboxCalibrator() {
   return (
     <div
       ref={overlayRef}
-      className="absolute inset-0 z-40 cursor-crosshair select-none"
+      className="fixed inset-0 z-40 cursor-crosshair select-none"
       onClick={handleClick}
       onMouseMove={handleMove}
     >
-      {/* Polígonos en tiempo real, cada uno con el color de su temática */}
+      {/* Polígonos en tiempo real (en píxeles de pantalla, vía toScreen) */}
       <svg
         className="pointer-events-none absolute inset-0 h-full w-full"
-        viewBox="0 0 100 100"
-        preserveAspectRatio="none"
+        viewBox={`0 0 ${vp.w || 1} ${vp.h || 1}`}
         aria-hidden="true"
       >
+        {/* Borde de la caja del stage, como referencia */}
+        <rect
+          x={box.originX}
+          y={box.originY}
+          width={box.w}
+          height={box.h}
+          fill="none"
+          stroke="rgba(255,255,255,0.18)"
+          strokeDasharray="6 6"
+        />
         {SEQUENCE.map((tema) => {
           const poly = polys[tema];
           if (poly.length === 0) return null;
           const isCurrent = tema === currentTema;
-          const pts = poly.map(([x, y]) => `${x * 100},${y * 100}`).join(' ');
+          const pts = poly.map(([x, y]) => toScreen(x, y, box).join(',')).join(' ');
           return (
             <g key={tema}>
               {poly.length >= 3 ? (
                 <polygon
                   points={pts}
                   fill={colorOf(tema)}
-                  fillOpacity={isCurrent ? 0.35 : 0.15}
+                  fillOpacity={isCurrent ? 0.22 : 0.1}
                   stroke={colorOf(tema)}
-                  strokeWidth={isCurrent ? 3 : 1.5}
-                  vectorEffect="non-scaling-stroke"
+                  strokeWidth={isCurrent ? 2 : 1}
                 />
               ) : (
                 poly.length >= 2 && (
-                  <polyline
-                    points={pts}
-                    fill="none"
-                    stroke={colorOf(tema)}
-                    strokeWidth={3}
-                    vectorEffect="non-scaling-stroke"
-                  />
+                  <polyline points={pts} fill="none" stroke={colorOf(tema)} strokeWidth={2} />
                 )
               )}
+              {/* Marcador en X (chico y calado): deja ver el arte debajo */}
               {isCurrent &&
-                poly.map(([x, y], j) => (
-                  <circle
-                    key={j}
-                    cx={x * 100}
-                    cy={y * 100}
-                    r={2.5}
-                    fill="#FFEA00"
-                    vectorEffect="non-scaling-stroke"
-                  />
-                ))}
+                poly.map(([x, y], j) => {
+                  const [sx, sy] = toScreen(x, y, box);
+                  const r = 4;
+                  return (
+                    <g key={j} stroke="#FFEA00" strokeWidth={1.25}>
+                      <line x1={sx - r} y1={sy - r} x2={sx + r} y2={sy + r} />
+                      <line x1={sx - r} y1={sy + r} x2={sx + r} y2={sy - r} />
+                    </g>
+                  );
+                })}
             </g>
           );
         })}
       </svg>
 
-      {/* Etiquetas en el centroide de cada polígono */}
+      {/* Etiquetas en el centroide de cada polígono (proyectadas a pantalla) */}
       {SEQUENCE.map((tema) => {
         const poly = polys[tema];
         if (poly.length === 0) return null;
-        const [cx, cy] = centroid(poly);
+        const [sx, sy] = toScreen(...centroid(poly), box);
         return (
           <span
             key={tema}
             className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap bg-black/80 px-1 text-[11px] leading-tight"
             style={{
-              left: `${cx * 100}%`,
-              top: `${cy * 100}%`,
+              left: sx,
+              top: sy,
               fontFamily: 'monospace',
               color: colorOf(tema),
             }}
