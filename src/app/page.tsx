@@ -27,6 +27,8 @@ import PathCalibrator from '@/components/home/PathCalibrator';
 import HitboxCalibrator from '@/components/home/HitboxCalibrator';
 import FlagCalibrator from '@/components/home/FlagCalibrator';
 import PlacementCalibrator from '@/components/home/PlacementCalibrator';
+import LampCalibrator from '@/components/home/LampCalibrator';
+import CityAmbience from '@/components/home/CityAmbience';
 import StickyNotes from '@/components/home/StickyNotes';
 import StreetGrid from '@/components/home/StreetGrid';
 import MobileCityCarousel from '@/components/home/MobileCityCarousel';
@@ -146,6 +148,11 @@ export default function HomePage() {
           height: `min(100vh - 150px, calc(93vw / ${ASPECT}))`,
         }}
       >
+        {/* Vida del paisaje: faroles encendidos y manzanas todavía sin temática.
+            Va DEBAJO de los edificios (las fachadas tapan la luz) y se atenúa
+            cuando hay una temática seleccionada, para no competir con ella. */}
+        <CityAmbience dimmed={Boolean(selected)} />
+
         {/* Los puntos ya no van dentro del stage: viven en el canvas a viewport
             completo (arriba), debajo de los edificios. El overlay tampoco va
             acá: se monta a PANTALLA COMPLETA (ya no hay marco de mapa). */}
@@ -213,6 +220,7 @@ export default function HomePage() {
         <div className="hidden md:block">
           <PathCalibrator />
           <HitboxCalibrator />
+          <LampCalibrator />
         </div>
       )}
 

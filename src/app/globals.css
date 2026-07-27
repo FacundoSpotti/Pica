@@ -90,6 +90,45 @@ img[data-pixelated='true'] {
   animation: pica-attract 1.8s ease-in-out;
 }
 
+/* ── Faroles de la ciudad (ver CityAmbience) ──────────────────────────────────
+   Dos ritmos combinados: un "respirar" lento constante y, dentro del mismo
+   ciclo, un destello corto. Al desfasar el delay por farol la ciudad titila
+   despareja en vez de latir toda junta. */
+
+@keyframes pica-lamp-glow {
+  0%, 100% { opacity: 0.62; transform: translate(-50%, -50%) scale(1); }
+  38%      { opacity: 0.92; transform: translate(-50%, -50%) scale(1.1); }
+  /* destello corto */
+  72%      { opacity: 1;    transform: translate(-50%, -50%) scale(1.22); }
+  78%      { opacity: 0.7;  transform: translate(-50%, -50%) scale(1.04); }
+}
+
+.pica-lamp-glow {
+  animation: pica-lamp-glow 6.5s ease-in-out infinite;
+}
+
+@keyframes pica-lamp-core {
+  0%, 100% { opacity: 0.8; }
+  38%      { opacity: 1; }
+  72%      { opacity: 1; }
+  78%      { opacity: 0.72; }
+}
+
+.pica-lamp-core {
+  animation: pica-lamp-core 6.5s ease-in-out infinite;
+}
+
+/* Manzanas todavía sin temática: el contorno respira apenas, para que se lea
+   como "reservado" y no como un error de dibujo. */
+@keyframes pica-block-breathe {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1; }
+}
+
+.pica-block-breathe {
+  animation: pica-block-breathe 4.5s ease-in-out infinite;
+}
+
 /* ── Ojos del logo: mirada + parpadeo pasivos (ver PicaLogo) ─────────────── */
 
 @keyframes pica-eye-cycle {

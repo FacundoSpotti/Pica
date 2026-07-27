@@ -175,7 +175,7 @@ export default function CityLandscape({ selectedTema, onSelect, children, onHove
   // edificios de temática, en BLANCO (no es una temática).
   const palacioSel = selectedTema === 'palacio';
   const palacioHov = hoveredTema === 'palacio';
-  const pS = palacioHov ? 1 : 0;
+  const pS = palacioHov && !palacioSel ? 1 : 0; // glow solo en hover, no al seleccionar
   const palacioGrayed = Boolean(selectedTema) && !palacioSel;
   // Relieve: al hover/click el edificio se ELEVA del suelo. La sombra proyectada
   // abajo (drop-shadow oscuro con offset) lo ancla al piso → sube, no flota.
@@ -210,7 +210,9 @@ export default function CityLandscape({ selectedTema, onSelect, children, onHove
     // El drop-shadow está SIEMPRE presente (mismos radios) y solo varía la
     // intensidad del color/alpha — CSS no interpola desde `filter: none`, así
     // que mantenerlo permite que la transición de 350ms sea gradual, no un salto.
-    const s = isHovered ? 1 : 0; // fuerza del destello (0→1)
+    // Al SELECCIONAR el glow se apaga: ahí la lectura la dan el relieve (muro)
+    // y el cartel, y el color ya lo aporta el contraste contra el grayscale.
+    const s = isHovered && !isSelected ? 1 : 0; // fuerza del destello (0→1)
     const filter = grayed
       ? GRAYSCALE
       : `drop-shadow(0 0 3px color-mix(in srgb, ${glow} ${s * 100}%, transparent)) drop-shadow(0 0 8px color-mix(in srgb, ${glow} ${s * 40}%, transparent)) drop-shadow(0 18px 14px rgba(0,0,0,${gsA}))`;

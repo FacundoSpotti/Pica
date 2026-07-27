@@ -169,6 +169,21 @@ export const BUILDING_PLACEMENT: Record<Tematica | 'palacio', Placement> = {
 export const GROUND_SLOPE = 0.649;
 
 /**
+ * Faroles de la ciudad, en fracciones (0–1) del stage. Sobre cada uno se dibuja
+ * un halo cálido que respira y de vez en cuando destella.
+ * Calibrados con el LampCalibrator (tecla L) — no editar a mano.
+ */
+export const CITY_LAMPS: ReadonlyArray<readonly [number, number]> = [];
+
+/**
+ * Manzanas vacías: los huecos que dejan las calles donde TODAVÍA no hay
+ * temática. Se marcan con un rombo punteado y un cartel de "próximamente" para
+ * contar que Pica sigue creciendo. Centro del rombo, en fracciones del stage.
+ * Calibrados con el LampCalibrator (tecla L, modo manzanas) — no editar a mano.
+ */
+export const FUTURE_BLOCKS: ReadonlyArray<readonly [number, number]> = [];
+
+/**
  * Rombo de BASE de cada sprite (el basamento del propio arte), en fracciones
  * (0–1) del sprite. Medido por scripts/pixelate-buildings.py → footprint.json.
  *
@@ -243,7 +258,7 @@ export const PALACIO_HITBOX_POLYGON: Polygon = [
  * FINA se calibra in-app con la tecla B (FlagCalibrator, NEXT_PUBLIC_CALIBRATORS=on)
  * y se pega acá.
  */
-export const PALACIO_FLAG_ANCHOR: { x: number; y: number } = { x: 0.4688, y: 0.4443 };
+export const PALACIO_FLAG_ANCHOR: { x: number; y: number } = { x: 0.5137, y: 0.3353 };
 
 /**
  * Orden de apilado (z) de las capas de edificios, de abajo hacia arriba.
