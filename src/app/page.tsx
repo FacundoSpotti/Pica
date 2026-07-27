@@ -26,6 +26,7 @@ import RandomOverlay from '@/components/home/RandomOverlay';
 import PathCalibrator from '@/components/home/PathCalibrator';
 import HitboxCalibrator from '@/components/home/HitboxCalibrator';
 import FlagCalibrator from '@/components/home/FlagCalibrator';
+import PlacementCalibrator from '@/components/home/PlacementCalibrator';
 import StickyNotes from '@/components/home/StickyNotes';
 import StreetGrid from '@/components/home/StreetGrid';
 import MobileCityCarousel from '@/components/home/MobileCityCarousel';
@@ -155,14 +156,16 @@ export default function HomePage() {
         />
 
         {/* Herramientas de calibración (dev) — apagadas por defecto. Para
-            reactivarlas: crear .env.local con NEXT_PUBLIC_CALIBRATORS=on
-            (P = paths, H = hitboxes, B = bandera del Palacio). Dentro del stage para que las
-            coordenadas % coincidan con el landscape. */}
+            reactivarlas: en .env.local poner NEXT_PUBLIC_CALIBRATORS=on
+            (P = paths, H = hitboxes, B = bandera del Palacio, E = emplazamiento
+            de edificios). Dentro del stage para que las coordenadas %
+            coincidan con el landscape. */}
         {CALIBRATORS_ON && (
           <>
             <PathCalibrator />
             <HitboxCalibrator />
             <FlagCalibrator />
+            <PlacementCalibrator />
           </>
         )}
       </div>

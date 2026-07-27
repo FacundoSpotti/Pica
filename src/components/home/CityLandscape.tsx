@@ -38,6 +38,11 @@ import PalacioFlag from '@/components/home/PalacioFlag';
 import WindowTwinkles from '@/components/home/WindowTwinkles';
 import { ACTIVE_TEMAS, isTemaActive, TEMA_COLOR, TEMA_LABEL, TEMA_ORDER } from '@/lib/colors';
 import { STREET_PATHS } from '@/hooks/useColorDots';
+import {
+  CALIBRATION_EVENT,
+  calibration,
+  type CalibrationMode,
+} from './calibrationState';
 import type { Tematica } from '@/types/sprites';
 
 // Debug temporal (poner en true para ver hitboxes y paths sobre el landscape).
@@ -90,6 +95,16 @@ export default function CityLandscape({ selectedTema, onSelect, children, onHove
     onHoverTema?.(hoveredTema && hoveredTema !== 'palacio' ? hoveredTema : null);
   }, [hoveredTema, onHoverTema]);
 
+  // Con el PlacementCalibrator (tecla E) activo, los edificios reales quedan en
+  // FANTASMA: así se ve dónde estaban mientras se arrastran los de la herramienta.
+  const [calMode, setCalMode] = useState<CalibrationMode>(calibration.mode);
+  useEffect(() => {
+    const onMode = (e: Event) => setCalMode((e as CustomEvent<CalibrationMode>).detail);
+    window.addEventListener(CALIBRATION_EVENT, onMode);
+    return () => window.removeEventListener(CALIBRATION_EVENT, onMode);
+  }, []);
+  const ghost = calMode === 'placement' ? 0.16 : undefined;
+
   // Modo "atract": sin interacción, cada tanto un edificio destella con su
   // color rotando entre las temáticas activas — invita a clickear.
   // Se pausa mientras hay hover (para no confundir con otro edificio).
@@ -123,6 +138,7 @@ export default function CityLandscape({ selectedTema, onSelect, children, onHove
   const palacioStyle: React.CSSProperties = {
     ...pixelated,
     ...placementStyle(BUILDING_PLACEMENT.palacio),
+    opacity: ghost,
     filter: palacioGrayed
       ? GRAYSCALE
       : `drop-shadow(0 0 3px color-mix(in srgb, #EBEBEB ${pS * 100}%, transparent)) drop-shadow(0 0 8px color-mix(in srgb, #EBEBEB ${pS * 40}%, transparent)) drop-shadow(0 18px 14px rgba(0,0,0,${palacioGsA}))`,
@@ -173,6 +189,7 @@ export default function CityLandscape({ selectedTema, onSelect, children, onHove
             ...pixelated,
             ...place,
             '--glow': glow,
+            opacity: ghost,
             filter,
             transform: `translateY(${lift})`,
             transition: 'filter 350ms ease, transform 400ms cubic-bezier(0.22, 1, 0.36, 1)',
