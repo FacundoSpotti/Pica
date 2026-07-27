@@ -2,15 +2,22 @@
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PICA — CityAmbience
-// Capa de "suelo" del paisaje, debajo de los edificios. De abajo hacia arriba:
+// El ambiente del paisaje va en DOS capas, montadas a distinta altura del
+// stack porque no pueden compartir z:
 //
-//   1. SOMBRAS proyectadas de cada edificio sobre la calle. Se derivan del rombo
-//      de base (BUILDING_FOOTPRINT) y se estiran/giran según la hora: cortas al
-//      mediodía, largas y tendidas al atardecer.
-//   2. MANZANAS sin temática todavía: rombo punteado + cartel "Próximamente".
-//   3. FAROLES: no son un círculo plano — cada uno tiene charco de luz elíptico
-//      sobre el asfalto (en perspectiva isométrica), brillo especular del piso
-//      mojado, halo volumétrico y bulbo. Encienden de noche y se apagan de día.
+//   layer="ground" (DEBAJO de los edificios)
+//     1. SOMBRAS proyectadas de cada edificio sobre la calle. Se derivan del
+//        rombo de base (BUILDING_FOOTPRINT) y se estiran/giran según la hora:
+//        cortas al mediodía, largas y tendidas al atardecer.
+//     2. MANZANAS sin temática todavía: rombo punteado + cartel "Próximamente".
+//
+//   layer="lights" (ENCIMA de los edificios)
+//     3. FAROLES. Van arriba porque las farolas del arte están dibujadas al
+//        frente de cada manzana: si la luz queda debajo de la capa del edificio,
+//        el propio edificio la tapa y no se ve nada.
+//        No son un círculo plano — cada uno tiene charco de luz elíptico sobre
+//        el asfalto (en perspectiva isométrica), brillo especular del piso
+//        mojado, halo volumétrico y bulbo.
 //
 // Todo cuelga de useDayNight, así el conjunto se lee coherente (no hay faroles
 // prendidos a pleno sol ni sombras que contradigan la luz).
@@ -40,7 +47,14 @@ const SHADOW_KEYS: ReadonlyArray<Tematica | 'palacio'> = [
   'economia',
 ];
 
-export default function CityAmbience({ dimmed = false }: { dimmed?: boolean }) {
+export default function CityAmbience({
+  dimmed = false,
+  layer = 'ground',
+}: {
+  dimmed?: boolean;
+  /** 'ground' va debajo de los edificios; 'lights' encima (ver cabecera). */
+  layer?: 'ground' | 'lights';
+}) {
   const reduce = useReducedMotion() ?? false;
   const { night, golden, phase } = useDayNight(reduce);
 
@@ -61,7 +75,7 @@ export default function CityAmbience({ dimmed = false }: { dimmed?: boolean }) {
       style={{ opacity: dimmed ? 0.28 : 1 }}
     >
       {/* ── 1. Sombras de los edificios ───────────────────────────────────── */}
-      {shadowAlpha > 0.02 && (
+      {layer === 'ground' && shadowAlpha > 0.02 && (
         <svg
           className="absolute inset-0 h-full w-full"
           viewBox="0 0 100 100"
@@ -93,6 +107,7 @@ export default function CityAmbience({ dimmed = false }: { dimmed?: boolean }) {
       )}
 
       {/* ── 2. Manzanas todavía sin temática ──────────────────────────────── */}
+      {layer === 'ground' && (
       <svg
         className="absolute inset-0 h-full w-full"
         viewBox="0 0 100 100"
@@ -117,24 +132,26 @@ export default function CityAmbience({ dimmed = false }: { dimmed?: boolean }) {
           );
         })}
       </svg>
-      {FUTURE_BLOCKS.map(([cx, cy], i) => (
-        <span
-          key={i}
-          className="absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap font-display uppercase"
-          style={{
-            left: `${cx * 100}%`,
-            top: `${cy * 100}%`,
-            fontSize: 'clamp(6px, 0.55vw, 10px)',
-            letterSpacing: '0.22em',
-            color: 'rgba(235,235,235,0.3)',
-          }}
-        >
-          Próximamente
-        </span>
-      ))}
+      )}
+      {layer === 'ground' &&
+        FUTURE_BLOCKS.map(([cx, cy], i) => (
+          <span
+            key={i}
+            className="absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap font-display uppercase"
+            style={{
+              left: `${cx * 100}%`,
+              top: `${cy * 100}%`,
+              fontSize: 'clamp(6px, 0.55vw, 10px)',
+              letterSpacing: '0.22em',
+              color: 'rgba(235,235,235,0.3)',
+            }}
+          >
+            Próximamente
+          </span>
+        ))}
 
       {/* ── 3. Faroles ────────────────────────────────────────────────────── */}
-      {lampOn > 0.02 && (
+      {layer === 'lights' && lampOn > 0.02 && (
         <div className="absolute inset-0" style={{ opacity: lampOn, transition: 'opacity 2s linear' }}>
           {CITY_LAMPS.map(([x, y], i) => {
             const delay = `${(i % 9) * 0.7}s`;

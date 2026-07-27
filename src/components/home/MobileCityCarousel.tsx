@@ -38,6 +38,7 @@ import {
   type Footprint,
 } from '@/lib/assets';
 import { SPRITE_COLORS, TEMA_COLOR, TEMA_LABEL, TEMA_ORDER } from '@/lib/colors';
+import { useDayNight } from '@/hooks/useDayNight';
 import { getEntidades } from '@/lib/datasets';
 import { slugify } from '@/lib/slug';
 import UruguayFlag from '@/components/shared/UruguayFlag';
@@ -92,6 +93,7 @@ function BuildingRoad({
   hh,
   bhw,
   bhh,
+  night,
   entering,
   enterP,
   maxLift,
@@ -104,6 +106,8 @@ function BuildingRoad({
   hh: number;
   bhw: number;
   bhh: number;
+  /** 0 (día) → 1 (noche): enciende los faroles de la manzana. */
+  night: number;
   entering: boolean;
   enterP: MotionValue<number>;
   maxLift: number;
@@ -113,6 +117,8 @@ function BuildingRoad({
   useEffect(() => {
     enteringRef.current = entering;
   }, [entering]);
+  const nightRef = useRef(night);
+  nightRef.current = night;
 
   useEffect(() => {
     const canvas = ref.current;
@@ -176,6 +182,43 @@ function BuildingRoad({
       trace();
       ctx.stroke();
       ctx.setLineDash([]);
+
+      // Faroles de la manzana: uno en cada esquina del rombo de la calle.
+      // Mismo lenguaje que en desktop — charco elíptico sobre el asfalto, halo
+      // y bulbo — pero derivados de la geometría del propio slide.
+      const nightNow = nightRef.current;
+      const lampOn = Math.min(1, Math.max(0, (nightNow - 0.18) / 0.5));
+      if (lampOn > 0.02) {
+        ctx.save();
+        ctx.globalAlpha = lampOn;
+        for (const v of V) {
+          // Charco de luz en el piso (elipse aplastada por la perspectiva)
+          const rx = hw * 0.32;
+          const ry = rx * (hh / hw);
+          const g = ctx.createRadialGradient(v.x, v.y, 0, v.x, v.y, rx);
+          g.addColorStop(0, 'rgba(255,186,96,0.34)');
+          g.addColorStop(0.45, 'rgba(255,170,70,0.14)');
+          g.addColorStop(1, 'rgba(255,170,70,0)');
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.ellipse(v.x, v.y, rx, Math.max(2, ry), 0, 0, Math.PI * 2);
+          ctx.fill();
+          // Halo de la lámpara, un poco por encima del piso
+          const ly = v.y - roadW * 1.6;
+          const hg = ctx.createRadialGradient(v.x, ly, 0, v.x, ly, roadW * 1.5);
+          hg.addColorStop(0, 'rgba(255,206,140,0.55)');
+          hg.addColorStop(1, 'rgba(255,178,80,0)');
+          ctx.fillStyle = hg;
+          ctx.beginPath();
+          ctx.arc(v.x, ly, roadW * 1.5, 0, Math.PI * 2);
+          ctx.fill();
+          // Bulbo
+          ctx.fillStyle = '#FFF0D0';
+          ctx.fillRect(Math.round(v.x - 1), Math.round(ly - 1), 2, 2);
+        }
+        ctx.restore();
+      }
+
       const ent = enteringRef.current;
       for (const d of dots) {
         let alpha = 1;
@@ -284,6 +327,8 @@ function BuildingCrop({
   enterP: MotionValue<number>;
 }) {
   const [size, setSize] = useState<{ w: number; h: number }>({ w: 0, h: 0 });
+  const reduce = useReducedMotion() ?? false;
+  const { night } = useDayNight(reduce);
   // El edificio se eleva (en % de su alto) siguiendo el progreso de entrada; el
   // muro del canvas usa el MISMO factor (maxLift px) → suben sincronizados.
   const liftY = useTransform(enterP, (v) => `${(-100 * KLIFT * liftFrac(v)).toFixed(2)}%`);
@@ -341,6 +386,7 @@ function BuildingCrop({
           hh={hh}
           bhw={bhw}
           bhh={bhh}
+          night={night}
           entering={entering}
           enterP={enterP}
           maxLift={maxLift}
@@ -384,6 +430,7 @@ const variants = {
 export default function MobileCityCarousel() {
   const router = useRouter();
   const reduce = useReducedMotion() ?? false;
+  const { night, golden } = useDayNight(reduce);
   const [[page, dir], setPage] = useState<[number, number]>([0, 0]);
   const [palacioOpen, setPalacioOpen] = useState(false);
   // Animación de "entrar": pinta el edificio + los píxeles entran + la caja se
@@ -472,6 +519,17 @@ export default function MobileCityCarousel() {
           backgroundColor: '#0D0D0D',
           backgroundImage:
             'repeating-linear-gradient(135deg, rgba(255,255,255,0.02) 0 1px, transparent 1px 6px)',
+        }}
+      />
+      {/* Mismo ciclo día/noche que desktop: el carrusel también amanece y
+          anochece, y sus faroles encienden con él. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-[15]"
+        style={{
+          background: `linear-gradient(rgba(10,20,60,${(0.42 * night).toFixed(3)}), rgba(10,20,60,${(0.42 * night).toFixed(3)})), linear-gradient(rgba(255,150,60,${(0.2 * golden).toFixed(3)}), rgba(255,150,60,${(0.2 * golden).toFixed(3)}))`,
+          mixBlendMode: 'soft-light',
+          transition: 'background 1s linear',
         }}
       />
 

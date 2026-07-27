@@ -97,10 +97,12 @@ function findIntersections(): Light[] {
           if (t < 0 || t > 1 || u < 0 || u > 1) continue;
           const x = x1 + t * (x2 - x1);
           const y = y1 + t * (y2 - y1);
-          // Solo cruces dentro (o apenas fuera) de la caja visible
-          if (x < -0.05 || x > 1.05 || y < -0.05 || y > 1.05) continue;
-          // Evitar duplicados muy cercanos
-          if (out.some((l) => Math.hypot(l.x - x, l.y - y) < 0.03)) continue;
+          // Solo cruces BIEN dentro de la caja: los del borde quedan cortados
+          // por la ventana y se leen como manchas sueltas.
+          if (x < 0.06 || x > 0.94 || y < 0.06 || y > 0.94) continue;
+          // Separación mínima generosa: la grilla genera muchísimos cruces y
+          // todos poblados se ve saturado. Se queda uno por zona.
+          if (out.some((l) => Math.hypot(l.x - x, l.y - y) < 0.14)) continue;
           out.push({ x, y, offset: (out.length * 2.3) % TL_TOTAL });
         }
       }

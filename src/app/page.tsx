@@ -155,10 +155,10 @@ export default function HomePage() {
           height: `min(100vh - 150px, calc(93vw / ${ASPECT}))`,
         }}
       >
-        {/* Vida del paisaje: faroles encendidos y manzanas todavía sin temática.
-            Va DEBAJO de los edificios (las fachadas tapan la luz) y se atenúa
-            cuando hay una temática seleccionada, para no competir con ella. */}
-        <CityAmbience dimmed={Boolean(selected)} />
+        {/* Suelo del paisaje: sombras proyectadas y manzanas todavía sin
+            temática. Va DEBAJO de los edificios. Se atenúa cuando hay una
+            temática seleccionada, para no competir con ella. */}
+        <CityAmbience dimmed={Boolean(selected)} layer="ground" />
 
         {/* Los puntos ya no van dentro del stage: viven en el canvas a viewport
             completo (arriba), debajo de los edificios. El overlay tampoco va
@@ -168,6 +168,10 @@ export default function HomePage() {
           onSelect={handleSelect}
           onHoverTema={setHoveredTema}
         />
+
+        {/* Faroles ENCIMA de los edificios: las farolas del arte están al frente
+            de cada manzana, así que si la luz va debajo el edificio la tapa. */}
+        <CityAmbience dimmed={Boolean(selected)} layer="lights" />
 
         {/* Calibradores que trabajan DENTRO de la caja del stage (sus overlays
             son `absolute inset-0` y heredan sus %). */}

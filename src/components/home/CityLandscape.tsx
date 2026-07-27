@@ -252,13 +252,6 @@ export default function CityLandscape({ selectedTema, onSelect, children, onHove
       {/* Canvas de puntos de colores (debajo de los edificios) */}
       {children}
 
-      {/* 2b. Bandera de Uruguay: se IZA al clickear el Palacio. Va DETRÁS de
-          las capas del Palacio para que el mástil salga de atrás del edificio
-          y no tape el diseño. */}
-      <AnimatePresence>
-        {palacioSel && <PalacioFlag anchor={PALACIO_FLAG_ANCHOR} />}
-      </AnimatePresence>
-
       {/* 3. Capas de edificios por encima — ocultan los puntos que pasan detrás.
              Orden (abajo → arriba): las cuatro que no se solapan, el PALACIO, y
              ECONOMÍA arriba de todo. Al seleccionar, todas se desaturan menos la
@@ -272,6 +265,13 @@ export default function CityLandscape({ selectedTema, onSelect, children, onHove
 
       {/* Economía va ARRIBA de todo (incluido el Palacio). */}
       {BUILDING_LAYER_ORDER_ABOVE_PALACIO.map(renderBuilding)}
+
+      {/* Bandera de Uruguay: se IZA al clickear el Palacio. Va ENCIMA de todas
+          las capas — el ancla está sobre el techo y, si se renderiza antes, el
+          propio Palacio la tapa y no se ve. */}
+      <AnimatePresence>
+        {palacioSel && <PalacioFlag anchor={PALACIO_FLAG_ANCHOR} />}
+      </AnimatePresence>
 
       {/* 3c. Microvida: ventanas encendiéndose y apagándose en los edificios */}
       <WindowTwinkles selectedTema={selectedTema} />
@@ -361,8 +361,10 @@ export default function CityLandscape({ selectedTema, onSelect, children, onHove
           );
         }
 
-        // Punto más alto del edificio (para colgar el cartel de hover encima)
-        const topY = Math.min(...poly.map(([, y]) => y));
+        // Vértice MÁS ALTO de la hitbox (menor y): el cartel se cuelga ahí, no
+        // sobre el centroide — así queda justo encima de la parte más alta del
+        // edificio (la torre, la antena) y no flotando sobre el medio.
+        const apex = poly.reduce((a, b) => (b[1] < a[1] ? b : a));
 
         return (
           <div key={tema} className="contents">
@@ -382,7 +384,7 @@ export default function CityLandscape({ selectedTema, onSelect, children, onHove
             {hoveredTema === tema && (
               <div
                 className="pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-full"
-                style={{ left: `${center.x * 100}%`, top: `${topY * 100}%` }}
+                style={{ left: `${apex[0] * 100}%`, top: `${apex[1] * 100}%` }}
               >
                 <p
                   className="whitespace-nowrap border-2 bg-black/85 px-3 py-1 font-display text-pica-subtitle font-bold uppercase"

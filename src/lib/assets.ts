@@ -190,7 +190,10 @@ export const CITY_LAMPS: ReadonlyArray<readonly [number, number]> = [
  * Chimeneas / respiraderos de donde sale humo, en fracciones del stage.
  * Calibradas con el LampCalibrator (tecla L, capa chimeneas).
  */
-export const CITY_CHIMNEYS: ReadonlyArray<readonly [number, number]> = [];
+export const CITY_CHIMNEYS: ReadonlyArray<readonly [number, number]> = [
+  [0.3262, 0.0118], [0.6827, 0.2076], [0.6331, 0.1459], [0.7292, 0.2576], [0.8002, 0.1827],
+  [0.6982, 0.0788],
+];
 
 /**
  * Manzanas vacías: los huecos que dejan las calles donde TODAVÍA no hay
