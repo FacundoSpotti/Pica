@@ -155,15 +155,10 @@ export default function HomePage() {
           onHoverTema={setHoveredTema}
         />
 
-        {/* Herramientas de calibración (dev) — apagadas por defecto. Para
-            reactivarlas: en .env.local poner NEXT_PUBLIC_CALIBRATORS=on
-            (P = paths, H = hitboxes, B = bandera del Palacio, E = emplazamiento
-            de edificios). Dentro del stage para que las coordenadas %
-            coincidan con el landscape. */}
+        {/* Calibradores que trabajan DENTRO de la caja del stage (sus overlays
+            son `absolute inset-0` y heredan sus %). */}
         {CALIBRATORS_ON && (
           <>
-            <PathCalibrator />
-            <HitboxCalibrator />
             <FlagCalibrator />
             <PlacementCalibrator />
           </>
@@ -203,6 +198,20 @@ export default function HomePage() {
       >
         <StickyNotes constraintsRef={sectionRef} />
       </div>
+
+      {/* Calibradores de PANTALLA COMPLETA (dev) — apagados por defecto; para
+          reactivarlos poner NEXT_PUBLIC_CALIBRATORS=on en .env.local.
+          P = calles, H = hitboxes. Van FUERA del stage a propósito: el stage
+          está transformado (-translate-1/2) y un `fixed` adentro se ancla a él
+          en vez de a la ventana. Como el Home ya no tiene marco, estos dos
+          tienen que poder marcar en TODA la pantalla; convierten pantalla→stage
+          con stageBox(), así las coordenadas siguen siendo las de siempre. */}
+      {CALIBRATORS_ON && (
+        <>
+          <PathCalibrator />
+          <HitboxCalibrator />
+        </>
+      )}
 
       {/* Barra de temáticas en el borde inferior — el color del edificio en
           hover se expande a toda la barra */}

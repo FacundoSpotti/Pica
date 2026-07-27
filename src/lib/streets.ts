@@ -43,6 +43,16 @@ export function toScreen(nx: number, ny: number, box: StageBox): [number, number
 }
 
 /**
+ * Pixel de pantalla → punto normalizado de la caja (inversa de `toScreen`).
+ * Puede devolver valores FUERA de [0,1]: el Home ya no tiene marco, así que las
+ * calles y los puntos siguen más allá del borde de la caja. Los calibradores lo
+ * usan para poder marcar en toda la ventana, no solo dentro del stage.
+ */
+export function toStage(sx: number, sy: number, box: StageBox): [number, number] {
+  return [(sx - box.originX) / box.w, (sy - box.originY) / box.h];
+}
+
+/**
  * Extiende una polilínea (coords normalizadas 0–1 de la caja) hacia afuera:
  * extrapola el primer y el último segmento hasta que su extremo cae fuera del
  * viewport + `margin`. El corte se evalúa en PÍXELES de pantalla (para cubrir

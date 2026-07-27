@@ -152,11 +152,11 @@ export interface Placement {
 }
 
 export const BUILDING_PLACEMENT: Record<Tematica | 'palacio', Placement> = {
-  educacion: { left: 0.56572, top: 0.07419, width: 0.28872, height: 0.39585 },
-  trabajo: { left: 0.14592, top: 0.37992, width: 0.28872, height: 0.48014 },
-  salud: { left: 0.18811, top: 0.04359, width: 0.26851, height: 0.42634 },
-  economia: { left: 0.57597, top: 0.49643, width: 0.28345, height: 0.36924 },
-  seguridad: { left: -0.03995, top: 0.27938, width: 0.28309, height: 0.36979 },
+  educacion: { left: 0.56361, top: 0.06793, width: 0.28872, height: 0.39585 },
+  trabajo: { left: 0.18327, top: 0.38994, width: 0.28872, height: 0.48014 },
+  salud: { left: 0.18247, top: 0.01854, width: 0.26851, height: 0.42634 },
+  economia: { left: 0.56681, top: 0.50645, width: 0.28345, height: 0.36924 },
+  seguridad: { left: -0.02163, top: 0.26686, width: 0.28309, height: 0.36979 },
   palacio: { left: 0.37737, top: 0.28466, width: 0.28608, height: 0.38255 },
 };
 
@@ -246,7 +246,7 @@ export const PALACIO_HITBOX_POLYGON: Polygon = [
  * FINA se calibra in-app con la tecla B (FlagCalibrator, NEXT_PUBLIC_CALIBRATORS=on)
  * y se pega acá.
  */
-export const PALACIO_FLAG_ANCHOR: { x: number; y: number } = { x: 0.505, y: 0.269 };
+export const PALACIO_FLAG_ANCHOR: { x: number; y: number } = { x: 0.4688, y: 0.4443 };
 
 /**
  * Orden de apilado (z) de las capas de edificios, de abajo hacia arriba.

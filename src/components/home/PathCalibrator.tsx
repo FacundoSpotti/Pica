@@ -12,10 +12,17 @@
 // · P → salir del modo
 // Los paths dibujados se ven en lima en tiempo real; los STREET_PATHS actuales
 // siguen visibles en rojo (debug de CityLandscape) para comparar.
-// Montar DENTRO del stage para que los % coincidan con el landscape.
+//
+// Cubre TODA LA VENTANA (el Home ya no tiene marco): se puede marcar fuera de
+// la caja del stage y las coordenadas salen fuera de [0,1], que es justo lo que
+// necesitan las calles que se extienden más allá del borde. La conversión
+// pantalla→stage usa el mismo stageBox() que StreetGrid y los puntos, así que
+// las coordenadas coinciden exactamente con lo que se dibuja.
+// Montar FUERA del stage (el stage tiene transform y capturaría el `fixed`).
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useEffect, useRef, useState } from 'react';
+import { stageBox, toScreen, toStage } from '@/lib/streets';
 import {
   CALIBRATION_EVENT,
   calibration,
@@ -97,26 +104,33 @@ export default function PathCalibrator() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
+  // Tamaño de ventana: el overlay es full-screen y las coordenadas se calculan
+  // contra la caja del stage, que depende del viewport.
+  const [vp, setVp] = useState({ w: 0, h: 0 });
+  useEffect(() => {
+    const update = () => setVp({ w: window.innerWidth, h: window.innerHeight });
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+  const box = stageBox(vp.w || 1, vp.h || 1);
+
+  /** Pantalla → coordenadas del stage (pueden salir de [0,1]: no hay marco). */
+  const at = (e: React.MouseEvent<HTMLDivElement>): Pt => {
+    const [x, y] = toStage(e.clientX, e.clientY, box);
+    return [Number(x.toFixed(3)), Number(y.toFixed(3))];
+  };
+
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = overlayRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const x = Number(((e.clientX - rect.left) / rect.width).toFixed(3));
-    const y = Number(((e.clientY - rect.top) / rect.height).toFixed(3));
+    const pt = at(e);
     setPaths((ps) => {
       const next = ps.map((p) => [...p]);
-      next[next.length - 1]!.push([x, y]);
+      next[next.length - 1]!.push(pt);
       return next;
     });
   };
 
-  const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = overlayRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    setCursor([
-      Number(((e.clientX - rect.left) / rect.width).toFixed(3)),
-      Number(((e.clientY - rect.top) / rect.height).toFixed(3)),
-    ]);
-  };
+  const handleMove = (e: React.MouseEvent<HTMLDivElement>) => setCursor(at(e));
 
   if (!active) {
     // Badge oculto si el calibrador de hitboxes está en uso
@@ -134,40 +148,51 @@ export default function PathCalibrator() {
   return (
     <div
       ref={overlayRef}
-      className="absolute inset-0 z-40 cursor-crosshair select-none"
+      className="fixed inset-0 z-40 cursor-crosshair select-none"
       onClick={handleClick}
       onMouseMove={handleMove}
     >
-      {/* Paths dibujados en tiempo real */}
+      {/* Paths dibujados en tiempo real, en PIXELES de pantalla (el overlay ya
+          no comparte caja con el stage: cada punto se proyecta con toScreen). */}
       <svg
         className="pointer-events-none absolute inset-0 h-full w-full"
-        viewBox="0 0 100 100"
-        preserveAspectRatio="none"
+        viewBox={`0 0 ${vp.w || 1} ${vp.h || 1}`}
         aria-hidden="true"
       >
+        {/* Borde de la caja del stage, como referencia de dónde estaba el marco */}
+        <rect
+          x={box.originX}
+          y={box.originY}
+          width={box.w}
+          height={box.h}
+          fill="none"
+          stroke="rgba(255,255,255,0.18)"
+          strokeDasharray="6 6"
+        />
         {paths.map((path, i) => {
           const isCurrent = i === paths.length - 1;
+          const color = isCurrent ? '#FFEA00' : '#39FF14';
           return (
             <g key={i}>
               {path.length >= 2 && (
                 <polyline
-                  points={path.map(([x, y]) => `${x * 100},${y * 100}`).join(' ')}
+                  points={path.map(([x, y]) => toScreen(x, y, box).join(',')).join(' ')}
                   fill="none"
-                  stroke={isCurrent ? '#FFEA00' : '#39FF14'}
+                  stroke={color}
                   strokeWidth={2}
-                  vectorEffect="non-scaling-stroke"
                 />
               )}
-              {path.map(([x, y], j) => (
-                <circle
-                  key={j}
-                  cx={x * 100}
-                  cy={y * 100}
-                  r={2.5}
-                  fill={isCurrent ? '#FFEA00' : '#39FF14'}
-                  vectorEffect="non-scaling-stroke"
-                />
-              ))}
+              {/* Marcador en X (chico y calado): deja ver el arte debajo */}
+              {path.map(([x, y], j) => {
+                const [sx, sy] = toScreen(x, y, box);
+                const r = 4;
+                return (
+                  <g key={j} stroke={color} strokeWidth={1.25}>
+                    <line x1={sx - r} y1={sy - r} x2={sx + r} y2={sy + r} />
+                    <line x1={sx - r} y1={sy + r} x2={sx + r} y2={sy - r} />
+                  </g>
+                );
+              })}
             </g>
           );
         })}
