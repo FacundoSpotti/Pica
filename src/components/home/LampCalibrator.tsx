@@ -20,7 +20,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { stageBox, toScreen, toStage } from '@/lib/streets';
-import { CITY_LAMPS, FUTURE_BLOCKS, GROUND_SLOPE } from '@/lib/assets';
+import { CITY_CHIMNEYS, CITY_LAMPS, FUTURE_BLOCKS, GROUND_SLOPE } from '@/lib/assets';
 import {
   CALIBRATION_EVENT,
   calibration,
@@ -29,20 +29,27 @@ import {
 } from './calibrationState';
 
 type Pt = [number, number];
-type Layer = 'lamps' | 'blocks';
+type Layer = 'lamps' | 'blocks' | 'chimneys';
+const LAYERS: Layer[] = ['lamps', 'blocks', 'chimneys'];
+const LAYER_LABEL: Record<Layer, string> = {
+  lamps: 'FAROLES',
+  blocks: 'MANZANAS FUTURAS',
+  chimneys: 'CHIMENEAS (humo)',
+};
 
 const BLOCK_HW = 0.085; // mismo valor que CityAmbience
 
-function serialize(lamps: Pt[], blocks: Pt[]): string {
+function serialize(lamps: Pt[], blocks: Pt[], chimneys: Pt[]): string {
   const list = (pts: Pt[]) => pts.map(([x, y]) => `[${x}, ${y}]`).join(', ');
-  return (
-    'export const CITY_LAMPS: ReadonlyArray<readonly [number, number]> = [\n' +
-    (lamps.length ? '  ' + list(lamps) + ',\n' : '') +
-    '];\n\n' +
-    'export const FUTURE_BLOCKS: ReadonlyArray<readonly [number, number]> = [\n' +
-    (blocks.length ? '  ' + list(blocks) + ',\n' : '') +
-    '];'
-  );
+  const block = (name: string, pts: Pt[]) =>
+    `export const ${name}: ReadonlyArray<readonly [number, number]> = [\n` +
+    (pts.length ? '  ' + list(pts) + ',\n' : '') +
+    '];';
+  return [
+    block('CITY_LAMPS', lamps),
+    block('FUTURE_BLOCKS', blocks),
+    block('CITY_CHIMNEYS', chimneys),
+  ].join('\n\n');
 }
 
 export default function LampCalibrator() {
@@ -50,6 +57,9 @@ export default function LampCalibrator() {
   const [mode, setMode] = useState<CalibrationMode>(calibration.mode);
   const [lamps, setLamps] = useState<Pt[]>(() => CITY_LAMPS.map(([x, y]) => [x, y] as Pt));
   const [blocks, setBlocks] = useState<Pt[]>(() => FUTURE_BLOCKS.map(([x, y]) => [x, y] as Pt));
+  const [chimneys, setChimneys] = useState<Pt[]>(() =>
+    CITY_CHIMNEYS.map(([x, y]) => [x, y] as Pt),
+  );
   const [layer, setLayer] = useState<Layer>('lamps');
   const [preview, setPreview] = useState(false);
   const [flash, setFlash] = useState<string | null>(null);
@@ -58,10 +68,16 @@ export default function LampCalibrator() {
   const layerRef = useRef(layer);
   const lampsRef = useRef(lamps);
   const blocksRef = useRef(blocks);
+  const chimneysRef = useRef(chimneys);
   activeRef.current = active;
   layerRef.current = layer;
   lampsRef.current = lamps;
   blocksRef.current = blocks;
+  chimneysRef.current = chimneys;
+
+  /** Setter de la capa activa. */
+  const setterFor = (l: Layer) =>
+    l === 'lamps' ? setLamps : l === 'blocks' ? setBlocks : setChimneys;
 
   useEffect(() => {
     const onMode = (e: Event) => setMode((e as CustomEvent<CalibrationMode>).detail);
@@ -90,21 +106,21 @@ export default function LampCalibrator() {
       }
       if (!activeRef.current) return;
 
-      const isLamps = layerRef.current === 'lamps';
-      if (k === 't') return setLayer((l) => (l === 'lamps' ? 'blocks' : 'lamps'));
+      if (k === 't') {
+        setLayer((l) => LAYERS[(LAYERS.indexOf(l) + 1) % LAYERS.length]!);
+        return;
+      }
       if (k === 'v') return setPreview((p) => !p);
       if (k === 'z') {
-        if (isLamps) setLamps((p) => p.slice(0, -1));
-        else setBlocks((p) => p.slice(0, -1));
+        setterFor(layerRef.current)((p) => p.slice(0, -1));
         return;
       }
       if (k === 'x') {
-        if (isLamps) setLamps([]);
-        else setBlocks([]);
+        setterFor(layerRef.current)([]);
         return;
       }
       if (k === 'c') {
-        const text = serialize(lampsRef.current, blocksRef.current);
+        const text = serialize(lampsRef.current, blocksRef.current, chimneysRef.current);
         console.log(text);
         navigator.clipboard
           ?.writeText(text)
@@ -120,8 +136,7 @@ export default function LampCalibrator() {
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const [x, y] = toStage(e.clientX, e.clientY, box);
     const pt: Pt = [Number(x.toFixed(4)), Number(y.toFixed(4))];
-    if (layerRef.current === 'lamps') setLamps((p) => [...p, pt]);
-    else setBlocks((p) => [...p, pt]);
+    setterFor(layerRef.current)((p) => [...p, pt]);
   };
 
   if (!active) {
@@ -182,6 +197,31 @@ export default function LampCalibrator() {
             </g>
           );
         })}
+        {/* Chimeneas: penacho de referencia hacia arriba */}
+        {chimneys.map(([x, y], i) => {
+          const [sx, sy] = toScreen(x, y, box);
+          return (
+            <g key={`c${i}`}>
+              <path
+                d={`M${sx} ${sy} q ${-6} ${-14} ${2} ${-26} q ${8} ${-12} ${0} ${-24}`}
+                fill="none"
+                stroke={layer === 'chimneys' ? '#7DD3FC' : 'rgba(125,211,252,0.35)'}
+                strokeWidth={2}
+                strokeLinecap="round"
+              />
+              {!preview && (
+                <circle
+                  cx={sx}
+                  cy={sy}
+                  r={3}
+                  fill="none"
+                  stroke={layer === 'chimneys' ? '#7DD3FC' : 'rgba(125,211,252,0.4)'}
+                  strokeWidth={1.25}
+                />
+              )}
+            </g>
+          );
+        })}
       </svg>
 
       {/* HUD abajo al centro (arriba lo tapan las notas del Home) */}
@@ -190,12 +230,12 @@ export default function LampCalibrator() {
         style={{ fontFamily: 'monospace' }}
       >
         <p className="font-bold text-yellow-300">
-          MODO FAROLES — capa activa: {layer === 'lamps' ? 'FAROLES' : 'MANZANAS FUTURAS'}
+          MODO VIDA DE LA CIUDAD — capa activa: {LAYER_LABEL[layer]}
         </p>
-        <p>click agregar · T cambiar capa · Z deshacer · X borrar capa</p>
-        <p>V previsualizar · C copiar · L salir</p>
+        <p>click agregar · T rotar capa · Z deshacer · X borrar capa</p>
+        <p>V previsualizar · C copiar los tres bloques · L salir</p>
         <p className="mt-1 text-white/70">
-          faroles: {lamps.length} · manzanas: {blocks.length}
+          faroles: {lamps.length} · manzanas: {blocks.length} · chimeneas: {chimneys.length}
         </p>
         {flash && <p className="mt-1 text-green-400">{flash}</p>}
       </div>

@@ -2,68 +2,121 @@
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PICA — CityAmbience
-// Dos capas que le dan vida al paisaje, ambas en coordenadas del stage:
+// Capa de "suelo" del paisaje, debajo de los edificios. De abajo hacia arriba:
 //
-//   · FAROLES (CITY_LAMPS): halo cálido sobre cada farol del arte. Respira
-//     siempre y cada tanto pega un destello. Las fases están desfasadas por
-//     farol (delay derivado del índice) para que la ciudad titile despareja,
-//     no al unísono.
-//   · MANZANAS FUTURAS (FUTURE_BLOCKS): los huecos entre calles donde todavía
-//     no hay temática se marcan con un rombo punteado y un cartel — cuentan que
-//     Pica sigue creciendo.
+//   1. SOMBRAS proyectadas de cada edificio sobre la calle. Se derivan del rombo
+//      de base (BUILDING_FOOTPRINT) y se estiran/giran según la hora: cortas al
+//      mediodía, largas y tendidas al atardecer.
+//   2. MANZANAS sin temática todavía: rombo punteado + cartel "Próximamente".
+//   3. FAROLES: no son un círculo plano — cada uno tiene charco de luz elíptico
+//      sobre el asfalto (en perspectiva isométrica), brillo especular del piso
+//      mojado, halo volumétrico y bulbo. Encienden de noche y se apagan de día.
 //
-// Va DEBAJO de los edificios: la luz baña el suelo y las fachadas la tapan.
-// Respeta prefers-reduced-motion (queda encendido, sin titileo).
+// Todo cuelga de useDayNight, así el conjunto se lee coherente (no hay faroles
+// prendidos a pleno sol ni sombras que contradigan la luz).
+// Respeta prefers-reduced-motion: queda una tarde fija, sin titileo.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useReducedMotion } from 'framer-motion';
-import { CITY_LAMPS, FUTURE_BLOCKS, GROUND_SLOPE } from '@/lib/assets';
-
-/** Color de la luz: sodio cálido, como el alumbrado real. */
-const LAMP_WARM = 'rgba(255, 176, 74, 0.55)';
-const LAMP_CORE = 'rgba(255, 226, 170, 0.9)';
+import {
+  BUILDING_FOOTPRINT,
+  BUILDING_PLACEMENT,
+  CITY_LAMPS,
+  FUTURE_BLOCKS,
+  GROUND_SLOPE,
+} from '@/lib/assets';
+import { useDayNight } from '@/hooks/useDayNight';
+import type { Tematica } from '@/types/sprites';
 
 /** Tamaño del rombo de una manzana vacía, en fracciones del stage. */
 const BLOCK_HW = 0.085;
 
+const SHADOW_KEYS: ReadonlyArray<Tematica | 'palacio'> = [
+  'educacion',
+  'salud',
+  'seguridad',
+  'trabajo',
+  'palacio',
+  'economia',
+];
+
 export default function CityAmbience({ dimmed = false }: { dimmed?: boolean }) {
   const reduce = useReducedMotion() ?? false;
+  const { night, golden, phase } = useDayNight(reduce);
+
+  // Los faroles encienden al caer la tarde y se apagan al amanecer.
+  const lampOn = Math.min(1, Math.max(0, (night - 0.18) / 0.5));
+  // Sombras: fuertes de día, se disuelven de noche (solo queda luz artificial).
+  const sunUp = 1 - night;
+  const shadowAlpha = 0.34 * sunUp;
+  // Dirección/largo de la sombra: el sol cruza de un lado al otro y la sombra
+  // se alarga en las puntas del día.
+  const sunX = Math.sin((phase - 0.5) * Math.PI * 2); // -1 → 1
+  const shadowLen = 0.55 + golden * 1.5;
 
   return (
     <div
       aria-hidden="true"
       className="pointer-events-none absolute inset-0 transition-opacity duration-500"
-      style={{ opacity: dimmed ? 0.25 : 1 }}
+      style={{ opacity: dimmed ? 0.28 : 1 }}
     >
-      {/* ── Manzanas que todavía no tienen temática ───────────────────────── */}
-      {FUTURE_BLOCKS.length > 0 && (
+      {/* ── 1. Sombras de los edificios ───────────────────────────────────── */}
+      {shadowAlpha > 0.02 && (
         <svg
           className="absolute inset-0 h-full w-full"
           viewBox="0 0 100 100"
           preserveAspectRatio="none"
         >
-          {FUTURE_BLOCKS.map(([cx, cy], i) => {
-            // Rombo con la MISMA pendiente que las bases de los edificios, para
-            // que se lea como una manzana más de la grilla y no como un adorno.
-            const hw = BLOCK_HW * 100;
-            const hh = hw * GROUND_SLOPE;
-            const x = cx * 100;
-            const y = cy * 100;
+          {SHADOW_KEYS.map((k) => {
+            const p = BUILDING_PLACEMENT[k];
+            const f = BUILDING_FOOTPRINT[k];
+            const gy = (p.top + f.groundY * p.height) * 100;
+            const by = (p.top + f.bottomY * p.height) * 100;
+            const lx = p.left * 100;
+            const rx = (p.left + p.width) * 100;
+            const bx = (p.left + f.bottomX * p.width) * 100;
+            const hh = by - gy;
+            // La sombra es el mismo rombo, desplazado en sentido contrario al sol
+            // y estirado. Se dibuja detrás del edificio, sobre el asfalto.
+            const dx = -sunX * p.width * 100 * 0.34 * shadowLen;
+            const dy = -Math.abs(hh) * 0.5 * shadowLen;
             return (
               <polygon
-                key={i}
-                points={`${x},${y - hh} ${x + hw},${y} ${x},${y + hh} ${x - hw},${y}`}
-                fill="rgba(235,235,235,0.022)"
-                stroke="rgba(235,235,235,0.16)"
-                strokeWidth={0.12}
-                strokeDasharray="0.9 0.9"
-                className={reduce ? undefined : 'pica-block-breathe'}
-                style={reduce ? undefined : { animationDelay: `${(i % 5) * 0.7}s` }}
+                key={k}
+                points={`${lx + dx},${gy + dy} ${bx + dx},${by + dy} ${rx + dx},${gy + dy} ${bx + dx},${gy - hh + dy}`}
+                fill={`rgba(0,0,0,${shadowAlpha.toFixed(3)})`}
+                style={{ transition: 'fill 1s linear' }}
               />
             );
           })}
         </svg>
       )}
+
+      {/* ── 2. Manzanas todavía sin temática ──────────────────────────────── */}
+      <svg
+        className="absolute inset-0 h-full w-full"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+      >
+        {FUTURE_BLOCKS.map(([cx, cy], i) => {
+          const hw = BLOCK_HW * 100;
+          const hh = hw * GROUND_SLOPE;
+          const x = cx * 100;
+          const y = cy * 100;
+          return (
+            <polygon
+              key={i}
+              points={`${x},${y - hh} ${x + hw},${y} ${x},${y + hh} ${x - hw},${y}`}
+              fill="rgba(235,235,235,0.022)"
+              stroke="rgba(235,235,235,0.16)"
+              strokeWidth={0.12}
+              strokeDasharray="0.9 0.9"
+              className={reduce ? undefined : 'pica-block-breathe'}
+              style={reduce ? undefined : { animationDelay: `${(i % 5) * 0.7}s` }}
+            />
+          );
+        })}
+      </svg>
       {FUTURE_BLOCKS.map(([cx, cy], i) => (
         <span
           key={i}
@@ -71,49 +124,79 @@ export default function CityAmbience({ dimmed = false }: { dimmed?: boolean }) {
           style={{
             left: `${cx * 100}%`,
             top: `${cy * 100}%`,
-            fontSize: 'clamp(7px, 0.62vw, 11px)',
+            fontSize: 'clamp(6px, 0.55vw, 10px)',
             letterSpacing: '0.22em',
-            color: 'rgba(235,235,235,0.32)',
+            color: 'rgba(235,235,235,0.3)',
           }}
         >
           Próximamente
         </span>
       ))}
 
-      {/* ── Faroles ───────────────────────────────────────────────────────── */}
-      {CITY_LAMPS.map(([x, y], i) => (
-        <div
-          key={i}
-          className="absolute"
-          style={{ left: `${x * 100}%`, top: `${y * 100}%` }}
-        >
-          {/* Halo amplio: baña el suelo alrededor del poste */}
-          <div
-            className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-full ${
-              reduce ? '' : 'pica-lamp-glow'
-            }`}
-            style={{
-              width: 'clamp(26px, 2.6vw, 54px)',
-              height: 'clamp(26px, 2.6vw, 54px)',
-              background: `radial-gradient(circle, ${LAMP_WARM} 0%, transparent 68%)`,
-              animationDelay: `${(i % 7) * 0.55}s`,
-            }}
-          />
-          {/* Núcleo: el punto de luz de la lámpara */}
-          <div
-            className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-full ${
-              reduce ? '' : 'pica-lamp-core'
-            }`}
-            style={{
-              width: 'clamp(3px, 0.3vw, 6px)',
-              height: 'clamp(3px, 0.3vw, 6px)',
-              background: LAMP_CORE,
-              boxShadow: `0 0 6px ${LAMP_CORE}`,
-              animationDelay: `${(i % 7) * 0.55}s`,
-            }}
-          />
+      {/* ── 3. Faroles ────────────────────────────────────────────────────── */}
+      {lampOn > 0.02 && (
+        <div className="absolute inset-0" style={{ opacity: lampOn, transition: 'opacity 2s linear' }}>
+          {CITY_LAMPS.map(([x, y], i) => {
+            const delay = `${(i % 9) * 0.7}s`;
+            return (
+              <div
+                key={i}
+                className={reduce ? 'absolute' : 'absolute pica-lamp'}
+                style={{ left: `${x * 100}%`, top: `${y * 100}%`, animationDelay: delay }}
+              >
+                {/* Charco de luz sobre el asfalto: elipse aplastada por la
+                    perspectiva isométrica, no un círculo. Es lo que hace que se
+                    lea como un farol iluminando y no como un punto brillante. */}
+                <div
+                  className="absolute -translate-x-1/2 rounded-[50%]"
+                  style={{
+                    top: 0,
+                    width: 'clamp(46px, 4.6vw, 96px)',
+                    height: `calc(clamp(46px, 4.6vw, 96px) * ${GROUND_SLOPE})`,
+                    transform: 'translate(-50%, -38%)',
+                    background:
+                      'radial-gradient(50% 50% at 50% 50%, rgba(255,186,96,0.30) 0%, rgba(255,170,70,0.13) 45%, transparent 72%)',
+                  }}
+                />
+                {/* Brillo especular del asfalto mojado: más chico, más definido
+                    y desplazado hacia el frente, como un charco reflejando. */}
+                <div
+                  className="absolute -translate-x-1/2 rounded-[50%]"
+                  style={{
+                    top: 0,
+                    width: 'clamp(14px, 1.3vw, 28px)',
+                    height: `calc(clamp(14px, 1.3vw, 28px) * ${GROUND_SLOPE * 0.8})`,
+                    transform: 'translate(-50%, 46%)',
+                    background:
+                      'radial-gradient(50% 50% at 50% 50%, rgba(255,214,150,0.34) 0%, transparent 70%)',
+                    filter: 'blur(1px)',
+                  }}
+                />
+                {/* Halo volumétrico alrededor de la lámpara */}
+                <div
+                  className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full"
+                  style={{
+                    width: 'clamp(16px, 1.6vw, 34px)',
+                    height: 'clamp(16px, 1.6vw, 34px)',
+                    background:
+                      'radial-gradient(circle, rgba(255,206,140,0.55) 0%, rgba(255,178,80,0.22) 40%, transparent 70%)',
+                  }}
+                />
+                {/* Bulbo */}
+                <div
+                  className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full"
+                  style={{
+                    width: 'clamp(2px, 0.22vw, 4px)',
+                    height: 'clamp(2px, 0.22vw, 4px)',
+                    background: '#FFF0D0',
+                    boxShadow: '0 0 5px rgba(255,214,150,0.95), 0 0 10px rgba(255,178,80,0.6)',
+                  }}
+                />
+              </div>
+            );
+          })}
         </div>
-      ))}
+      )}
     </div>
   );
 }

@@ -29,6 +29,8 @@ import FlagCalibrator from '@/components/home/FlagCalibrator';
 import PlacementCalibrator from '@/components/home/PlacementCalibrator';
 import LampCalibrator from '@/components/home/LampCalibrator';
 import CityAmbience from '@/components/home/CityAmbience';
+import CitySky from '@/components/home/CitySky';
+import CityLifeCanvas from '@/components/home/CityLifeCanvas';
 import StickyNotes from '@/components/home/StickyNotes';
 import StreetGrid from '@/components/home/StreetGrid';
 import MobileCityCarousel from '@/components/home/MobileCityCarousel';
@@ -117,6 +119,11 @@ export default function HomePage() {
         {/* Puntos de colores a TODO el viewport (recorren las calles extendidas
             y hacen wrap por los bordes). Debajo de los edificios (z-10). */}
         <HomeCanvas convergeTarget={selected?.center ?? null} onConverged={handleConverged} />
+        {/* Autos, semáforos en los cruces y humo — un solo canvas para todo lo
+            que se mueve, encima de las calles y debajo de los edificios. */}
+        <CityLifeCanvas />
+        {/* Tinte de la hora sobre toda la ventana + pájaro ocasional */}
+        <CitySky />
       </div>
 
       {/* Destellos pixel titilando en el margen oscuro (solo desktop) */}

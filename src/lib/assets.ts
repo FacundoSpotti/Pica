@@ -173,7 +173,24 @@ export const GROUND_SLOPE = 0.649;
  * un halo cálido que respira y de vez en cuando destella.
  * Calibrados con el LampCalibrator (tecla L) — no editar a mano.
  */
-export const CITY_LAMPS: ReadonlyArray<readonly [number, number]> = [];
+export const CITY_LAMPS: ReadonlyArray<readonly [number, number]> = [
+  [0.6849, 0.8108], [0.7366, 0.8108], [0.7758, 0.7687], [0.8135, 0.7267], [0.8283, 0.6623],
+  [0.6464, 0.7648], [0.6087, 0.7214], [0.5887, 0.6623], [0.6952, 0.4179], [0.7226, 0.4113],
+  [0.7462, 0.3798], [0.778, 0.3482], [0.8032, 0.318], [0.8313, 0.2878], [0.6804, 0.3982],
+  [0.6627, 0.3837], [0.6035, 0.3127], [0.5836, 0.2904], [0.5695, 0.2694], [0.568, 0.2418],
+  [0.5917, 0.2221], [0.3432, 0.8095], [0.375, 0.7753], [0.4105, 0.7332], [0.4379, 0.7043],
+  [0.4216, 0.6386], [0.3883, 0.6058], [0.2264, 0.7214], [0.1983, 0.6702], [0.2212, 0.636],
+  [0.2538, 0.6045], [0.2685, 0.7674], [0.2996, 0.8042], [0.2323, 0.4862], [0.2552, 0.4534],
+  [0.2412, 0.4087], [0.1746, 0.544], [0.1473, 0.5742], [0.1155, 0.5887], [0.0792, 0.3495],
+  [0.0216, 0.4862], [0.3721, 0.3403], [0.4053, 0.3022], [0.4297, 0.2773], [0.4416, 0.2418],
+  [0.3454, 0.364], [0.3307, 0.3863], [0.2974, 0.3771], [0.2412, 0.3127], [0.202, 0.2628],
+];
+
+/**
+ * Chimeneas / respiraderos de donde sale humo, en fracciones del stage.
+ * Calibradas con el LampCalibrator (tecla L, capa chimeneas).
+ */
+export const CITY_CHIMNEYS: ReadonlyArray<readonly [number, number]> = [];
 
 /**
  * Manzanas vacías: los huecos que dejan las calles donde TODAVÍA no hay
@@ -181,7 +198,11 @@ export const CITY_LAMPS: ReadonlyArray<readonly [number, number]> = [];
  * contar que Pica sigue creciendo. Centro del rombo, en fracciones del stage.
  * Calibrados con el LampCalibrator (tecla L, modo manzanas) — no editar a mano.
  */
-export const FUTURE_BLOCKS: ReadonlyArray<readonly [number, number]> = [];
+export const FUTURE_BLOCKS: ReadonlyArray<readonly [number, number]> = [
+  [0.8912, 0.4954], [1.079, 0.2681], [1.0975, 0.724], [0.9112, 0.9501], [0.52, 0.9146],
+  [0.1125, 0.9304], [-0.0975, 0.7148], [-0.0805, 0.2326], [0.1236, 0.0381], [0.5141, 0.0578],
+  [0.889, 0.0762],
+];
 
 /**
  * Rombo de BASE de cada sprite (el basamento del propio arte), en fracciones
