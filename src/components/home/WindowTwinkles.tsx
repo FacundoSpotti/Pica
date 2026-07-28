@@ -2,15 +2,22 @@
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PICA — WindowTwinkles (microvida del landscape)
-// Pequeñas luces cálidas que se encienden y apagan dentro de los edificios
-// (puntos muestreados adentro de los polígonos de hitbox reales). Cada luz
-// tiene su período y fase — la ciudad respira sin robar protagonismo.
-// Con temática seleccionada se atenúan (la ciudad está en grayscale).
-// Con prefers-reduced-motion quedan fijas un subconjunto, sin parpadeo.
+// Lucecitas cálidas que se encienden y apagan en las VENTANAS de los edificios.
+// Cada una tiene su período y fase — la ciudad respira sin robar protagonismo.
+//
+// Las posiciones salen de BUILDING_WINDOWS, detectadas del propio arte, y se
+// proyectan al stage con BUILDING_PLACEMENT. Antes se muestreaban puntos AL AZAR
+// dentro del polígono de hitbox, así que las luces caían en techos, jardines y
+// veredas por igual.
+//
+// Encienden de noche (useDayNight) y se atenúan con una temática seleccionada.
+// Con prefers-reduced-motion queda un subconjunto fijo, sin parpadeo.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useEffect, useRef } from 'react';
-import { BUILDING_HITBOX_POLYGONS, type Polygon } from '@/lib/assets';
+import { useReducedMotion } from 'framer-motion';
+import { BUILDING_PLACEMENT, BUILDING_WINDOWS } from '@/lib/assets';
+import { useDayNight } from '@/hooks/useDayNight';
 import type { Tematica } from '@/types/sprites';
 
 interface Light {
@@ -21,40 +28,40 @@ interface Light {
   phase: number; // desfase 0-1
 }
 
-const LIGHTS_PER_BUILDING = 6;
+/** Cuántas ventanas se encienden por edificio (de todas las detectadas). */
+const LIT_PER_BUILDING = 22;
 const WARM = { r: 255, g: 226, b: 140 };
 
-/** Punto dentro de un polígono (ray casting). */
-function inPolygon(x: number, y: number, poly: Polygon): boolean {
-  let inside = false;
-  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-    const [xi, yi] = poly[i]!;
-    const [xj, yj] = poly[j]!;
-    if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
+/** Ventanas de todos los edificios, ya proyectadas a coordenadas del stage. */
+function buildLights(): Light[] {
+  const out: Light[] = [];
+  for (const [key, wins] of Object.entries(BUILDING_WINDOWS)) {
+    const p = BUILDING_PLACEMENT[key as Tematica | 'palacio'];
+    // Se eligen algunas repartidas a lo largo de la lista (no las primeras N,
+    // que quedarían agrupadas en una sola fachada).
+    const step = Math.max(1, Math.floor(wins.length / LIT_PER_BUILDING));
+    for (let i = 0; i < wins.length; i += step) {
+      const [u, v] = wins[i]!;
+      out.push({
+        x: p.left + u * p.width,
+        y: p.top + v * p.height,
+        size: 0.8 + Math.random() * 0.7,
+        period: 2.8 + Math.random() * 5,
+        phase: Math.random(),
+      });
+    }
   }
-  return inside;
-}
-
-/** Muestrea un punto aleatorio dentro del polígono (rechazo sobre el bbox). */
-function samplePoint(poly: Polygon): { x: number; y: number } | null {
-  const xs = poly.map((p) => p[0]);
-  const ys = poly.map((p) => p[1]);
-  const minX = Math.min(...xs);
-  const maxX = Math.max(...xs);
-  const minY = Math.min(...ys);
-  const maxY = Math.max(...ys);
-  for (let i = 0; i < 24; i++) {
-    const x = minX + Math.random() * (maxX - minX);
-    const y = minY + Math.random() * (maxY - minY);
-    if (inPolygon(x, y, poly)) return { x, y };
-  }
-  return null;
+  return out;
 }
 
 export default function WindowTwinkles({ selectedTema }: { selectedTema: Tematica | 'palacio' | null }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const selectedRef = useRef(selectedTema);
   selectedRef.current = selectedTema;
+  const reduce = useReducedMotion() ?? false;
+  const { night } = useDayNight(reduce);
+  const nightRef = useRef(night);
+  nightRef.current = night;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -64,20 +71,8 @@ export default function WindowTwinkles({ selectedTema }: { selectedTema: Tematic
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // Luces muestreadas dentro de los edificios (una tanda por edificio)
-    const lights: Light[] = [];
-    for (const poly of Object.values(BUILDING_HITBOX_POLYGONS)) {
-      for (let i = 0; i < LIGHTS_PER_BUILDING; i++) {
-        const p = samplePoint(poly);
-        if (!p) continue;
-        lights.push({
-          ...p,
-          size: 0.8 + Math.random() * 0.8,
-          period: 2.4 + Math.random() * 4.2,
-          phase: Math.random(),
-        });
-      }
-    }
+    // Ventanas reales de cada edificio, proyectadas al stage
+    const lights = buildLights();
 
     const resize = () => {
       const w = Math.max(1, Math.round(canvas.clientWidth));
@@ -95,8 +90,14 @@ export default function WindowTwinkles({ selectedTema }: { selectedTema: Tematic
     const draw = (now: number) => {
       const { width, height } = canvas;
       ctx.clearRect(0, 0, width, height);
-      // Atenuadas cuando la ciudad está en grayscale
-      const globalDim = selectedRef.current ? 0.15 : 1;
+      // Atenuadas cuando la ciudad está en grayscale, y encendidas de noche:
+      // de día una ventana iluminada no se leería (y no tendría sentido).
+      const lit = Math.min(1, Math.max(0, (nightRef.current - 0.12) / 0.45));
+      const globalDim = (selectedRef.current ? 0.15 : 1) * lit;
+      if (globalDim < 0.02) {
+        raf = requestAnimationFrame(draw);
+        return;
+      }
       const unit = Math.max(2, Math.round(width / 320)); // tamaño pixel de la luz
 
       for (let i = 0; i < lights.length; i++) {

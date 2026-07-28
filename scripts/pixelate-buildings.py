@@ -153,6 +153,45 @@ def to_svg(m: np.ndarray, cell_scale: int = 1) -> str:
     )
 
 
+def windows(m: np.ndarray, fp: dict, per_cell: int = 30) -> list:
+    """Ventanas del edificio, en fracciones 0–1 del sprite.
+
+    Dos señales, porque el arte tiene dos tipos de ventana:
+      · vidrio: teal oscuro (azul y verde por encima del rojo)
+      · hueco: píxel oscuro sobre fachada clara — es lo que distingue una
+        ventana de una sombra cualquiera (se compara contra la media local)
+    Después se descarta el anillo exterior del rombo de base, donde está la reja
+    del perímetro y no hay ventanas, y se submuestrea con una grilla.
+    """
+    from PIL import ImageFilter
+
+    op = m[:, :, 3] > 0
+    rgb = m[:, :, :3].astype(int)
+    r, g, b = rgb[:, :, 0], rgb[:, :, 1], rgb[:, :, 2]
+    lum = 0.299 * r + 0.587 * g + 0.114 * b
+    local = np.asarray(
+        Image.fromarray(lum.astype(np.uint8), 'L').filter(ImageFilter.BoxBlur(3))
+    ).astype(float)
+
+    glass = op & (lum < 115) & (b > r + 22) & (g > r + 15)
+    hole = op & (lum < 95) & (local > 115) & (local - lum > 45)
+    win = glass | hole
+
+    h, w = op.shape
+    bx, gy = fp['bottom'][0], fp['groundY']
+    hh = fp['bottom'][1] - gy
+    cell = max(4, w // per_cell)
+    seen: dict[tuple[int, int], tuple[int, int]] = {}
+    ys, xs = np.nonzero(win)
+    for x, y in zip(xs, ys):
+        u, v = x / w, y / h
+        if abs(u - bx) / 0.5 + abs(v - gy) / hh > 0.8:
+            continue  # anillo exterior: reja, no ventanas
+        key = (int(x) // cell, int(y) // cell)
+        seen.setdefault(key, (int(x), int(y)))
+    return [[round(x / w, 4), round(y / h, 4)] for x, y in seen.values()]
+
+
 def footprint(m: np.ndarray) -> dict:
     """Geometría de la BASE (rombo) medida del propio mosaico, en fracciones 0–1
     del sprite. Es la fuente de verdad para alinear la calle y el muro:
@@ -220,6 +259,7 @@ def main() -> None:
         pal_img = build_palette(sheet, args.colors)
 
     fp_all: dict[str, dict] = {}
+    win_all: dict[str, list] = {}
     for tema, img in imgs.items():
         cell = args.cell if args.cell else max(1, round(max(img.width, img.height) / args.target))
         pi = pal_img if pal_img is not None else build_palette(img.convert('RGB'), args.colors)
@@ -234,6 +274,7 @@ def main() -> None:
         svg_path.write_text(svg, encoding='utf-8')
 
         fp_all[tema] = footprint(m)
+        win_all[tema] = windows(m, fp_all[tema])
         nrect = svg.count('<rect')
         print(
             f'{tema:10s} {img.width}x{img.height} cell={cell} -> {m.shape[1]}x{m.shape[0]}  '
@@ -242,7 +283,10 @@ def main() -> None:
         )
 
     (SRC_DIR / 'footprint.json').write_text(json.dumps(fp_all, indent=2), encoding='utf-8')
+    (SRC_DIR / 'windows.json').write_text(json.dumps(win_all, indent=1), encoding='utf-8')
     print('\nfootprint.json escrito (geometría de base para alinear calle y muro).')
+    print('windows.json escrito (ventanas para WindowTwinkles): ' +
+          ', '.join(f'{k}={len(v)}' for k, v in win_all.items()))
 
 
 if __name__ == '__main__':
